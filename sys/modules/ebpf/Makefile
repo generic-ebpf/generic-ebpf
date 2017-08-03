@@ -6,9 +6,7 @@ TARGET! = uname -m
 IDENT!  = uname -i
 
 CFLAGS += -I$(KSRC)/sys/$(TARGET)/compile/$(IDENT)
-CFLAGS += -I../../dev/ebpf
 CFLAGS += -I../../
-CFLAGS += -DVALE_NAME=\"$(VALE_NAME)\"
 
 KMOD    = ebpf
 SRCS    += ebpf_int.h
