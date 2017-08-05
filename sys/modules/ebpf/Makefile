@@ -12,6 +12,7 @@ KMOD    = ebpf
 SRCS    += ebpf_int.h
 SRCS    += ebpf_freebsd.c
 SRCS    += ebpf_loader.c
+SRCS    += ebpf_verifer.c
 SRCS    += ebpf_vm.c
 
 .include <bsd.kmod.mk>

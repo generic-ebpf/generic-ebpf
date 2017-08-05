@@ -22,6 +22,7 @@
 #include <sys/ebpf_types.h>
 
 #define MAX_INSTS 65536
+#define MAX_EXT_FUNCS 64
 #define STACK_SIZE 128
 
 struct ebpf_inst;
@@ -37,5 +38,6 @@ struct ebpf_vm {
 };
 
 unsigned int ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name);
+int ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t num_insts);
 
 #endif

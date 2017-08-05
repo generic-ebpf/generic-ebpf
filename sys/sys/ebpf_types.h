@@ -31,6 +31,8 @@ struct ebpf_inst {
 };
 
 #define EBPF_CLS_MASK 0x07
+#define EBPF_CLS(op) (op & EBPF_CLS_MASK)
+
 #define EBPF_ALU_OP_MASK 0xf0
 
 #define EBPF_CLS_LD 0x00
