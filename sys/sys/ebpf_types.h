@@ -148,5 +148,6 @@ void ebpf_free(void *mem);
 void *ebpf_exalloc(size_t size);
 void ebpf_exfree(void *mem);
 int ebpf_error(const char *fmt, ...);
+void ebpf_assert(bool expr);
 
 #endif

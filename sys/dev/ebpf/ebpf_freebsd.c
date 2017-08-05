@@ -54,6 +54,10 @@ int ebpf_error(const char *fmt, ...) {
   return ret;
 }
 
+void ebpf_assert(bool expr) {
+  KASSERT(expr, "");
+}
+
 static int
 ebpf_loader(__unused struct module *module, int event, __unused void *arg) {
   int error = 0;
