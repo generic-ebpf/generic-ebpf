@@ -9,14 +9,13 @@ CFLAGS += -I$(KSRC)/sys/$(TARGET)/compile/$(IDENT)
 CFLAGS += -I../../
 
 KMOD    = ebpf
-SRCS    += ebpf_int.h
 SRCS    += ebpf_freebsd.c
 SRCS    += ebpf_loader.c
 SRCS    += ebpf_verifer.c
 SRCS    += ebpf_vm.c
 
 .if $(TARGET) == "amd64"
-SRCS    += ebpf_jit_x86_64.c
+SRCS    += ../../amd64/amd64/ebpf_jit_x86_64.c
 .endif
 
 .include <bsd.kmod.mk>

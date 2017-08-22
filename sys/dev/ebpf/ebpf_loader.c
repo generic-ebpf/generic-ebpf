@@ -15,10 +15,7 @@
  * limitations under the License.
  */
 
-#include <sys/param.h>
-#include <sys/elf.h>
-#include <sys/libkern.h>
-
+#include "ebpf_os.h"
 #include "ebpf_int.h"
 
 #define MAX_SECTIONS 32

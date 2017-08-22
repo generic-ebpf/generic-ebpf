@@ -14,14 +14,8 @@
  * limitations under the License.
  */
 
-#include <sys/types.h>
-#include <sys/conf.h>
-#include <sys/module.h>
-#include <sys/kernel.h>
-#include <sys/malloc.h>
-#include <sys/systm.h>
 #include <sys/ebpf_types.h>
-#include <machine/stdarg.h>
+#include "ebpf_freebsd.h"
 
 void *ebpf_malloc(size_t size) {
   return malloc(size, M_DEVBUF, M_WAITOK);

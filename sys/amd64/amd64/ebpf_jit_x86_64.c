@@ -16,11 +16,9 @@
  * limitations under the License.
  */
 
-#include <sys/param.h>
-#include <sys/libkern.h>
 #include <sys/ebpf_types.h>
-
-#include "ebpf_int.h"
+#include <dev/ebpf/ebpf_os.h>
+#include <dev/ebpf/ebpf_int.h>
 #include "ebpf_jit_x86_64.h"
 
 /* Special values for target_pc in struct jump */

@@ -15,10 +15,7 @@
  * limitations under the License.
  */
 
-#include <sys/param.h>
-#include <sys/ebpf.h>
-#include <sys/ebpf_types.h>
-
+#include "ebpf_os.h"
 #include "ebpf_int.h"
 
 /*
