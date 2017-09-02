@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef EBPF_FREEBSD
-#define EBPF_FREEBSD
+#ifndef _EBPF_FREEBSD_H_
+#define _EBPF_FREEBSD_H_
 
 #include <sys/param.h>
 #include <sys/conf.h>
@@ -28,4 +28,4 @@
 #include <sys/endian.h>
 #include <machine/stdarg.h>
 
-#endif
+#endif /* _EBPF_FREEBSD_H_ */

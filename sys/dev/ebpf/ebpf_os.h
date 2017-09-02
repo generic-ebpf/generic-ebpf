@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef EBPF_PLATFORM
-#define EBPF_PLATFORM
+#ifndef _EBPF_OS_H_
+#define _EBPF_OS_H_
 
 #ifdef __FreeBSD__
 #include "ebpf_freebsd.h"
@@ -23,4 +23,4 @@
 #error Unsupported platform
 #endif
 
-#endif
+#endif /* _EBPF_OS_H_ */

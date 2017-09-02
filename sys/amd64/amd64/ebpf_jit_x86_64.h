@@ -19,8 +19,8 @@
  * Generic x86-64 code generation functions
  */
 
-#ifndef EBPF_JIT_X86_64_H
-#define EBPF_JIT_X86_64_H
+#ifndef _EBPF_JIT_X86_64_H_
+#define _EBPF_JIT_X86_64_H_
 
 #define RAX 0
 #define RCX 1
@@ -329,4 +329,4 @@ emit_jmp(struct jit_state *state, uint32_t target_pc)
     emit_jump_offset(state, target_pc);
 }
 
-#endif
+#endif /* _EBPF_JIT_X86_64_H_ */
