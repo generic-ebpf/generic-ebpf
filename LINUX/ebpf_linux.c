@@ -15,6 +15,7 @@
  */
 
 #include "ebpf_linux.h"
+#include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 
 void *ebpf_malloc(size_t size)
@@ -73,6 +74,22 @@ static int ebpf_init(void) {
 static void ebpf_fini(void) {
     printk("ebpf unloaded\n");
 }
+
+EXPORT_SYMBOL(ebpf_create);
+EXPORT_SYMBOL(ebpf_destroy);
+EXPORT_SYMBOL(ebpf_register);
+EXPORT_SYMBOL(ebpf_load);
+EXPORT_SYMBOL(ebpf_load_elf);
+EXPORT_SYMBOL(ebpf_exec);
+EXPORT_SYMBOL(ebpf_exec_jit);
+EXPORT_SYMBOL(ebpf_compile);
+EXPORT_SYMBOL(ebpf_malloc);
+EXPORT_SYMBOL(ebpf_calloc);
+EXPORT_SYMBOL(ebpf_free);
+EXPORT_SYMBOL(ebpf_exalloc);
+EXPORT_SYMBOL(ebpf_exfree);
+EXPORT_SYMBOL(ebpf_error);
+EXPORT_SYMBOL(ebpf_assert);
 
 module_init(ebpf_init);
 module_exit(ebpf_fini);
