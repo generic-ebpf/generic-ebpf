@@ -18,8 +18,6 @@
 #ifndef EBPF_TYPES_H
 #define EBPF_TYPES_H
 
-#include <sys/types.h>
-
 /* eBPF definitions */
 
 struct ebpf_inst {

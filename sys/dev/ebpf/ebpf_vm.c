@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-#include <sys/ebpf_types.h>
 #include "ebpf_os.h"
 #include "ebpf_int.h"
+#include <sys/ebpf_types.h>
 
 static bool bounds_check(void *addr, int size, const char *type, uint16_t cur_pc, void *mem, size_t mem_len, void *stack);
 
