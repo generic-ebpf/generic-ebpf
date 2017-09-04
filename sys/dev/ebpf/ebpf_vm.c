@@ -504,6 +504,16 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
     }
 }
 
+uint64_t
+ebpf_exec_jit(const struct ebpf_vm *vm, void *mem, size_t mem_len)
+{
+    if (vm->jitted) {
+        return vm->jitted(mem, mem_len);
+    } else {
+        return UINT64_MAX;
+    }
+}
+
 static bool
 bounds_check(void *addr, int size, const char *type, uint16_t cur_pc, void *mem, size_t mem_len, void *stack)
 {
