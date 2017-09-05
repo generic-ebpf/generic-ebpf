@@ -1,4 +1,5 @@
 TOP_DIR:=../sys
+SRC_DIR:=$(TOP_DIR)/dev/ebpf
 
 ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_vm.o
 ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_loader.o
@@ -28,4 +29,5 @@ all:
 clean:
 	make -C $(LINUX_SRC) M=$(CURDIR) clean
 	rm -rf $(SRC_DIR)/modules.order $(SRC_DIR)/Module.symvers \
-		$(SRC_DIR)/*.o $(SRC_DIR)/*.ko $(SRC_DIR)/.*.o.cmd $(SRC_DIR)/.*.ko.cmd
+		$(SRC_DIR)/*.o $(SRC_DIR)/*.ko $(SRC_DIR)/.*.o.cmd $(SRC_DIR)/.*.ko.cmd \
+		$(TOP_DIR)/amd64/amd64/*.o $(TOP_DIR)/amd64/amd64/.*.o.cmd
