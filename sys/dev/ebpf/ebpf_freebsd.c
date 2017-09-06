@@ -29,7 +29,7 @@ void *ebpf_exalloc(size_t size) {
   return malloc(size, M_DEVBUF, M_WAITOK);
 }
 
-void ebpf_exfree(void *mem) {
+void ebpf_exfree(void *mem, size_t size) {
   free(mem, M_DEVBUF);
 }
 

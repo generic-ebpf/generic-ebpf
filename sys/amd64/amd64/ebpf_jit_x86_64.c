@@ -517,7 +517,7 @@ out:
     ebpf_free(state.pc_locs);
     ebpf_free(state.jumps);
     if (jitted && vm->jitted == NULL) {
-        ebpf_exfree(jitted);
+        ebpf_exfree(jitted, jitted_size);
     }
     return vm->jitted;
 }

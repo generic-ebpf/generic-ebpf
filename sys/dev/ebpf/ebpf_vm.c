@@ -48,7 +48,7 @@ void
 ebpf_destroy(struct ebpf_vm *vm)
 {
     if (vm->jitted) {
-        ebpf_exfree(vm->jitted);
+        ebpf_exfree(vm->jitted, vm->jitted_size);
     }
     ebpf_free(vm->insts);
     ebpf_free(vm->ext_funcs);

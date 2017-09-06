@@ -39,7 +39,7 @@ void *ebpf_exalloc(size_t size) {
     return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL_EXEC);
 }
 
-void ebpf_exfree(void *mem)
+void ebpf_exfree(void *mem, size_t size)
 {
     vfree(mem);
 }
