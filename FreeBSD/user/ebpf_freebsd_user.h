@@ -14,23 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_OS_H_
-#define _EBPF_OS_H_
+#ifndef _EBPF_FREEBSD_USER_H_
+#define _EBPF_FREEBSD_USER_H_
 
-#ifdef __FreeBSD__
-#ifdef user
-#include <ebpf_freebsd_user.h>
-#else
-#include "ebpf_freebsd.h"
-#endif
-#elif defined(linux)
-#ifdef user
-#include <ebpf_linux_user.h>
-#else
-#include <ebpf_linux.h>
-#endif
-#else
-#error Unsupported platform
-#endif
+#include <stdio.h>
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <string.h>
+#include <sys/mman.h>
+#include <sys/types.h>
+#include <sys/endian.h>
+#include <elf.h>
+#include <assert.h>
+#include <errno.h>
 
-#endif /* _EBPF_OS_H_ */
+#endif /* _EBPF_FREEBSD_USER_H_ */
