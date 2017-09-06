@@ -1,9 +1,9 @@
-TOP_DIR:=../sys
+TOP_DIR:=../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
 
-ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_vm.o
-ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_loader.o
-ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_verifer.o
+ebpf-objs += $(SRC_DIR)/ebpf_vm.o
+ebpf-objs += $(SRC_DIR)/ebpf_loader.o
+ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
 ebpf-objs += ./ebpf_linux.o
 
 ifeq ($(shell arch), x86_64)
@@ -16,15 +16,12 @@ LINUX_SRC:=/lib/modules/$(shell uname -r)/build
 
 EXTRA_CFLAGS:= \
 	-O3 \
-	-I$(CURDIR)/../sys/dev/ebpf \
-	-I$(CURDIR)/../sys \
+	-I$(CURDIR)/$(TOP_DIR) \
 	-I$(CURDIR) \
-	-I$(LINUX_SRC)/include \
 	-std=gnu11 -Wno-declaration-after-statement \
 
 all:
-	make -C $(LINUX_SRC) M=$(CURDIR) CONFIG_NETMAP=m \
-		EXTRA_CFLAGS='$(EXTRA_CFLAGS)' KBUILD_EXTRA_SYMBOLS=$(NSRC)/LINUX/Module.symvers modules
+	make -C $(LINUX_SRC) M=$(CURDIR) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' modules
 
 clean:
 	make -C $(LINUX_SRC) M=$(CURDIR) clean
