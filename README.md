@@ -1,2 +1,2 @@
 # generic-ebpf
-Generic in-kernel eBPF VM. Currently support FreeBSD and Linux.
+Generic eBPF VM. Currently support FreeBSD kernel, FreeBSD userspace, Linux kernel and Linux userspace.
