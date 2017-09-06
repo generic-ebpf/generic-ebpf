@@ -16,7 +16,7 @@ CFLAGS += \
 	-I $(CURDIR) \
 	-D user \
 	-Wall \
-	-g
+	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
 all: libebpf.a
