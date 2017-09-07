@@ -14,27 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_OS_H_
-#define _EBPF_OS_H_
+#ifndef _ELF_H_
+#define _ELF_H_
 
-#ifdef __FreeBSD__
-#ifdef user
-#include <ebpf_freebsd_user.h>
-#else
-#include "ebpf_freebsd.h"
-#endif
-#elif defined(linux)
-#ifdef user
-#include <ebpf_linux_user.h>
-#else
-#include <ebpf_linux.h>
-#endif
-#elif defined(__APPLE__)
-#ifdef user
-#include <ebpf_osx_user.h> 
-#endif
-#else
-#error Unsupported platform
-#endif
+#include "elf32.h"
+#include "elf64.h"
 
-#endif /* _EBPF_OS_H_ */
+#endif /* _ELF_H_ */

@@ -14,27 +14,16 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_OS_H_
-#define _EBPF_OS_H_
+#ifndef _ENDIAN_H_
+#define _ENDIAN_H_
 
-#ifdef __FreeBSD__
-#ifdef user
-#include <ebpf_freebsd_user.h>
-#else
-#include "ebpf_freebsd.h"
-#endif
-#elif defined(linux)
-#ifdef user
-#include <ebpf_linux_user.h>
-#else
-#include <ebpf_linux.h>
-#endif
-#elif defined(__APPLE__)
-#ifdef user
-#include <ebpf_osx_user.h> 
-#endif
-#else
-#error Unsupported platform
-#endif
+#include <libkern/OSByteOrder.h>
 
-#endif /* _EBPF_OS_H_ */
+#define htobe16(x) OSSwapHostToBigInt16(x)
+#define htole16(x) OSSwapHostToLittleInt16(x)
+#define htobe32(x) OSSwapHostToBigInt32(x)
+#define htole32(x) OSSwapHostToLittleInt32(x)
+#define htobe64(x) OSSwapHostToBigInt64(x)
+#define htole64(x) OSSwapHostToLittleInt64(x)
+
+#endif /* _ENDIAN_H_ */
