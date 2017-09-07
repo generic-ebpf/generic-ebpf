@@ -1,5 +1,5 @@
 # generic-ebpf
-Generic eBPF VM. Currently support FreeBSD kernel, FreeBSD userspace, Linux kernel and Linux userspace.
+Generic eBPF VM. Currently support FreeBSD kernel, FreeBSD userspace, Linux kernel, Linux userspace and MacOSX userspace.
 
 # Installation
 
@@ -13,7 +13,7 @@ $ make
 # kldload ./ebpf.ko
 ```
 
-### Linux
+#### Linux
 
 ```
 $ cd generic-ebpf/LINUX/kernel
@@ -35,6 +35,15 @@ After compilation, you see libebpf.a. Please statically link it to your program.
 
 ```
 $ cd generic-ebpf/Linux/user
+$ make
+```
+
+After compilation, you see libebpf.a. Please statically link it to your program.
+
+#### MacOSX
+
+```
+$ cd generic-ebpf/MacOSX/user
 $ make
 ```
 
