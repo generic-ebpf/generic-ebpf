@@ -35,7 +35,8 @@ void ebpf_destroy(struct ebpf_vm *vm);
  *
  * Returns 0 on success, -1 on error.
  */
-int ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name, void *fn);
+int ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name,
+                  void *fn);
 
 /*
  * Load code into a VM

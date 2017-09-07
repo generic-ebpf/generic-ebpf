@@ -47,7 +47,7 @@ bounds_check(struct bounds *bounds, uint64_t offset, uint64_t size)
 int
 ebpf_load_elf(struct ebpf_vm *vm, const void *elf, size_t elf_size)
 {
-    struct bounds b = { .base=elf, .size=elf_size };
+    struct bounds b = {.base = elf, .size = elf_size};
     void *text_copy = NULL;
     int i;
 
@@ -89,7 +89,7 @@ ebpf_load_elf(struct ebpf_vm *vm, const void *elf, size_t elf_size)
 
     if (ehdr->e_machine != EM_NONE && ehdr->e_machine != EM_BPF) {
         ebpf_error("wrong machine, expected none or BPF, got %d",
-                             ehdr->e_machine);
+                   ehdr->e_machine);
         goto error;
     }
 
@@ -101,7 +101,8 @@ ebpf_load_elf(struct ebpf_vm *vm, const void *elf, size_t elf_size)
     /* Parse section headers into an array */
     struct section sections[MAX_SECTIONS];
     for (i = 0; i < ehdr->e_shnum; i++) {
-        const Elf64_Shdr *shdr = bounds_check(&b, ehdr->e_shoff + i*ehdr->e_shentsize, sizeof(*shdr));
+        const Elf64_Shdr *shdr = bounds_check(
+            &b, ehdr->e_shoff + i * ehdr->e_shentsize, sizeof(*shdr));
         if (!shdr) {
             ebpf_error("bad section header offset or size");
             goto error;
@@ -123,7 +124,7 @@ ebpf_load_elf(struct ebpf_vm *vm, const void *elf, size_t elf_size)
     for (i = 0; i < ehdr->e_shnum; i++) {
         const Elf64_Shdr *shdr = sections[i].shdr;
         if (shdr->sh_type == SHT_PROGBITS &&
-                shdr->sh_flags == (SHF_ALLOC|SHF_EXECINSTR)) {
+            shdr->sh_flags == (SHF_ALLOC | SHF_EXECINSTR)) {
             text_shndx = i;
             break;
         }
@@ -162,7 +163,7 @@ ebpf_load_elf(struct ebpf_vm *vm, const void *elf, size_t elf_size)
 
         struct section *symtab = &sections[rel->shdr->sh_link];
         const Elf64_Sym *syms = symtab->data;
-        uint32_t num_syms = symtab->size/sizeof(syms[0]);
+        uint32_t num_syms = symtab->size / sizeof(syms[0]);
 
         if (symtab->shdr->sh_link >= ehdr->e_shnum) {
             ebpf_error("bad string table section index");
@@ -173,7 +174,7 @@ ebpf_load_elf(struct ebpf_vm *vm, const void *elf, size_t elf_size)
         const char *strings = strtab->data;
 
         int j;
-        for (j = 0; j < rel->size/sizeof(Elf64_Rel); j++) {
+        for (j = 0; j < rel->size / sizeof(Elf64_Rel); j++) {
             const Elf64_Rel *r = &rs[j];
 
             if (ELF64_R_TYPE(r->r_info) != 2) {

@@ -18,12 +18,14 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 
-void *ebpf_malloc(size_t size)
+void *
+ebpf_malloc(size_t size)
 {
     return kmalloc(size, GFP_KERNEL);
 }
 
-void *ebpf_calloc(size_t number, size_t size)
+void *
+ebpf_calloc(size_t number, size_t size)
 {
     void *ret = kmalloc(number * size, GFP_KERNEL);
     if (ret == NULL) {
@@ -35,21 +37,26 @@ void *ebpf_calloc(size_t number, size_t size)
     return ret;
 }
 
-void *ebpf_exalloc(size_t size) {
+void *
+ebpf_exalloc(size_t size)
+{
     return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL_EXEC);
 }
 
-void ebpf_exfree(void *mem, size_t size)
+void
+ebpf_exfree(void *mem, size_t size)
 {
     vfree(mem);
 }
 
-void ebpf_free(void *mem)
+void
+ebpf_free(void *mem)
 {
     kfree(mem);
 }
 
-int ebpf_error(const char *fmt, ...)
+int
+ebpf_error(const char *fmt, ...)
 {
     int ret;
     va_list ap;
@@ -61,17 +68,22 @@ int ebpf_error(const char *fmt, ...)
     return ret;
 }
 
-void ebpf_assert(bool expr)
+void
+ebpf_assert(bool expr)
 {
     BUG_ON(!(expr));
 }
 
-static int ebpf_init(void) {
+static int
+ebpf_init(void)
+{
     printk("ebpf loaded\n");
     return 0;
 }
 
-static void ebpf_fini(void) {
+static void
+ebpf_fini(void)
+{
     printk("ebpf unloaded\n");
 }
 

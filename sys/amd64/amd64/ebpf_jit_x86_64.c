@@ -25,21 +25,12 @@
 #define TARGET_PC_EXIT -1
 #define TARGET_PC_DIV_BY_ZERO -2
 
-static void muldivmod(struct jit_state *state, uint16_t pc, uint8_t opcode, int src, int dst, int32_t imm);
+static void muldivmod(struct jit_state *state, uint16_t pc, uint8_t opcode,
+                      int src, int dst, int32_t imm);
 
 #define REGISTER_MAP_SIZE 11
 static int register_map[REGISTER_MAP_SIZE] = {
-    RAX,
-    RDI,
-    RSI,
-    RDX,
-    R9,
-    R8,
-    RBX,
-    R13,
-    R14,
-    R15,
-    RBP,
+    RAX, RDI, RSI, RDX, R9, R8, RBX, R13, R14, R15, RBP,
 };
 
 /* Return the x86 register for the given eBPF register */
@@ -66,7 +57,6 @@ translate(struct ebpf_vm *vm, struct jit_state *state)
 
     /* Copy stack pointer to R10 */
     emit_mov(state, RSP, map_register(10));
-
 
     int i;
     for (i = 0; i < vm->num_insts; i++) {
@@ -352,7 +342,8 @@ translate(struct ebpf_vm *vm, struct jit_state *state)
         }
 
         default:
-            ebpf_error("Unknown instruction at PC %d: opcode %02x", i, inst.opcode);
+            ebpf_error("Unknown instruction at PC %d: opcode %02x", i,
+                       inst.opcode);
             return -1;
         }
     }
@@ -386,11 +377,15 @@ translate(struct ebpf_vm *vm, struct jit_state *state)
 }
 
 static void
-muldivmod(struct jit_state *state, uint16_t pc, uint8_t opcode, int src, int dst, int32_t imm)
+muldivmod(struct jit_state *state, uint16_t pc, uint8_t opcode, int src,
+          int dst, int32_t imm)
 {
-    bool mul = (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_MUL_IMM & EBPF_ALU_OP_MASK);
-    bool div = (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_DIV_IMM & EBPF_ALU_OP_MASK);
-    bool mod = (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_MOD_IMM & EBPF_ALU_OP_MASK);
+    bool mul =
+        (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_MUL_IMM & EBPF_ALU_OP_MASK);
+    bool div =
+        (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_DIV_IMM & EBPF_ALU_OP_MASK);
+    bool mod =
+        (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_MOD_IMM & EBPF_ALU_OP_MASK);
     bool is64 = (opcode & EBPF_CLS_MASK) == EBPF_CLS_ALU64;
 
     if (div || mod) {
@@ -490,7 +485,7 @@ ebpf_compile(struct ebpf_vm *vm)
     state.offset = 0;
     state.size = 65536;
     state.buf = ebpf_calloc(state.size, 1);
-    state.pc_locs = ebpf_calloc(MAX_INSTS+1, sizeof(state.pc_locs[0]));
+    state.pc_locs = ebpf_calloc(MAX_INSTS + 1, sizeof(state.pc_locs[0]));
     state.jumps = ebpf_calloc(MAX_INSTS, sizeof(state.jumps[0]));
     state.num_jumps = 0;
 

@@ -31,7 +31,7 @@
 #endif
 #elif defined(__APPLE__)
 #ifdef user
-#include <ebpf_osx_user.h> 
+#include <ebpf_osx_user.h>
 #endif
 #else
 #error Unsupported platform

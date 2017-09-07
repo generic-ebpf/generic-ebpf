@@ -30,8 +30,8 @@
 #define RBP 5
 #define RSI 6
 #define RDI 7
-#define R8  8
-#define R9  9
+#define R8 8
+#define R9 9
 #define R10 10
 #define R11 11
 #define R12 12
@@ -248,7 +248,8 @@ emit_jcc(struct jit_state *state, int code, int32_t target_pc)
 
 /* Load [src + offset] into dst */
 static inline void
-emit_load(struct jit_state *state, enum operand_size size, int src, int dst, int32_t offset)
+emit_load(struct jit_state *state, enum operand_size size, int src, int dst,
+          int32_t offset)
 {
     emit_basic_rex(state, size == S64, dst, src);
 
@@ -280,7 +281,8 @@ emit_load_imm(struct jit_state *state, int dst, int64_t imm)
 
 /* Store register src to [dst + offset] */
 static inline void
-emit_store(struct jit_state *state, enum operand_size size, int src, int dst, int32_t offset)
+emit_store(struct jit_state *state, enum operand_size size, int src, int dst,
+           int32_t offset)
 {
     if (size == S16) {
         emit1(state, 0x66); /* 16-bit override */
@@ -295,7 +297,8 @@ emit_store(struct jit_state *state, enum operand_size size, int src, int dst, in
 
 /* Store immediate to [dst + offset] */
 static inline void
-emit_store_imm32(struct jit_state *state, enum operand_size size, int dst, int32_t offset, int32_t imm)
+emit_store_imm32(struct jit_state *state, enum operand_size size, int dst,
+                 int32_t offset, int32_t imm)
 {
     if (size == S16) {
         emit1(state, 0x66); /* 16-bit override */

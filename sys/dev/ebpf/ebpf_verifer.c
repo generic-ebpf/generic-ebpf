@@ -28,14 +28,11 @@
  * - unreachable instruction
  */
 
-enum {
-    NOT_VISITED = 0,
-    VISITED
-};
+enum { NOT_VISITED = 0, VISITED };
 
 static bool
-is_invalid_jmp(const struct ebpf_inst *insts, int *inst_visited,
-    int cur, int next, uint32_t num_insts)
+is_invalid_jmp(const struct ebpf_inst *insts, int *inst_visited, int cur,
+               int next, uint32_t num_insts)
 {
     if (next >= num_insts) {
         ebpf_error("jump out of bounds at PC %d", cur);
@@ -99,8 +96,7 @@ verifer_stage1(const struct ebpf_inst *insts, uint32_t num_insts)
             } else if (op == EBPF_OP_JA) {
                 // unconditional jump
                 next = cur + insts[cur].offset + 1;
-                if (is_invalid_jmp(insts, inst_visited,
-                            cur, next, num_insts)) {
+                if (is_invalid_jmp(insts, inst_visited, cur, next, num_insts)) {
                     ret = -EINVAL;
                     goto err;
                 }
@@ -108,16 +104,14 @@ verifer_stage1(const struct ebpf_inst *insts, uint32_t num_insts)
             } else {
                 // conditional jump
                 next = cur + insts[cur].offset + 1;
-                if (is_invalid_jmp(insts, inst_visited,
-                            cur, next, num_insts)) {
+                if (is_invalid_jmp(insts, inst_visited, cur, next, num_insts)) {
                     ret = -EINVAL;
                     goto err;
                 }
                 stack[stack_ptr++] = next;
 
                 next = cur + 1;
-                if (is_invalid_jmp(insts, inst_visited,
-                            cur, next, num_insts)) {
+                if (is_invalid_jmp(insts, inst_visited, cur, next, num_insts)) {
                     ret = -EINVAL;
                     goto err;
                 }
@@ -154,7 +148,8 @@ err:
 }
 
 int
-ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t num_insts)
+ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
+              uint32_t num_insts)
 {
     int err;
 
@@ -165,7 +160,7 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t 
 
     err = verifer_stage1(insts, num_insts);
     if (err < 0) {
-      return err;
+        return err;
     }
 
     int i;
@@ -250,7 +245,7 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t 
             break;
 
         case EBPF_OP_LDDW:
-            if (i + 1 >= num_insts || insts[i+1].opcode != 0) {
+            if (i + 1 >= num_insts || insts[i + 1].opcode != 0) {
                 ebpf_error("incomplete lddw at PC %d", i);
                 return -EINVAL;
             }
@@ -280,7 +275,8 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t 
                 return -EINVAL;
             }
             if (!vm->ext_funcs[inst.imm]) {
-                ebpf_error("call to nonexistent function %u at PC %d", inst.imm, i);
+                ebpf_error("call to nonexistent function %u at PC %d", inst.imm,
+                           i);
                 return -EINVAL;
             }
             break;

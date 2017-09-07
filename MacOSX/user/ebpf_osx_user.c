@@ -18,20 +18,25 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 
-void *ebpf_malloc(size_t size)
+void *
+ebpf_malloc(size_t size)
 {
     return malloc(size);
 }
 
-void *ebpf_calloc(size_t number, size_t size)
+void *
+ebpf_calloc(size_t number, size_t size)
 {
     return calloc(number, size);
 }
 
-void *ebpf_exalloc(size_t size) {
+void *
+ebpf_exalloc(size_t size)
+{
     void *ret = NULL;
 
-    ret = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    ret = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC,
+               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (ret == MAP_FAILED) {
         ebpf_error("mmap in ebpf_exalloc failed\n");
         return NULL;
@@ -40,17 +45,20 @@ void *ebpf_exalloc(size_t size) {
     return ret;
 }
 
-void ebpf_exfree(void *mem, size_t size)
+void
+ebpf_exfree(void *mem, size_t size)
 {
     munmap(mem, size);
 }
 
-void ebpf_free(void *mem)
+void
+ebpf_free(void *mem)
 {
     free(mem);
 }
 
-int ebpf_error(const char *fmt, ...)
+int
+ebpf_error(const char *fmt, ...)
 {
     int ret;
     va_list ap;
@@ -62,7 +70,8 @@ int ebpf_error(const char *fmt, ...)
     return ret;
 }
 
-void ebpf_assert(bool expr)
+void
+ebpf_assert(bool expr)
 {
     assert(expr);
 }
