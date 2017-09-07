@@ -121,7 +121,7 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 {
     uint16_t pc = 0;
     const struct ebpf_inst *insts = vm->insts;
-    uint64_t reg[16];
+    uint64_t reg[16] = {0};
     uint64_t stack[(STACK_SIZE+7)/8];
 
     if (!insts) {

@@ -95,7 +95,6 @@ verifer_stage1(const struct ebpf_inst *insts, uint32_t num_insts)
             if (op == EBPF_OP_EXIT) {
                 // do nothing
             } else if (op == EBPF_OP_CALL) {
-                next = cur + 1;
                 stack[stack_ptr++] = cur + 1;
             } else if (op == EBPF_OP_JA) {
                 // unconditional jump
