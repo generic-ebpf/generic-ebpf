@@ -6,7 +6,7 @@ ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_loader.o
 ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_verifer.o
 ebpf-objs += ./ebpf_osx_user.o
 
-ifeq ($(shell arch), x86_64)
+ifeq ($(shell arch), i386)
 	ebpf-objs += $(TOP_DIR)/amd64/amd64/ebpf_jit_x86_64.o
 endif
 
