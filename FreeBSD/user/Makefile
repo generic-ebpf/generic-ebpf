@@ -26,4 +26,4 @@ libebpf.a: $(ebpf-objs)
 	ar rc $@ $^
 
 clean:
-	rm libebpf.a $(SRC_DIR)/*.o ebpf_freebsd_user.o
+	rm libebpf.a $(ebpf-objs)

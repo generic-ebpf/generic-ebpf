@@ -1,9 +1,9 @@
 TOP_DIR:=../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
 
-ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_vm.o
-ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_loader.o
-ebpf-objs += $(TOP_DIR)/dev/ebpf/ebpf_verifer.o
+ebpf-objs += $(SRC_DIR)/ebpf_vm.o
+ebpf-objs += $(SRC_DIR)/ebpf_loader.o
+ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
 ebpf-objs += ./ebpf_linux_user.o
 
 ifeq ($(shell arch), x86_64)
@@ -25,4 +25,4 @@ libebpf.a: $(ebpf-objs)
 	ar rc $@ $^
 
 clean:
-	rm libebpf.a $(SRC_DIR)/*.o ebpf_linux_user.o
+	rm libebpf.a $(ebpf-objs)
