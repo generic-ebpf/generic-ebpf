@@ -34,7 +34,7 @@ After compilation, you see libebpf.a. Please statically link it to your program.
 #### Linux
 
 ```
-$ cd generic-ebpf/Linux/user
+$ cd generic-ebpf/LINUX/user
 $ make
 ```
 
