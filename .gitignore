@@ -1,0 +1,7 @@
+*/**/*.o
+*/**/*.ko
+*/**/*.pyc
+test/.noseids
+test/test_framework/.noseids
+test/venv
+test/test
