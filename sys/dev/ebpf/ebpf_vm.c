@@ -97,7 +97,7 @@ ebpf_load(struct ebpf_vm *vm, const void *code, uint32_t code_len)
         return -1;
     }
 
-    if (ebpf_validate(vm, code, code_len / 8)) {
+    if (!ebpf_validate(vm, code, code_len / 8)) {
         return -1;
     }
 
