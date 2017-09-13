@@ -1,0 +1,5 @@
+-- asm
+ja +2
+exit
+-- error
+jump out of bounds at PC 0

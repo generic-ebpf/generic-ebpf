@@ -1,0 +1,4 @@
+-- pyelf
+text_shdr.sh_type = 'SHT_NULL'
+-- error
+text section not found

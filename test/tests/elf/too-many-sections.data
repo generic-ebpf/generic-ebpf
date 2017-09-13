@@ -1,0 +1,4 @@
+-- pyelf
+ehdr.e_shnum = 1024
+-- error
+too many sections

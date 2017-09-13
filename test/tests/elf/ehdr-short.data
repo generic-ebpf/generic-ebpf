@@ -1,0 +1,6 @@
+-- pyelf
+del order[:]
+magic = '\x7fELF'
+order.append('magic')
+-- error
+not enough data for ELF header

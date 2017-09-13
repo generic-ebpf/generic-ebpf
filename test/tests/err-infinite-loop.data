@@ -1,0 +1,5 @@
+-- asm
+ja -1
+exit
+-- error
+infinite loop at PC 0
