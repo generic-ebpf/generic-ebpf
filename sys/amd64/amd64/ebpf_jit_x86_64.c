@@ -371,8 +371,11 @@ translate(struct ebpf_vm *vm, struct jit_state *state)
     emit1(state, 0xc3); /* ret */
 
     /* Division by zero handler */
+    const char *div_by_zero_fmt = "division by zero at PC %u\n";
     state->div_by_zero_loc = state->offset;
-    emit_mov(state, RCX, RDX); /* muldivmod stored pc in RCX */
+    emit_load_imm(state, RDI, (uintptr_t)div_by_zero_fmt);
+    emit_mov(state, RCX, RSI); /* muldivmod stored pc in RCX */
+    emit_call(state, ebpf_error);
     emit_load_imm(state, map_register(0), -1);
     emit_jmp(state, TARGET_PC_EXIT);
 
