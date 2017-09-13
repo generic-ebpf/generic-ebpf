@@ -356,24 +356,20 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
  *
  * Needed since we don't have a verifier yet.
  */
-/*
 #define BOUNDS_CHECK_LOAD(size) \
     do { \
-        if (!bounds_check((uint8_t *)reg[inst.src] + inst.offset, size, "load",
+        if (!bounds_check((uint8_t *)reg[inst.src] + inst.offset, size, "load", \
 cur_pc, mem, mem_len, stack)) { \
             return UINT64_MAX; \
         } \
     } while (0)
 #define BOUNDS_CHECK_STORE(size) \
     do { \
-        if (!bounds_check((uint8_t *)reg[inst.dst] + inst.offset, size, "store",
+        if (!bounds_check((uint8_t *)reg[inst.dst] + inst.offset, size, "store", \
 cur_pc, mem, mem_len, stack)) { \
             return UINT64_MAX; \
         } \
     } while (0)
-*/
-#define BOUNDS_CHECK_LOAD(size) ;
-#define BOUNDS_CHECK_STORE(size) ;
 
         case EBPF_OP_LDXW:
             BOUNDS_CHECK_LOAD(4);
