@@ -58,6 +58,9 @@ translate(struct ebpf_vm *vm, struct jit_state *state)
     /* Copy stack pointer to R10 */
     emit_mov(state, RSP, map_register(10));
 
+    /* Allocate stack space */
+    emit_alu64_imm32(state, 0x81, 5, RSP, STACK_SIZE);
+
     int i;
     for (i = 0; i < vm->num_insts; i++) {
         struct ebpf_inst inst = vm->insts[i];
@@ -500,6 +503,7 @@ ebpf_compile(struct ebpf_vm *vm)
     jitted = ebpf_exalloc(jitted_size);
     if (jitted == NULL) {
         ebpf_error("couldn't allocate executable memory\n");
+        goto out;
     }
 
     memcpy(jitted, state.buf, jitted_size);
