@@ -107,4 +107,4 @@ module_init(ebpf_init);
 module_exit(ebpf_fini);
 MODULE_AUTHOR("Yutaro Hayakawa");
 MODULE_DESCRIPTION("Generic eBPF Module");
-MODULE_LICENSE("BSD 2-Clause");
+MODULE_LICENSE("Apache2");
