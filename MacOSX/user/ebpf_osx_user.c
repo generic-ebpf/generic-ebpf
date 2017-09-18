@@ -64,7 +64,7 @@ ebpf_error(const char *fmt, ...)
     va_list ap;
 
     va_start(ap, fmt);
-    ret = vprintf(fmt, ap);
+    ret = vfprintf(stderr, fmt, ap);
     va_end(ap);
 
     return ret;
