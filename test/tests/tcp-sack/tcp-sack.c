@@ -8,7 +8,8 @@ struct tcp_option {
     uint8_t length;
 };
 
-uint64_t entry(void *pkt)
+uint64_t
+entry(void *pkt)
 {
     struct ether_header *ether_header = (void *)pkt;
 
@@ -21,7 +22,7 @@ uint64_t entry(void *pkt)
         return 0;
     }
 
-    struct tcphdr *tcphdr = (void *)iphdr + iphdr->ihl*4;
+    struct tcphdr *tcphdr = (void *)iphdr + iphdr->ihl * 4;
 
     void *options_start = (void *)(tcphdr + 1);
     int options_length = tcphdr->doff * 4 - sizeof(*tcphdr);
@@ -45,4 +46,3 @@ uint64_t entry(void *pkt)
 
     return 0;
 }
-

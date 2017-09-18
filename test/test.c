@@ -32,9 +32,11 @@
 
 /* MaxOSX and FreeBSD doesn't have memfrob */
 #if defined(__APPLE__) || defined(__FreeBSD__)
-void *memfrob(void *s, size_t n) {
+void *
+memfrob(void *s, size_t n)
+{
     uint8_t *t = s;
-    for (int i=0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         *(t + i) = *(t + i) ^ 42;
     }
 
@@ -45,23 +47,27 @@ void *memfrob(void *s, size_t n) {
 static void *readfile(const char *path, size_t maxlen, size_t *len);
 static void register_functions(struct ebpf_vm *vm);
 
-static void usage(const char *name)
+static void
+usage(const char *name)
 {
     fprintf(stderr, "usage: %s [-h] [-j|--jit] [-m|--mem PATH] BINARY\n", name);
-    fprintf(stderr, "\nExecutes the eBPF code in BINARY and prints the result to stdout.\n");
-    fprintf(stderr, "If --mem is given then the specified file will be read and a pointer\nto its data passed in r1.\n");
+    fprintf(stderr, "\nExecutes the eBPF code in BINARY and prints the result "
+                    "to stdout.\n");
+    fprintf(stderr, "If --mem is given then the specified file will be read "
+                    "and a pointer\nto its data passed in r1.\n");
     fprintf(stderr, "If --jit is given then the JIT compiler will be used.\n");
     fprintf(stderr, "\nOther options:\n");
 }
 
-int main(int argc, char **argv)
+int
+main(int argc, char **argv)
 {
-    struct option longopts[] = {
-        { .name = "help", .val = 'h', },
-        { .name = "mem", .val = 'm', .has_arg=1 },
-        { .name = "jit", .val = 'j' },
-        { }
-    };
+    struct option longopts[] = {{
+                                    .name = "help", .val = 'h',
+                                },
+                                {.name = "mem", .val = 'm', .has_arg = 1},
+                                {.name = "jit", .val = 'j'},
+                                {}};
 
     const char *mem_filename = NULL;
     bool jit = false;
@@ -91,7 +97,7 @@ int main(int argc, char **argv)
 
     const char *code_filename = argv[optind];
     size_t code_len;
-    void *code = readfile(code_filename, 1024*1024, &code_len);
+    void *code = readfile(code_filename, 1024 * 1024, &code_len);
     if (code == NULL) {
         return 1;
     }
@@ -99,7 +105,7 @@ int main(int argc, char **argv)
     size_t mem_len = 0;
     void *mem = NULL;
     if (mem_filename != NULL) {
-        mem = readfile(mem_filename, 1024*1024, &mem_len);
+        mem = readfile(mem_filename, 1024 * 1024, &mem_len);
         if (mem == NULL) {
             return 1;
         }
@@ -113,7 +119,7 @@ int main(int argc, char **argv)
 
     register_functions(vm);
 
-    /* 
+    /*
      * The ELF magic corresponds to an RSH instruction with an offset,
      * which is invalid.
      */
@@ -121,9 +127,9 @@ int main(int argc, char **argv)
 
     int rv;
     if (elf) {
-	rv = ebpf_load_elf(vm, code, code_len);
+        rv = ebpf_load_elf(vm, code, code_len);
     } else {
-	rv = ebpf_load(vm, code, code_len);
+        rv = ebpf_load(vm, code, code_len);
     }
 
     free(code);
@@ -146,14 +152,15 @@ int main(int argc, char **argv)
         ret = ebpf_exec(vm, mem, mem_len);
     }
 
-    printf("0x%"PRIx64"\n", ret);
+    printf("0x%" PRIx64 "\n", ret);
 
     ebpf_destroy(vm);
 
     return 0;
 }
 
-static void *readfile(const char *path, size_t maxlen, size_t *len)
+static void *
+readfile(const char *path, size_t maxlen, size_t *len)
 {
     FILE *file;
     if (!strcmp(path, "-")) {
@@ -170,7 +177,7 @@ static void *readfile(const char *path, size_t maxlen, size_t *len)
     void *data = calloc(maxlen, 1);
     size_t offset = 0;
     size_t rv;
-    while ((rv = fread(data+offset, 1, maxlen-offset, file)) > 0) {
+    while ((rv = fread(data + offset, 1, maxlen - offset, file)) > 0) {
         offset += rv;
     }
 
@@ -182,7 +189,8 @@ static void *readfile(const char *path, size_t maxlen, size_t *len)
     }
 
     if (!feof(file)) {
-        fprintf(stderr, "Failed to read %s because it is too large (max %u bytes)\n",
+        fprintf(stderr,
+                "Failed to read %s because it is too large (max %u bytes)\n",
                 path, (unsigned)maxlen);
         fclose(file);
         free(data);
@@ -199,19 +207,15 @@ static void *readfile(const char *path, size_t maxlen, size_t *len)
 static uint64_t
 gather_bytes(uint8_t a, uint8_t b, uint8_t c, uint8_t d, uint8_t e)
 {
-    return ((uint64_t)a << 32) |
-        ((uint32_t)b << 24) |
-        ((uint32_t)c << 16) |
-        ((uint16_t)d << 8) |
-        e;
+    return ((uint64_t)a << 32) | ((uint32_t)b << 24) | ((uint32_t)c << 16) |
+           ((uint16_t)d << 8) | e;
 }
 
 static void
 trash_registers(void)
 {
     /* Overwrite all caller-save registers */
-    asm(
-        "mov $0xf0, %rax;"
+    asm("mov $0xf0, %rax;"
         "mov $0xf1, %rcx;"
         "mov $0xf2, %rdx;"
         "mov $0xf3, %rsi;"
@@ -219,8 +223,7 @@ trash_registers(void)
         "mov $0xf5, %r8;"
         "mov $0xf6, %r9;"
         "mov $0xf7, %r10;"
-        "mov $0xf8, %r11;"
-    );
+        "mov $0xf8, %r11;");
 }
 
 static uint32_t

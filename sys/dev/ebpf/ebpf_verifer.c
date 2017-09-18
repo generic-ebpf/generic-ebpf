@@ -19,14 +19,15 @@
 #include "ebpf_int.h"
 
 bool
-ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t num_insts)
+ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
+              uint32_t num_insts)
 {
     if (num_insts >= MAX_INSTS) {
         ebpf_error("too many instructions (max %u)", MAX_INSTS);
         return false;
     }
 
-    if (num_insts == 0 || insts[num_insts-1].opcode != EBPF_OP_EXIT) {
+    if (num_insts == 0 || insts[num_insts - 1].opcode != EBPF_OP_EXIT) {
         ebpf_error("no exit at end of instructions");
         return false;
     }
@@ -113,7 +114,7 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t 
             break;
 
         case EBPF_OP_LDDW:
-            if (i + 1 >= num_insts || insts[i+1].opcode != 0) {
+            if (i + 1 >= num_insts || insts[i + 1].opcode != 0) {
                 ebpf_error("incomplete lddw at PC %d", i);
                 return false;
             }
@@ -155,7 +156,8 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts, uint32_t 
                 return false;
             }
             if (!vm->ext_funcs[inst.imm]) {
-                ebpf_error("call to nonexistent function %u at PC %d", inst.imm, i);
+                ebpf_error("call to nonexistent function %u at PC %d", inst.imm,
+                           i);
                 return false;
             }
             break;
