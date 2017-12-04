@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#include "ebpf_os.h"
-#include "ebpf_int.h"
+#include "ebpf_platform.h"
+#include "ebpf_internal.h"
 #include <sys/ebpf_types.h>
 
 static bool bounds_check(void *addr, int size, const char *type,

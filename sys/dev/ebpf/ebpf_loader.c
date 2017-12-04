@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#include "ebpf_os.h"
-#include "ebpf_int.h"
+#include "ebpf_platform.h"
+#include "ebpf_internal.h"
 
 #define MAX_SECTIONS 32
 

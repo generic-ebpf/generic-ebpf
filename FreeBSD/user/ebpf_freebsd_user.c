@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ebpf_freebsd_user.h"
+#include "ebpf_os.h"
 #include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 

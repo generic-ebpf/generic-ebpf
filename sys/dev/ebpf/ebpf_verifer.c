@@ -15,9 +15,13 @@
  * limitations under the License.
  */
 
-#include "ebpf_os.h"
-#include "ebpf_int.h"
+#include "ebpf_platform.h"
+#include "ebpf_internal.h"
 
+/*
+ * Minimum code verification. Don't rely on this.
+ * This might be replaced and deleted in future commits.
+ */
 bool
 ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
               uint32_t num_insts)

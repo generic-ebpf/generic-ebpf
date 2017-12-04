@@ -14,9 +14,17 @@
  * limitations under the License.
  */
 
-#include "ebpf_freebsd.h"
+#include "ebpf_platform.h"
+
+#include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 
+#include "ebpf_obj.h"
+#include "ebpf_kern.h"
+
+/*
+ * Platform dependent function implementations
+ */
 void *
 ebpf_malloc(size_t size)
 {

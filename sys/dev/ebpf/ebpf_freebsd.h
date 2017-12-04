@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_FREEBSD_H_
-#define _EBPF_FREEBSD_H_
+#pragma once
 
 #include <sys/param.h>
 #include <sys/conf.h>
@@ -26,6 +25,11 @@
 #include <sys/libkern.h>
 #include <sys/elf.h>
 #include <sys/endian.h>
+#include <sys/ioccom.h>
+#include <sys/file.h>
+#include <sys/filedesc.h>
+#include <sys/fcntl.h>
+#include <sys/refcount.h>
 #include <machine/stdarg.h>
 
-#endif /* _EBPF_FREEBSD_H_ */
+typedef struct thread ebpf_thread_t;
