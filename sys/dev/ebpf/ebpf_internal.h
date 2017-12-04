@@ -15,10 +15,9 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_INT_H_
-#define _EBPF_INT_H_
+#pragma once
 
-#include "ebpf_os.h"
+#include "ebpf_platform.h"
 #include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 
@@ -43,5 +42,3 @@ unsigned int ebpf_lookup_registered_function(struct ebpf_vm *vm,
                                              const char *name);
 bool ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
                    uint32_t num_insts);
-
-#endif /* _EBPF_INT_H_ */

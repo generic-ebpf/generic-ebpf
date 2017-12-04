@@ -14,9 +14,20 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_OS_H_
-#define _EBPF_OS_H_
+#pragma once
 
+/*
+ * This header file gathers all platform dependent things which
+ * defines
+ *
+ * - Platform dependent functions like ebpf_malloc
+ * - Platform dependent types like ebpf_thread_t
+ */
+
+/*
+ * Include platform specific headers. These headers should
+ * contain all required platform dependent header files.
+ */
 #ifdef __FreeBSD__
 #ifdef user
 #include <ebpf_freebsd_user.h>

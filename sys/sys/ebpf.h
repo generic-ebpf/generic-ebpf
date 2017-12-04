@@ -89,4 +89,7 @@ uint64_t ebpf_exec_jit(const struct ebpf_vm *vm, void *mem, size_t mem_len);
 
 ebpf_jit_fn ebpf_compile(struct ebpf_vm *vm);
 
+#define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
+#define EBPFIOC_CREATE_MAP _IOWR('i', 152, union ebpf_req)
+
 #endif
