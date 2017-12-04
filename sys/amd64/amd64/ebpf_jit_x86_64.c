@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#include <dev/ebpf/ebpf_os.h>
-#include <dev/ebpf/ebpf_int.h>
+#include <dev/ebpf/ebpf_platform.h>
+#include <dev/ebpf/ebpf_internal.h>
 #include <sys/ebpf_types.h>
 #include "ebpf_jit_x86_64.h"
 

@@ -14,13 +14,10 @@
  * limitations under the License.
  */
 
-#include "ebpf_platform.h"
-
+#include <dev/ebpf/ebpf_kern.h>
+#include <dev/ebpf/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
-
-#include "ebpf_obj.h"
-#include "ebpf_kern.h"
 
 /*
  * Platform dependent function implementations
