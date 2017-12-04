@@ -13,6 +13,8 @@ SRCS    += ebpf_freebsd.c
 SRCS    += ebpf_loader.c
 SRCS    += ebpf_verifer.c
 SRCS    += ebpf_vm.c
+SRCS    += ebpf_obj.c
+SRCS    += ebpf_kern.c
 
 .if $(TARGET) == "amd64"
 SRCS    += ../../amd64/amd64/ebpf_jit_x86_64.c

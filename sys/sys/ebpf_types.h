@@ -139,13 +139,4 @@ struct ebpf_inst {
 #define EBPF_OP_CALL (EBPF_CLS_JMP | 0x80)
 #define EBPF_OP_EXIT (EBPF_CLS_JMP | 0x90)
 
-/* Prototypes of OS specific functions */
-void *ebpf_malloc(size_t size);
-void *ebpf_calloc(size_t number, size_t size);
-void ebpf_free(void *mem);
-void *ebpf_exalloc(size_t size);
-void ebpf_exfree(void *mem, size_t size);
-int ebpf_error(const char *fmt, ...);
-void ebpf_assert(bool expr);
-
 #endif

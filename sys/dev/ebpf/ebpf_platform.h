@@ -37,4 +37,14 @@
 #error Unsupported platform
 #endif
 
-#endif /* _EBPF_OS_H_ */
+/* 
+ * Prototypes of platform dependent functions for both
+ * user space platforms and kernel space platforms.
+ */
+void *ebpf_malloc(size_t size);
+void *ebpf_calloc(size_t number, size_t size);
+void ebpf_free(void *mem);
+void *ebpf_exalloc(size_t size);
+void ebpf_exfree(void *mem, size_t size);
+int ebpf_error(const char *fmt, ...);
+void ebpf_assert(bool expr);

@@ -19,6 +19,22 @@
 #define EBPF_H
 
 struct ebpf_vm;
+
+enum ebpf_prog_types {
+  EBPF_PROG_TYPE_TEST = 0,
+  __EBPF_PROG_TYPE_MAX
+};
+
+union ebpf_req {
+  // Attribute of EBPFIOC_LOAD_PROG
+  struct {
+    int *prog_fd;
+    uint16_t prog_type;
+    uint32_t prog_len;
+    void *prog;
+  };
+};
+
 typedef uint64_t (*ebpf_jit_fn)(void *mem, size_t mem_len);
 
 struct ebpf_vm *ebpf_create(void);
