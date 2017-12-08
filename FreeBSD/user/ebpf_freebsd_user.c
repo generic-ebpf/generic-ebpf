@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "ebpf_os.h"
+#include "ebpf_freebsd_user.h"
 #include <sys/ebpf.h>
 #include <sys/ebpf_types.h>
 
@@ -38,7 +38,7 @@ ebpf_exalloc(size_t size)
     ret = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC,
                MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
     if (ret == MAP_FAILED) {
-        ebpf_error("mmap in ebpf_exalloc failed\n");
+        fprintf(stderr, "mmap in ebpf_exalloc failed\n");
         return NULL;
     }
 
