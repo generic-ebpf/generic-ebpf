@@ -132,6 +132,10 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
         case EBPF_OP_JGT_IMM:
         case EBPF_OP_JGE_REG:
         case EBPF_OP_JGE_IMM:
+        case EBPF_OP_JLT_REG:
+        case EBPF_OP_JLT_IMM:
+        case EBPF_OP_JLE_REG:
+        case EBPF_OP_JLE_IMM:
         case EBPF_OP_JSET_REG:
         case EBPF_OP_JSET_IMM:
         case EBPF_OP_JNE_REG:
@@ -140,6 +144,10 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
         case EBPF_OP_JSGT_REG:
         case EBPF_OP_JSGE_IMM:
         case EBPF_OP_JSGE_REG:
+        case EBPF_OP_JSLT_IMM:
+        case EBPF_OP_JSLT_REG:
+        case EBPF_OP_JSLE_IMM:
+        case EBPF_OP_JSLE_REG:
             if (inst.offset == -1) {
                 ebpf_error("infinite loop at PC %d", i);
                 return false;
