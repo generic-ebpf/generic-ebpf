@@ -18,7 +18,7 @@
 
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_internal.h>
-#include <sys/ebpf_types.h>
+#include <sys/ebpf.h>
 #include "ebpf_jit_x86_64.h"
 
 /* Special values for target_pc in struct jump */

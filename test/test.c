@@ -28,7 +28,6 @@
 #include <elf.h>
 #include <math.h>
 #include <sys/ebpf.h>
-#include <sys/ebpf_types.h>
 
 /* MaxOSX and FreeBSD doesn't have memfrob */
 #if defined(__APPLE__) || defined(__FreeBSD__)

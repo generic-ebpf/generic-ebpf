@@ -16,7 +16,6 @@
 
 #include "ebpf_linux.h"
 #include <sys/ebpf.h>
-#include <sys/ebpf_types.h>
 
 void *
 ebpf_malloc(size_t size)

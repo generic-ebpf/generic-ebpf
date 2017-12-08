@@ -17,7 +17,6 @@
 #include <dev/ebpf/ebpf_kern.h>
 #include <dev/ebpf/ebpf_obj.h>
 #include <sys/ebpf.h>
-#include <sys/ebpf_types.h>
 
 /*
  * Platform dependent function implementations

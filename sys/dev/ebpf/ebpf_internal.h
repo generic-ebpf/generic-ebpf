@@ -19,7 +19,6 @@
 
 #include "ebpf_platform.h"
 #include <sys/ebpf.h>
-#include <sys/ebpf_types.h>
 
 #define MAX_INSTS 65536
 #define MAX_EXT_FUNCS 64

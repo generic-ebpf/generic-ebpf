@@ -16,7 +16,6 @@
 
 #include "ebpf_kern.h"
 #include <sys/ebpf.h>
-#include <sys/ebpf_types.h>
 
 static int
 ebpf_load_prog(void *data, ebpf_thread_t *td) {

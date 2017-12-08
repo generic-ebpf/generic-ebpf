@@ -17,7 +17,6 @@
 
 #include "ebpf_platform.h"
 #include "ebpf_internal.h"
-#include <sys/ebpf_types.h>
 
 static bool bounds_check(void *addr, int size, const char *type,
                          uint16_t cur_pc, void *mem, size_t mem_len,
@@ -543,6 +542,9 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
         case EBPF_OP_CALL:
             reg[0] = vm->ext_funcs[inst.imm](reg[1], reg[2], reg[3], reg[4], reg[5]);
             break;
+        default:
+            ebpf_error("Unknown instruction!\n");
+            return UINT64_MAX;
         }
     }
 }
