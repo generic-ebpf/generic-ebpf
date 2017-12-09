@@ -1,5 +1,4 @@
 #include "ebpf_obj.h"
-#include "ebpf_kern.h"
 
 /* 
  * Constructor of ebpf program
@@ -17,11 +16,7 @@ ebpf_obj_prog_ctor(struct ebpf_obj_prog *obj, union ebpf_req *req)
     return ENOMEM;
   }
 
-  int error = ebpf_copyin(req->prog, prog, req->prog_len);
-  if (error) {
-    ebpf_free(prog);
-    return -error;
-  }
+  memcpy(prog, req->prog, req->prog_len);
 
   obj->prog_type = req->prog_type;
   obj->prog_len = req->prog_len;

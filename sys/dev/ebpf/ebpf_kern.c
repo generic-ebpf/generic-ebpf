@@ -22,11 +22,34 @@ ebpf_load_prog(void *data, ebpf_thread_t *td) {
   int error;
   union ebpf_req *req = (union ebpf_req *)data;
   struct ebpf_obj_prog *prog;
+  struct ebpf_inst *tmp;
 
-  error = ebpf_obj_new((struct ebpf_obj **)&prog, EBPF_OBJ_TYPE_PROG, req);
+  /*
+   * Assume the program is already pass the user space
+   * verification, believe it and allocate requested amount
+   * of memory without any checks
+   */
+  tmp = ebpf_calloc(req->prog_len, 1);
+  if (tmp == NULL) {
+    return ENOMEM;
+  }
+
+  /*
+   * Redundant copy, but it is needed for better generarization
+   * of ebpf_obj_new
+   */
+  error = ebpf_copyin(req->prog, tmp, req->prog_len);
   if (error) {
     return -error;
   }
+
+  error = ebpf_obj_new((struct ebpf_obj **)&prog, EBPF_OBJ_TYPE_PROG, req);
+  if (error) {
+    ebpf_free(tmp);
+    return -error;
+  }
+
+  ebpf_free(tmp);
 
   error = ebpf_obj_get_desc(td, (struct ebpf_obj *)prog);
   if (error < 0) {
