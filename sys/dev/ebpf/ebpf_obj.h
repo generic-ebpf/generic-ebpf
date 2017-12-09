@@ -4,7 +4,6 @@
 #include <sys/ebpf.h>
 
 struct ebpf_obj;
-typedef void (*ebpf_obj_dtor_t)(struct ebpf_obj*);
 
 /*
  * ebpf object type description
@@ -19,20 +18,19 @@ enum ebpf_obj_type {
  * on top of it
  */
 struct ebpf_obj {
-  uint16_t type;
-  ebpf_obj_dtor_t dtor;
+  uint16_t obj_type;
 };
 
 /*
  * ebpf program
  */
 struct ebpf_obj_prog {
+  uint16_t obj_type;
   uint16_t prog_type;
-  ebpf_obj_dtor_t prog_dtor;
   uint32_t prog_len;
   struct ebpf_inst *prog;
 };
 
 bool ebpf_obj_is_type(uint16_t type, struct ebpf_obj *obj);
-struct ebpf_obj* ebpf_obj_new(uint16_t type);
+int ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req);
 void ebpf_obj_delete(struct ebpf_obj *obj);

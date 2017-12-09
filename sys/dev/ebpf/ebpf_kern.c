@@ -21,45 +21,22 @@ static int
 ebpf_load_prog(void *data, ebpf_thread_t *td) {
   int error;
   union ebpf_req *req = (union ebpf_req *)data;
+  struct ebpf_obj_prog *prog;
 
-  if (req->prog_type >= __EBPF_PROG_TYPE_MAX) {
-    return -EINVAL;
-  }
-
-  struct ebpf_inst *prog =
-    ebpf_calloc(sizeof(struct ebpf_inst), req->prog_len);
-  if (!prog) {
-    return -ENOMEM;
-  }
-
-  error = ebpf_copyin(req->prog, prog, req->prog_len);
+  error = ebpf_obj_new((struct ebpf_obj **)&prog, EBPF_OBJ_TYPE_PROG, req);
   if (error) {
-    ebpf_free(prog);
-    return error;
+    return -error;
   }
 
-  struct ebpf_obj_prog *prog_obj =
-    (struct ebpf_obj_prog *)ebpf_obj_new(EBPF_OBJ_TYPE_PROG);
-  if (!prog_obj) {
-    ebpf_free(prog);
-    return -ENOMEM;
-  }
-
-  error = ebpf_obj_get_desc(td, (struct ebpf_obj *)prog_obj);
+  error = ebpf_obj_get_desc(td, (struct ebpf_obj *)prog);
   if (error < 0) {
     ebpf_free(prog);
-    ebpf_free(prog_obj);
     return error;
   }
-
-  prog_obj->prog_type = req->prog_type;
-  prog_obj->prog_len = req->prog_len;
-  prog_obj->prog = prog;
 
   error = ebpf_copyout(&error, req->prog_fd, sizeof(int));
   if (error) {
     ebpf_free(prog);
-    ebpf_free(prog_obj);
     return error;
   }
 

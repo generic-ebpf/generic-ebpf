@@ -1,60 +1,86 @@
 #include "ebpf_obj.h"
+#include "ebpf_kern.h"
+
+/* 
+ * Constructor of ebpf program
+ */
+static int
+ebpf_obj_prog_ctor(struct ebpf_obj_prog *obj, union ebpf_req *req)
+{
+  if (req->prog_type >= __EBPF_PROG_TYPE_MAX) {
+    return EINVAL;
+  }
+
+  struct ebpf_inst *prog =
+    ebpf_calloc(req->prog_len, 1);
+  if (!prog) {
+    return ENOMEM;
+  }
+
+  int error = ebpf_copyin(req->prog, prog, req->prog_len);
+  if (error) {
+    ebpf_free(prog);
+    return -error;
+  }
+
+  obj->prog_type = req->prog_type;
+  obj->prog_len = req->prog_len;
+  obj->prog = prog;
+
+  ebpf_error("ebpf_obj_prog_ctor\n");
+
+  return 0;
+}
 
 /*
  * Destructor of ebpf program
  */
 static void
-ebpf_obj_prog_dtor(struct ebpf_obj *obj)
+ebpf_obj_prog_dtor(struct ebpf_obj_prog *obj)
 {
   struct ebpf_obj_prog *prog_obj;
   prog_obj = (struct ebpf_obj_prog *)obj;
+
   ebpf_free(prog_obj->prog);
-  ebpf_free(prog_obj);
   ebpf_error("ebpf_obj_prog_dtor\n");
 }
 
-bool ebpf_obj_is_type(uint16_t type, struct ebpf_obj *obj)
+int
+ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req)
 {
-  switch (type) {
-    case EBPF_OBJ_TYPE_PROG:
-      return obj->dtor == ebpf_obj_prog_dtor;
-    default:
-      return false;
-  }
-}
-
-/*
- * Allocate new ebpf object. It ususally bound to struct file
- * and its life time is same as it.
- */
-struct ebpf_obj*
-ebpf_obj_new(uint16_t type)
-{
-  struct ebpf_obj *ret = NULL;
-
-  if (type >= __EBPF_OBJ_TYPE_MAX) {
-    return NULL;
-  }
+  int error;
 
   switch (type) {
     case EBPF_OBJ_TYPE_PROG:
-      ret = ebpf_calloc(sizeof(struct ebpf_obj_prog), 1);
-      if (!ret) {
-        return NULL;
+      *obj = ebpf_calloc(sizeof(struct ebpf_obj_prog), 1);
+      if (!*obj) {
+        return ENOMEM;
       }
-      ret->type = type;
-      ret->dtor = ebpf_obj_prog_dtor;
+      error = ebpf_obj_prog_ctor((struct ebpf_obj_prog *)*obj, req);
       break;
     default:
-      // do nothing
-      break;
+      return EINVAL;
   }
 
-  return ret;
+  if (error) {
+    ebpf_free(*obj);
+    return error;
+  }
+
+  (*obj)->obj_type = type;
+
+  return 0;
 }
 
 void
 ebpf_obj_delete(struct ebpf_obj *obj)
 {
-  obj->dtor(obj);
+  switch (obj->obj_type) {
+    case EBPF_OBJ_TYPE_PROG:
+      ebpf_obj_prog_dtor((struct ebpf_obj_prog *)obj);
+      break;
+    default:
+      return;
+  }
+  ebpf_free(obj);
 }
