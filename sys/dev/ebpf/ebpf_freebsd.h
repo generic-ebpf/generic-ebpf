@@ -16,6 +16,7 @@
 
 #pragma once
 
+#ifndef user
 #include <sys/param.h>
 #include <sys/conf.h>
 #include <sys/module.h>
@@ -33,5 +34,7 @@
 #include <machine/stdarg.h>
 
 typedef struct thread ebpf_thread_t;
+
+#endif
 
 #define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
