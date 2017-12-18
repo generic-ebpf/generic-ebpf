@@ -128,6 +128,13 @@ ebpf_obj_get_desc(ebpf_thread_t *td, struct ebpf_obj *data)
   return fd;
 }
 
+int
+ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
+{
+  cap_rights_t cap;
+  return fget(td, fd, cap_rights_init(&cap, CAP_IOCTL), f);
+}
+
 /*
  * Character device operations
  */

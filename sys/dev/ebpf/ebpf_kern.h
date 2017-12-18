@@ -26,4 +26,11 @@
 int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
 int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);
 int ebpf_obj_get_desc(ebpf_thread_t *td, struct ebpf_obj *data);
+int ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f);
 int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td);
+
+int ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td);

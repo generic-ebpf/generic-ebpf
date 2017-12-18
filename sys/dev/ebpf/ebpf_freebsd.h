@@ -31,10 +31,19 @@
 #include <sys/filedesc.h>
 #include <sys/fcntl.h>
 #include <sys/refcount.h>
+#include <sys/capsicum.h>
 #include <machine/stdarg.h>
 
 typedef struct thread ebpf_thread_t;
+typedef struct file ebpf_file_t;
+
+#define EBPF_OBJ(filep) filep->f_data
 
 #endif
 
 #define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
+#define EBPFIOC_MAP_CREATE _IOWR('i', 152, union ebpf_req)
+#define EBPFIOC_MAP_LOOKUP_ELEM _IOWR('i', 153, union ebpf_req)
+#define EBPFIOC_MAP_UPDATE_ELEM _IOWR('i', 154, union ebpf_req)
+#define EBPFIOC_MAP_DELETE_ELEM _IOWR('i', 155, union ebpf_req)
+#define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)

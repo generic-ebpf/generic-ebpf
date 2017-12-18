@@ -10,6 +10,7 @@ struct ebpf_obj;
  */
 enum ebpf_obj_type {
   EBPF_OBJ_TYPE_PROG = 0,
+  EBPF_OBJ_TYPE_MAP,
   __EBPF_OBJ_TYPE_MAX
 };
 
@@ -31,6 +32,18 @@ struct ebpf_obj_prog {
   struct ebpf_inst *prog;
 };
 
-bool ebpf_obj_is_type(uint16_t type, struct ebpf_obj *obj);
+/*
+ * ebpf map
+ */
+struct ebpf_obj_map {
+  uint16_t obj_type;
+  uint16_t map_type;
+  uint32_t key_size;
+  uint32_t value_size;
+  uint32_t map_flags;
+  uint32_t max_entries;
+  void *data;
+};
+
 int ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req);
 void ebpf_obj_delete(struct ebpf_obj *obj);

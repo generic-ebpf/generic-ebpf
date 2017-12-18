@@ -15,8 +15,7 @@
  * limitations under the License.
  */
 
-#ifndef EBPF_H
-#define EBPF_H
+#pragma once
 
 struct ebpf_vm;
 
@@ -25,13 +24,37 @@ enum ebpf_prog_types {
   __EBPF_PROG_TYPE_MAX
 };
 
+enum ebpf_map_types {
+  EBPF_MAP_TYPE_NULL = 0,
+  __EBPF_MAP_TYPE_MAX
+};
+
 union ebpf_req {
   // Attribute of EBPFIOC_LOAD_PROG
   struct {
-    int *prog_fd;
+    int *prog_fdp;
     uint16_t prog_type;
     uint32_t prog_len;
     void *prog;
+  };
+  // Attribute of EBPFIOC_MAP_CREATE
+  struct {
+    int *map_fdp;
+    uint32_t map_type;
+    uint32_t key_size;
+    uint32_t value_size;
+    uint32_t max_entries;
+    uint32_t map_flags;
+  };
+  // Attribute of EBPFIOC_MAP_*_ELEM and EBPFIOC_MAP_GET_*_KEY
+  struct {
+    int map_fd;
+    uint64_t key;
+    union {
+      uint64_t value;
+      uint64_t next_key;
+    };
+    uint64_t flags;
   };
 };
 
@@ -218,5 +241,3 @@ struct ebpf_inst {
 #define EBPF_OP_JSLT_REG (EBPF_CLS_JMP|EBPF_SRC_REG|0xc0)
 #define EBPF_OP_JSLE_IMM (EBPF_CLS_JMP|EBPF_SRC_IMM|0xd0)
 #define EBPF_OP_JSLE_REG (EBPF_CLS_JMP|EBPF_SRC_REG|0xd0)
-
-#endif

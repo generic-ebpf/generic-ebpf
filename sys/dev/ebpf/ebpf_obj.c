@@ -1,4 +1,5 @@
 #include "ebpf_obj.h"
+#include "ebpf_map.h"
 
 /* 
  * Constructor of ebpf program
@@ -40,6 +41,22 @@ ebpf_obj_prog_dtor(struct ebpf_obj_prog *obj)
   ebpf_error("ebpf_obj_prog_dtor\n");
 }
 
+static int
+ebpf_obj_map_ctor(struct ebpf_obj_map *obj, union ebpf_req *req)
+{
+  if (req->map_type >= __EBPF_MAP_TYPE_MAX) {
+    return EINVAL;
+  }
+  return ebpf_map_ops[req->map_type]->create(obj, req->key_size,
+      req->value_size, req->max_entries, req->flags);
+}
+
+static void
+ebpf_obj_map_dtor(struct ebpf_obj_map *obj)
+{
+  ebpf_map_ops[obj->map_type]->destroy(obj);
+}
+
 int
 ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req)
 {
@@ -53,11 +70,19 @@ ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req)
       }
       error = ebpf_obj_prog_ctor((struct ebpf_obj_prog *)*obj, req);
       break;
+    case EBPF_OBJ_TYPE_MAP:
+      *obj = ebpf_calloc(sizeof(struct ebpf_obj_map), 1);
+      if (!*obj) {
+        return ENOMEM;
+      }
+      error = ebpf_obj_map_ctor((struct ebpf_obj_map *)*obj, req);
+      break;
     default:
       return EINVAL;
   }
 
   if (error) {
+    ebpf_error("Error in ebpf_obj_new\n");
     ebpf_free(*obj);
     return error;
   }
@@ -73,6 +98,9 @@ ebpf_obj_delete(struct ebpf_obj *obj)
   switch (obj->obj_type) {
     case EBPF_OBJ_TYPE_PROG:
       ebpf_obj_prog_dtor((struct ebpf_obj_prog *)obj);
+      break;
+    case EBPF_OBJ_TYPE_MAP:
+      ebpf_obj_map_dtor((struct ebpf_obj_map *)obj);
       break;
     default:
       return;
