@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-#include "ebpf_dev.h"
-
 #include <dev/ebpf/ebpf_obj.h>
 #include <sys/ebpf.h>
+#include <sys/ebpf_dev.h>
 
 /*
  * Extend badfileops for anonimous file for ebpf objects.

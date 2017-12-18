@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-#include "ebpf_dev.h"
 #include <dev/ebpf/ebpf_map.h>
 
 #include <sys/ebpf.h>
-#include <sys/ebpf_ioctl.h>
+#include <sys/ebpf_dev.h>
 
 static int
 ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)

@@ -25,7 +25,7 @@
 #define EBPFIOC_MAP_DELETE_ELEM _IOWR('i', 155, union ebpf_req)
 #define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)
 
-#ifdef _KERNEL
+#ifndef user
 
 #include <dev/ebpf/ebpf_obj.h>
 

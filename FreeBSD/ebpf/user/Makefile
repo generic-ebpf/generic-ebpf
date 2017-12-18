@@ -1,6 +1,6 @@
-TOP_DIR:=../../sys
+TOP_DIR:=../../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
-TEST_DIR:=../../test
+TEST_DIR:=../../../test
 
 ebpf-objs += $(SRC_DIR)/ebpf_vm.o
 ebpf-objs += $(SRC_DIR)/ebpf_loader.o
