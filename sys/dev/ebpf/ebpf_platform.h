@@ -16,18 +16,6 @@
 
 #pragma once
 
-/*
- * This header file gathers all platform dependent things which
- * defines
- *
- * - Platform dependent functions like ebpf_malloc
- * - Platform dependent types like ebpf_thread_t
- */
-
-/*
- * Include platform specific headers. These headers should
- * contain all required platform dependent header files.
- */
 #ifdef __FreeBSD__
 #ifdef user
 #include <ebpf_freebsd_user.h>
@@ -59,3 +47,10 @@ void *ebpf_exalloc(size_t size);
 void ebpf_exfree(void *mem, size_t size);
 int ebpf_error(const char *fmt, ...);
 void ebpf_assert(bool expr);
+
+/*
+ * Below methods should be simply expanded to memcpy(3) in user
+ * space platforms.
+ */
+int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
+int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);

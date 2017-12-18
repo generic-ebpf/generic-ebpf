@@ -16,16 +16,24 @@
 
 #pragma once
 
-#include "ebpf_platform.h"
-#include "ebpf_obj.h"
+#include "ebpf_uapi.h"
+
+#define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
+#define EBPFIOC_MAP_CREATE _IOWR('i', 152, union ebpf_req)
+#define EBPFIOC_MAP_LOOKUP_ELEM _IOWR('i', 153, union ebpf_req)
+#define EBPFIOC_MAP_UPDATE_ELEM _IOWR('i', 154, union ebpf_req)
+#define EBPFIOC_MAP_DELETE_ELEM _IOWR('i', 155, union ebpf_req)
+#define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)
+
+#ifdef _KERNEL
+
+#include <dev/ebpf/ebpf_obj.h>
 
 /*
  * Prototypes of platform dependent functions for kernel
  * space platforms.
  */
-int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
-int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);
-int ebpf_obj_get_desc(ebpf_thread_t *td, struct ebpf_obj *data);
+int ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data);
 int ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f);
 int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td);
 
@@ -34,3 +42,5 @@ int ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td);
 int ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td);
 int ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td);
 int ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td);
+
+#endif

@@ -15,7 +15,6 @@ CORES += ebpf_loader.c
 CORES += ebpf_verifer.c
 CORES += ebpf_vm.c
 CORES += ebpf_obj.c
-CORES += ebpf_kern.c
 
 MAPS += ebpf_map_null.c
 

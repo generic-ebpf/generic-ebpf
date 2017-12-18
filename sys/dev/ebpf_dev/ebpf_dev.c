@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-#include "ebpf_kern.h"
-#include "ebpf_map.h"
+#include "ebpf_dev.h"
+#include <dev/ebpf/ebpf_map.h>
+
 #include <sys/ebpf.h>
+#include <sys/ebpf_ioctl.h>
 
 static int
 ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
@@ -52,7 +54,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 
   ebpf_free(tmp);
 
-  error = ebpf_obj_get_desc(td, (struct ebpf_obj *)prog);
+  error = ebpf_obj_get_fdesc(td, (struct ebpf_obj *)prog);
   if (error < 0) {
     ebpf_free(prog);
     return error;
@@ -84,7 +86,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
     return error;
   }
 
-  error = ebpf_obj_get_desc(td, (struct ebpf_obj *)map);
+  error = ebpf_obj_get_fdesc(td, (struct ebpf_obj *)map);
   if (error < 0) {
     ebpf_free(map);
     return error;

@@ -16,24 +16,3 @@
 
 #pragma once
 
-#include <sys/param.h>
-#include <sys/conf.h>
-#include <sys/module.h>
-#include <sys/kernel.h>
-#include <sys/malloc.h>
-#include <sys/systm.h>
-#include <sys/libkern.h>
-#include <sys/elf.h>
-#include <sys/endian.h>
-#include <sys/ioccom.h>
-#include <sys/file.h>
-#include <sys/filedesc.h>
-#include <sys/fcntl.h>
-#include <sys/refcount.h>
-#include <sys/capsicum.h>
-#include <machine/stdarg.h>
-
-typedef struct thread ebpf_thread_t;
-typedef struct file ebpf_file_t;
-
-#define EBPF_OBJ(filep) filep->f_data

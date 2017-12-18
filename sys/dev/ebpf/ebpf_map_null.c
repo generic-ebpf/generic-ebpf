@@ -1,4 +1,3 @@
-#include "ebpf_kern.h"
 #include "ebpf_map.h"
 
 struct ebpf_map_null {
