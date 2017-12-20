@@ -113,18 +113,33 @@ static int
 array_map_get_next_key(struct ebpf_obj_map *self, void *key, void *next_key)
 {
   struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+  uint32_t *nk = (uint32_t *)next_key;
+  uint32_t cur, end;
 
-  if (map->counter == 0) {
-    return ENOENT;
-  }
-
-  if (*(uint32_t *)key == self->max_entries) {
-    *(uint32_t *)next_key = 0;;
+  if (key == NULL || *(uint32_t *)key == self->max_entries) {
+    cur = 0;
+    end = self->max_entries;
+  } else if (*(uint32_t *)key > self->max_entries) {
+    return EINVAL;
   } else {
-    *(uint32_t *)next_key = *(uint32_t *)key + 1;
+    cur = (*(uint32_t *)key) + 1;
+    end = *(uint32_t *)key;
   }
 
-  return 0;
+  do {
+    if (map->array[cur]) {
+      *nk = cur;
+      return 0;
+    }
+
+    if (cur == self->max_entries) {
+      cur = 0;
+    } else {
+      cur++;
+    }
+  } while (cur != end);
+
+  return ENOENT;
 }
 
 static void

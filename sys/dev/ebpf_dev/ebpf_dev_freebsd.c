@@ -80,6 +80,18 @@ ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td)
   return fdrop(f, td);
 }
 
+int
+ebpf_copyin(const void *uaddr, void *kaddr, size_t len)
+{
+  return copyin(uaddr, kaddr, len);
+}
+
+int
+ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
+{
+  return copyout(kaddr, uaddr, len);
+}
+
 /*
  * Character device operations
  */

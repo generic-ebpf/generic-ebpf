@@ -29,3 +29,12 @@ extern const struct ebpf_map_ops array_map_ops;
 static const struct ebpf_map_ops *ebpf_map_ops[] = {
   [EBPF_MAP_TYPE_ARRAY] = &array_map_ops
 };
+
+void *ebpf_map_lookup_elem(struct ebpf_obj_map *self,
+    void *key, uint64_t flags);
+int ebpf_map_update_elem(struct ebpf_obj_map *self,
+    void *key, void *value, uint64_t flags);
+int ebpf_map_delete_elem(struct ebpf_obj_map *self,
+    void *key);
+int ebpf_map_get_next_key(struct ebpf_obj_map *self,
+    void *key, void *next_key);

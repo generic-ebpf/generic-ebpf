@@ -41,11 +41,29 @@ ebpf_obj_prog_dtor(struct ebpf_obj_prog *obj)
 static int
 ebpf_obj_map_ctor(struct ebpf_obj_map *obj, union ebpf_req *req)
 {
+  int error;
+
   if (req->map_type >= __EBPF_MAP_TYPE_MAX) {
     return EINVAL;
   }
-  return ebpf_map_ops[req->map_type]->create(obj, req->key_size,
-      req->value_size, req->max_entries, req->flags);
+
+  if (!req->key_size || !req->value_size ||
+      !req->max_entries) {
+    return EINVAL;
+  }
+
+  error = ebpf_map_ops[req->map_type]->create(obj, req->key_size,
+      req->value_size, req->max_entries, req->map_flags);
+  if (error) {
+    return error;
+  }
+
+  obj->key_size = req->key_size;
+  obj->value_size = req->value_size;
+  obj->max_entries = req->max_entries;
+  obj->map_flags = req->map_flags;
+
+  return 0;
 }
 
 static void
@@ -58,6 +76,10 @@ int
 ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req)
 {
   int error;
+
+  if (!obj || type >= __EBPF_OBJ_TYPE_MAX || !req) {
+    return EINVAL;
+  }
 
   switch (type) {
     case EBPF_OBJ_TYPE_PROG:
