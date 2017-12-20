@@ -33,7 +33,10 @@
 #include <sys/capsicum.h>
 #include <machine/stdarg.h>
 
+#include <dev/ebpf/ebpf_obj.h>
+
 typedef struct thread ebpf_thread_t;
 typedef struct file ebpf_file_t;
 
 #define EBPF_OBJ(filep) filep->f_data
+#define EBPF_OBJ_MAP(filep) (struct ebpf_obj_map *)filep->f_data

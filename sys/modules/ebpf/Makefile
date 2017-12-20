@@ -16,7 +16,7 @@ CORES += ebpf_verifer.c
 CORES += ebpf_vm.c
 CORES += ebpf_obj.c
 
-MAPS += ebpf_map_null.c
+MAPS += ebpf_map_array.c
 
 .if $(TARGET) == "amd64"
 CORES += ../../amd64/amd64/ebpf_jit_x86_64.c

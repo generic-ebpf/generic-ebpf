@@ -47,10 +47,3 @@ void *ebpf_exalloc(size_t size);
 void ebpf_exfree(void *mem, size_t size);
 int ebpf_error(const char *fmt, ...);
 void ebpf_assert(bool expr);
-
-/*
- * Below methods should be simply expanded to memcpy(3) in user
- * space platforms.
- */
-int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
-int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);

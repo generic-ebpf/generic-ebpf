@@ -1,0 +1,143 @@
+#include "ebpf_map.h"
+
+struct ebpf_map_array {
+  uint64_t counter; // entry counter
+  void **array;
+};
+
+static int
+array_map_create(struct ebpf_obj_map *self, uint16_t key_size,
+    uint16_t value_size, uint16_t max_entries, uint32_t flags)
+{
+  if (key_size != sizeof(uint32_t)) {
+    return EINVAL;
+  }
+
+  self->map_type = EBPF_MAP_TYPE_ARRAY;
+  self->key_size = key_size;
+  self->value_size = value_size;
+  self->max_entries = max_entries;
+  self->map_flags = flags;
+
+  struct ebpf_map_array *new =
+    ebpf_calloc(sizeof(struct ebpf_map_array), 1);
+  if (!new) {
+    return ENOMEM;
+  }
+
+  new->array = ebpf_calloc(sizeof(void *), self->max_entries);
+  if (!new->array) {
+    ebpf_free(new);
+    return ENOMEM;
+  }
+
+  self->data = new;
+
+  return 0;
+}
+
+static int
+array_map_update_elem(struct ebpf_obj_map *self, void *key, void *value,
+    uint64_t flags)
+{
+  struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+
+  if (map->counter == self->max_entries - 1) {
+    return EBUSY;
+  }
+
+  uint32_t *k = (uint32_t *)key;
+  if (*k >= self->max_entries) {
+    return EINVAL;
+  }
+
+  if (map->array[*k]) {
+    ebpf_free(map->array[*k]);
+  }
+
+  map->array[*k] = value;
+  map->counter++;
+
+  /* 
+   * since we don't need to store key in array map,
+   * we can free this
+   */
+  ebpf_free(key);
+
+  return 0;
+}
+
+static void*
+array_map_lookup_elem(struct ebpf_obj_map *self, void *key, uint64_t flags)
+{
+  struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+
+  if (map->counter == 0) {
+    return NULL;
+  }
+
+  uint32_t *k = (uint32_t *)key;
+  if (*k >= self->max_entries) {
+    return NULL;
+  }
+
+  return map->array[*k];
+}
+
+static int
+array_map_delete_elem(struct ebpf_obj_map *self, void *key)
+{
+  struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+
+  if (map->counter == 0) {
+    return ENOENT;
+  }
+
+  uint32_t *k = (uint32_t *)key;
+  if (*k >= self->max_entries) {
+    return EINVAL;
+  }
+
+  if (!map->array[*k]) {
+    return ENOENT;
+  }
+
+  ebpf_free(map->array[*k]);
+  map->array[*k] = NULL;
+  map->counter--;
+
+  return 0;
+}
+
+static int
+array_map_get_next_key(struct ebpf_obj_map *self, void *key, void *next_key)
+{
+  struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+
+  if (map->counter == 0) {
+    return ENOENT;
+  }
+
+  if (*(uint32_t *)key == self->max_entries) {
+    *(uint32_t *)next_key = 0;;
+  } else {
+    *(uint32_t *)next_key = *(uint32_t *)key + 1;
+  }
+
+  return 0;
+}
+
+static void
+array_map_destroy(struct ebpf_obj_map *self)
+{
+  ebpf_free(self->data);
+}
+
+const struct ebpf_map_ops array_map_ops = {
+  .create         = array_map_create,
+  .update_elem    = array_map_update_elem,
+  .lookup_elem    = array_map_lookup_elem,
+  .delete_elem    = array_map_delete_elem,
+  .get_next_key   = array_map_get_next_key,
+  .destroy        = array_map_destroy
+};

@@ -5,8 +5,8 @@
 typedef int ebpf_map_create_t(struct ebpf_obj_map *self,
     uint16_t key_size, uint16_t value_size, uint16_t max_entries,
     uint32_t flags);
-typedef int ebpf_map_lookup_elem_t(struct ebpf_obj_map *self,
-    void *key, void *value, uint64_t flags);
+typedef void* ebpf_map_lookup_elem_t(struct ebpf_obj_map *self,
+    void *key, uint64_t flags);
 typedef int ebpf_map_update_elem_t(struct ebpf_obj_map *self,
     void *key, void *value, uint64_t flags);
 typedef int ebpf_map_delete_elem_t(struct ebpf_obj_map *self,
@@ -24,8 +24,8 @@ struct ebpf_map_ops {
   ebpf_map_destroy_t *destroy;
 };
 
-extern const struct ebpf_map_ops null_map_ops;
+extern const struct ebpf_map_ops array_map_ops;
 
 static const struct ebpf_map_ops *ebpf_map_ops[] = {
-  [EBPF_MAP_TYPE_NULL] = &null_map_ops
+  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops
 };

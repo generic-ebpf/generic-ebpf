@@ -23,8 +23,6 @@ ebpf_obj_prog_ctor(struct ebpf_obj_prog *obj, union ebpf_req *req)
   obj->prog_len = req->prog_len;
   obj->prog = prog;
 
-  ebpf_error("ebpf_obj_prog_ctor\n");
-
   return 0;
 }
 
@@ -38,7 +36,6 @@ ebpf_obj_prog_dtor(struct ebpf_obj_prog *obj)
   prog_obj = (struct ebpf_obj_prog *)obj;
 
   ebpf_free(prog_obj->prog);
-  ebpf_error("ebpf_obj_prog_dtor\n");
 }
 
 static int
@@ -82,7 +79,6 @@ ebpf_obj_new(struct ebpf_obj **obj, uint16_t type, union ebpf_req *req)
   }
 
   if (error) {
-    ebpf_error("Error in ebpf_obj_new\n");
     ebpf_free(*obj);
     return error;
   }

@@ -16,11 +16,23 @@
 
 #pragma once
 
-#include "ebpf_uapi.h"
+#include <dev/ebpf/ebpf_obj.h>
 
-#define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
-#define EBPFIOC_MAP_CREATE _IOWR('i', 152, union ebpf_req)
-#define EBPFIOC_MAP_LOOKUP_ELEM _IOWR('i', 153, union ebpf_req)
-#define EBPFIOC_MAP_UPDATE_ELEM _IOWR('i', 154, union ebpf_req)
-#define EBPFIOC_MAP_DELETE_ELEM _IOWR('i', 155, union ebpf_req)
-#define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)
+#ifdef __FreeBSD__
+#include "ebpf_dev_freebsd.h"
+#elif defined(linux)
+#include <ebpf_dev_linux.h>
+#else
+#error Unsupported platform
+#endif
+
+
+/*
+ * Prototypes of platform dependent functions.
+ */
+int ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data);
+int ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f);
+int ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td);
+int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
+int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);
+int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td);

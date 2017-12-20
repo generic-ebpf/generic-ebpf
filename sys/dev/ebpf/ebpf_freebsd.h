@@ -32,8 +32,3 @@
 #include <sys/refcount.h>
 #include <sys/capsicum.h>
 #include <machine/stdarg.h>
-
-typedef struct thread ebpf_thread_t;
-typedef struct file ebpf_file_t;
-
-#define EBPF_OBJ(filep) filep->f_data

@@ -22,7 +22,7 @@ enum ebpf_prog_types {
 };
 
 enum ebpf_map_types {
-  EBPF_MAP_TYPE_NULL = 0,
+  EBPF_MAP_TYPE_ARRAY = 0,
   __EBPF_MAP_TYPE_MAX
 };
 

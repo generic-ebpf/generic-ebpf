@@ -69,18 +69,6 @@ ebpf_assert(bool expr)
     KASSERT(expr, "");
 }
 
-int
-ebpf_copyin(const void *uaddr, void *kaddr, size_t len)
-{
-  return copyin(uaddr, kaddr, len);
-}
-
-int
-ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
-{
-  return copyout(kaddr, uaddr, len);
-}
-
 /*
  * Kernel module operations
  */

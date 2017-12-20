@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include "ebpf_dev_platform.h" 
 #include <dev/ebpf/ebpf_map.h>
 
 #include <sys/ebpf.h>
@@ -68,7 +69,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
   return 0;
 }
 
-int
+static int
 ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 {
   int error;
@@ -100,7 +101,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
   return 0;
 }
 
-int
+static int
 ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
   int error;
@@ -111,16 +112,26 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
     return error;
   }
 
-  error = ebpf_map_ops[req->map_type]->lookup_elem((struct ebpf_obj_map *)EBPF_OBJ(f),
-      (void *)req->key, (void *)req->value, req->flags);
+  void *v;
+  struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+
+  v = ebpf_map_ops[req->map_type]->lookup_elem(map,
+      (void *)req->key, req->flags);
+  if (!v) {
+    return ENOENT;
+  }
+
+  error = ebpf_copyout(v, (void *)req->value, map->value_size);
   if (error) {
     return error;
   }
 
+  ebpf_fdrop(f, td);
+
   return 0;
 }
 
-int
+static int
 ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
   int error;
@@ -128,21 +139,47 @@ ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
 
   error = ebpf_fget(td, req->map_fd, &f);
   if (error) {
-    ebpf_error("Error in ebpf_fget\n");
     return error;
   }
 
-  error = ebpf_map_ops[req->map_type]->update_elem((struct ebpf_obj_map *)EBPF_OBJ(f),
-      (void *)req->key, (void *)req->value, req->flags);
+  void *k, *v;
+  struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+
+  k = ebpf_malloc(map->key_size);
+  if (!k) {
+    return ENOMEM;
+  }
+
+  error = ebpf_copyin((void *)req->key, k, map->key_size);
   if (error) {
-    ebpf_error("Error in update elem\n");
+    ebpf_free(k);
     return error;
   }
+
+  v = ebpf_malloc(map->value_size);
+  if (!v) {
+    return ENOMEM;
+  }
+
+  error = ebpf_copyin((void *)req->value, v, map->value_size);
+  if (error) {
+    ebpf_free(k);
+    ebpf_free(v);
+    return error;
+  }
+
+  error = ebpf_map_ops[req->map_type]->update_elem(map,
+      k, v, req->flags);
+  if (error) {
+    return error;
+  }
+
+  ebpf_fdrop(f, td);
 
   return 0;
 }
 
-int
+static int
 ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
   int error;
@@ -153,16 +190,32 @@ ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
     return error;
   }
 
-  error = ebpf_map_ops[req->map_type]->delete_elem((struct ebpf_obj_map *)EBPF_OBJ(f),
-      (void *)req->key);
+  void *k;
+  struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+
+  k = ebpf_malloc(map->key_size);
+  if (!k) {
+    return ENOMEM;
+  }
+
+  error = ebpf_copyin((void *)req->key, k, map->key_size);
+  if (error) {
+    ebpf_free(k);
+    return error;
+  }
+
+  error = ebpf_map_ops[req->map_type]->delete_elem(map, k);
   if (error) {
     return error;
   }
 
+  ebpf_free(k);
+  ebpf_fdrop(f, td);
+
   return 0;
 }
 
-int
+static int
 ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 {
   int error;
@@ -173,11 +226,43 @@ ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
     return error;
   }
 
-  error = ebpf_map_ops[req->map_type]->get_next_key((struct ebpf_obj_map *)EBPF_OBJ(f),
-      (void *)req->key, (void *)req->next_key);
+  void *k, *nk;
+  struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+
+  k = ebpf_malloc(map->key_size);
+  if (!k) {
+    return ENOMEM;
+  }
+
+  error = ebpf_copyin((void *)req->key, k, map->key_size);
   if (error) {
+    ebpf_free(k);
     return error;
   }
+
+  nk = ebpf_malloc(map->key_size);
+  if (!nk) {
+    ebpf_free(k);
+    return ENOMEM;
+  }
+
+  error = ebpf_map_ops[req->map_type]->get_next_key(map, k, nk);
+  if (error) {
+    ebpf_free(k);
+    ebpf_free(nk);
+    return error;
+  }
+
+  error = ebpf_copyout(nk, (void *)req->next_key, map->key_size);
+  if (error) {
+    ebpf_free(k);
+    ebpf_free(nk);
+    return error;
+  }
+
+  ebpf_free(k);
+  ebpf_free(nk);
+  ebpf_fdrop(f, td);
 
   return 0;
 }

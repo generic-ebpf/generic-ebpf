@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 
+#include <dev/ebpf_dev/ebpf_dev_platform.h>
 #include <dev/ebpf/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
@@ -73,21 +74,24 @@ ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
   return fget(td, fd, cap_rights_init(&cap, CAP_IOCTL), f);
 }
 
+int
+ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td)
+{
+  return fdrop(f, td);
+}
+
 /*
  * Character device operations
  */
 static int
 ebpf_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 {
-  int error = 0;
-  printf("test ebpf_open\n");
-  return error;
+  return 0;
 }
 
 static int
 ebpf_close(struct cdev *dev, int fflag, int devtype, struct thread *td)
 {
-  printf("test ebpf_close\n");
   return 0;
 }
 
