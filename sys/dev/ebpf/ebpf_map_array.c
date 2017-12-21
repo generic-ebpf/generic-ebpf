@@ -51,18 +51,19 @@ array_map_update_elem(struct ebpf_obj_map *self, void *key, void *value,
     return EINVAL;
   }
 
+  void *v = ebpf_calloc(self->value_size, 1);
+  if (!v) {
+    return ENOMEM;
+  }
+
   if (map->array[*k]) {
     ebpf_free(map->array[*k]);
   }
 
-  map->array[*k] = value;
-  map->counter++;
+  memcpy(v, value, self->value_size);
 
-  /* 
-   * since we don't need to store key in array map,
-   * we can free this
-   */
-  ebpf_free(key);
+  map->array[*k] = v;
+  map->counter++;
 
   return 0;
 }
@@ -145,7 +146,16 @@ array_map_get_next_key(struct ebpf_obj_map *self, void *key, void *next_key)
 static void
 array_map_destroy(struct ebpf_obj_map *self)
 {
-  ebpf_free(self->data);
+  struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+
+  for (int i = 0; i < self->max_entries; i++) {
+    if (map->array[i]) {
+      ebpf_free(map->array[i]);
+    }
+  }
+
+  ebpf_free(map->array);
+  ebpf_free(map);
 }
 
 const struct ebpf_map_ops array_map_ops = {

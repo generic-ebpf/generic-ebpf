@@ -3,8 +3,6 @@
 #include "ebpf_platform.h"
 #include <sys/ebpf.h>
 
-struct ebpf_obj;
-
 /*
  * ebpf object type description
  */

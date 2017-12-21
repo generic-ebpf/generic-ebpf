@@ -17,37 +17,39 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf.h>
 
+MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");
+
 /*
  * Platform dependent function implementations
  */
 void *
 ebpf_malloc(size_t size)
 {
-    return malloc(size, M_DEVBUF, M_WAITOK);
+    return malloc(size, M_EBPFBUF, M_WAITOK);
 }
 
 void *
 ebpf_calloc(size_t number, size_t size)
 {
-    return malloc(number * size, M_DEVBUF, M_WAITOK | M_ZERO);
+    return malloc(number * size, M_EBPFBUF, M_WAITOK | M_ZERO);
 }
 
 void *
 ebpf_exalloc(size_t size)
 {
-    return malloc(size, M_DEVBUF, M_WAITOK);
+    return malloc(size, M_EBPFBUF, M_WAITOK);
 }
 
 void
 ebpf_exfree(void *mem, size_t size)
 {
-    free(mem, M_DEVBUF);
+    free(mem, M_EBPFBUF);
 }
 
 void
 ebpf_free(void *mem)
 {
-    free(mem, M_DEVBUF);
+    free(mem, M_EBPFBUF);
 }
 
 int

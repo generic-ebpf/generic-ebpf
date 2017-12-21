@@ -32,3 +32,5 @@
 #include <sys/refcount.h>
 #include <sys/capsicum.h>
 #include <machine/stdarg.h>
+
+MALLOC_DECLARE(M_EBPFBUF);

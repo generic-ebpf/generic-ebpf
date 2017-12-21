@@ -37,7 +37,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
    * of memory without any checks
    */
   tmp = ebpf_calloc(req->prog_len, 1);
-  if (tmp == NULL) {
+  if (!tmp) {
     return ENOMEM;
   }
 
@@ -47,8 +47,11 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
    */
   error = ebpf_copyin(req->prog, tmp, req->prog_len);
   if (error) {
-    return -error;
+    ebpf_free(tmp);
+    return error;
   }
+
+  req->prog = tmp;
 
   error = ebpf_obj_new((struct ebpf_obj **)&prog, EBPF_OBJ_TYPE_PROG, req);
   if (error) {
@@ -83,26 +86,20 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
     return EINVAL;
   }
 
-  map = ebpf_calloc(sizeof(struct ebpf_obj_map), 1);
-  if (map == NULL) {
-    return ENOMEM;
-  }
-
   error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, req);
   if (error) {
-    ebpf_free(map);
     return error;
   }
 
   error = ebpf_obj_get_fdesc(td, (struct ebpf_obj *)map);
   if (error < 0) {
-    ebpf_free(map);
+    ebpf_obj_delete((struct ebpf_obj *)map);
     return error;
   }
 
   error = ebpf_copyout(&error, req->map_fdp, sizeof(int));
   if (error) {
-    ebpf_free(map);
+    ebpf_obj_delete((struct ebpf_obj *)map);
     return error;
   }
 
@@ -200,6 +197,8 @@ ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
     goto err2;
   }
 
+  ebpf_free(k);
+  ebpf_free(v);
   ebpf_fdrop(f, td);
 
   return 0;
