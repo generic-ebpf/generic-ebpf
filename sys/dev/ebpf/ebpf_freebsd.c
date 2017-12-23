@@ -80,14 +80,14 @@ int ebpf_init(void);
 void
 ebpf_fini(void)
 {
-  printf("ebpf unloaded\n");
+    printf("ebpf unloaded\n");
 }
 
 int
 ebpf_init(void)
 {
-  printf("ebpf loaded\n");
-  return 0;
+    printf("ebpf loaded\n");
+    return 0;
 }
 
 static int

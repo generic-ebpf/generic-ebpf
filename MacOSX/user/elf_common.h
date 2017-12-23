@@ -1348,7 +1348,7 @@ thread-local storage scheme. */
 #define R_X86_64_8 14 /* Add 8 bit zero extended symbol value */
 #define R_X86_64_PC8                                                           \
     15 /* Add 8 bit signed extended pc relative symbol value                   \
-          */
+        */
 #define R_X86_64_DTPMOD64 16 /* ID of module containing symbol */
 #define R_X86_64_DTPOFF64 17 /* Offset in TLS block */
 #define R_X86_64_TPOFF64 18  /* Offset in static TLS block */

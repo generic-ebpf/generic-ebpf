@@ -36,7 +36,7 @@
 #error Unsupported platform
 #endif
 
-/* 
+/*
  * Prototypes of platform dependent functions for both
  * user space platforms and kernel space platforms.
  */

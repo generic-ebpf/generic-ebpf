@@ -62,7 +62,8 @@ int
 main(int argc, char **argv)
 {
     struct option longopts[] = {{
-                                    .name = "help", .val = 'h',
+                                    .name = "help",
+                                    .val = 'h',
                                 },
                                 {.name = "mem", .val = 'm', .has_arg = 1},
                                 {.name = "jit", .val = 'j'},

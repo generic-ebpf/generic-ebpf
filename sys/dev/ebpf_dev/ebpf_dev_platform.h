@@ -26,7 +26,6 @@
 #error Unsupported platform
 #endif
 
-
 /*
  * Prototypes of platform dependent functions.
  */

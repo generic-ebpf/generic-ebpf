@@ -124,7 +124,7 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
     uint16_t pc = 0;
     const struct ebpf_inst *insts = vm->insts;
     uint64_t reg[16];
-    uint64_t stack[(STACK_SIZE+7)/8];
+    uint64_t stack[(STACK_SIZE + 7) / 8];
 
     if (!insts) {
         /* Code must be loaded before we can execute */
@@ -266,7 +266,6 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
             }
             break;
 
-
         case EBPF_OP_ADD64_IMM:
             reg[inst.dst] += inst.imm;
             break;
@@ -351,39 +350,45 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
             reg[inst.dst] = (int64_t)reg[inst.dst] >> reg[inst.src];
             break;
 
-        /*
-         * HACK runtime bounds check
-         *
-         * Needed since we don't have a verifier yet.
-         */
-#define BOUNDS_CHECK_LOAD(size) \
-    do { \
-        if (!bounds_check((uint8_t *)reg[inst.src] + inst.offset, size, "load", cur_pc, mem, mem_len, stack)) { \
-            return UINT64_MAX; \
-        } \
+            /*
+             * HACK runtime bounds check
+             *
+             * Needed since we don't have a verifier yet.
+             */
+#define BOUNDS_CHECK_LOAD(size)                                                \
+    do {                                                                       \
+        if (!bounds_check((uint8_t *)reg[inst.src] + inst.offset, size,        \
+                          "load", cur_pc, mem, mem_len, stack)) {              \
+            return UINT64_MAX;                                                 \
+        }                                                                      \
     } while (0)
-#define BOUNDS_CHECK_STORE(size) \
-    do { \
-        if (!bounds_check((uint8_t *)reg[inst.dst] + inst.offset, size, "store", cur_pc, mem, mem_len, stack)) { \
-            return UINT64_MAX; \
-        } \
+#define BOUNDS_CHECK_STORE(size)                                               \
+    do {                                                                       \
+        if (!bounds_check((uint8_t *)reg[inst.dst] + inst.offset, size,        \
+                          "store", cur_pc, mem, mem_len, stack)) {             \
+            return UINT64_MAX;                                                 \
+        }                                                                      \
     } while (0)
 
         case EBPF_OP_LDXW:
             BOUNDS_CHECK_LOAD(4);
-            reg[inst.dst] = *(uint32_t *)(uintptr_t)(reg[inst.src] + inst.offset);
+            reg[inst.dst] =
+                *(uint32_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
         case EBPF_OP_LDXH:
             BOUNDS_CHECK_LOAD(2);
-            reg[inst.dst] = *(uint16_t *)(uintptr_t)(reg[inst.src] + inst.offset);
+            reg[inst.dst] =
+                *(uint16_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
         case EBPF_OP_LDXB:
             BOUNDS_CHECK_LOAD(1);
-            reg[inst.dst] = *(uint8_t *)(uintptr_t)(reg[inst.src] + inst.offset);
+            reg[inst.dst] =
+                *(uint8_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
         case EBPF_OP_LDXDW:
             BOUNDS_CHECK_LOAD(8);
-            reg[inst.dst] = *(uint64_t *)(uintptr_t)(reg[inst.src] + inst.offset);
+            reg[inst.dst] =
+                *(uint64_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
 
         case EBPF_OP_STW:
@@ -405,23 +410,28 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 
         case EBPF_OP_STXW:
             BOUNDS_CHECK_STORE(4);
-            *(uint32_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = reg[inst.src];
+            *(uint32_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
+                reg[inst.src];
             break;
         case EBPF_OP_STXH:
             BOUNDS_CHECK_STORE(2);
-            *(uint16_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = reg[inst.src];
+            *(uint16_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
+                reg[inst.src];
             break;
         case EBPF_OP_STXB:
             BOUNDS_CHECK_STORE(1);
-            *(uint8_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = reg[inst.src];
+            *(uint8_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
+                reg[inst.src];
             break;
         case EBPF_OP_STXDW:
             BOUNDS_CHECK_STORE(8);
-            *(uint64_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = reg[inst.src];
+            *(uint64_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
+                reg[inst.src];
             break;
 
         case EBPF_OP_LDDW:
-            reg[inst.dst] = (uint32_t)inst.imm | ((uint64_t)insts[pc++].imm << 32);
+            reg[inst.dst] =
+                (uint32_t)inst.imm | ((uint64_t)insts[pc++].imm << 32);
             break;
 
         case EBPF_OP_JA:
@@ -540,7 +550,8 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
         case EBPF_OP_EXIT:
             return reg[0];
         case EBPF_OP_CALL:
-            reg[0] = vm->ext_funcs[inst.imm](reg[1], reg[2], reg[3], reg[4], reg[5]);
+            reg[0] =
+                vm->ext_funcs[inst.imm](reg[1], reg[2], reg[3], reg[4], reg[5]);
             break;
         default:
             ebpf_error("Unknown instruction!\n");
