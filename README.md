@@ -1,9 +1,8 @@
 # generic-ebpf
-Generic eBPF VM runtime. It (currently) consists of three components
+Generic eBPF VM runtime. It (currently) consists of two components
 
 1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel
 2. ebpf_dev: Character device for loading ebpf vm or other related objects (e.g. map) into kernel
-3. libbpf: [bcc](https://github.com/iovisor/bcc) style libbpf interface.
 
 Current support status
 
