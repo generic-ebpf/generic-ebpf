@@ -1,5 +1,11 @@
 #include "ebpf_map.h"
 
+extern struct ebpf_map_ops array_map_ops;
+
+const struct ebpf_map_ops *ebpf_map_ops[] = {
+  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops
+};
+
 void*
 ebpf_map_lookup_elem(struct ebpf_obj_map *self,
     void *key, uint64_t flags)
