@@ -1,0 +1,152 @@
+/*
+ * Copyright 2017 Yutaro Hayakawa
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#include <dev/ebpf_dev/ebpf_dev_platform.h>
+#include <dev/ebpf/ebpf_obj.h>
+#include <sys/ebpf.h>
+#include <sys/ebpf_dev.h>
+
+static int
+ebpf_objfile_release(struct inode *inode, struct file *filp)
+{
+    struct ebpf_obj *obj = filp->private_data;
+
+    if (!atomic_read(&inode->i_count)) {
+      ebpf_obj_delete(obj);
+    }
+
+    return 0;
+}
+
+static const struct file_operations ebpf_objfile_ops = {
+    .release = ebpf_objfile_release
+};
+
+int
+ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data)
+{
+    return anon_inode_getfd("ebpf-map", &ebpf_objfile_ops, data,
+                O_RDWR | O_CLOEXEC);
+}
+
+int
+ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
+{
+    *f = fget(fd);
+    if (!f) {
+      return EBUSY;
+    }
+    return 0;
+}
+
+int
+ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td)
+{
+    fput(f);
+    return 0;
+}
+
+int
+ebpf_copyin(const void *uaddr, void *kaddr, size_t len)
+{
+    return copy_from_user(kaddr, uaddr, len);
+}
+
+int
+ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
+{
+    return copy_to_user(uaddr, kaddr, len);
+}
+
+/*
+ * Character device operations
+ */
+int
+ebpf_open(struct inode *inode, struct file *filp)
+{
+    return 0;
+}
+
+int
+ebpf_close(struct inode *inode, struct file *filp)
+{
+    return 0;
+}
+
+long
+linux_ebpf_ioctl(struct file *filp, unsigned int cmd, unsigned long data)
+{
+    int error;
+    union ebpf_req req;
+
+    error = copy_from_user(&req, (void *)data, sizeof(union ebpf_req));
+    if (error) {
+      return -error;
+    }
+
+    error = ebpf_ioctl(cmd, &req, current);
+    if (error) {
+      return -error;
+    }
+
+    if ((void *)data) {
+      error = copy_to_user((void *)data, &req, sizeof(union ebpf_req));
+    }
+
+    return -error;
+}
+
+static struct file_operations ebpf_dev_fops = {
+  .owner = THIS_MODULE,
+  .open = ebpf_open,
+  .unlocked_ioctl = linux_ebpf_ioctl,
+  .release = ebpf_close
+};
+
+struct miscdevice ebpf_dev_cdev = {
+  MISC_DYNAMIC_MINOR,
+  "ebpf",
+  &ebpf_dev_fops
+};
+
+/*
+ * Kernel module operations
+ */
+static __exit void
+ebpf_dev_fini(void)
+{
+    misc_deregister(&ebpf_dev_cdev);
+    printk("ebpf-dev unloaded\n");
+}
+
+static __init int
+ebpf_dev_init(void)
+{
+    misc_register(&ebpf_dev_cdev);
+    printk(KERN_INFO "ebpf-dev loaded\n");
+    return 0;
+}
+
+EXPORT_SYMBOL(ebpf_obj_get_fdesc);
+EXPORT_SYMBOL(ebpf_fget);
+EXPORT_SYMBOL(ebpf_fdrop);
+EXPORT_SYMBOL(ebpf_copyin);
+EXPORT_SYMBOL(ebpf_copyout);
+
+module_init(ebpf_dev_init);
+module_exit(ebpf_dev_fini);
+
+MODULE_LICENSE("GPL");
