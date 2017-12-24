@@ -1,4 +1,4 @@
-platform:=$(shell uname)
+platform != uname
 
 all: user kernel tests
 
