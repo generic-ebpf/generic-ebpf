@@ -1,67 +1,28 @@
 # generic-ebpf
 Generic eBPF VM runtime. It (currently) consists of two components
 
-1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel
-2. ebpf_dev: Character device for loading ebpf vm or other related objects (e.g. map) into kernel
+1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel.
+2. ebpf_dev: Character device for loading ebpf vm or other related objects (e.g. map) into kernel. Alternative of Linux bpf(2).
 
 Current support status
 
-|                |ebpf                |ebpf_dev            |
-|:--------------:|:------------------:|:------------------:|
-|FreeBSD Kernel  |Yes                 |Yes                 |
-|FreeBSD User    |Yes                 |-                   |
-|Linux Kernel    |Yes                 |Yes                 |
-|Linux User      |Yes                 |-                   |
-|MacOSX User     |Yes                 |-                   |
+|               |ebpf               |ebpf_dev           |
+|:--------------|:------------------|:------------------|
+|FreeBSD Kernel |Yes                |Yes                |
+|FreeBSD User   |Yes                |-                  |
+|Linux Kernel   |Yes                |Yes                |
+|Linux User     |Yes                |-                  |
+|MacOSX User    |Yes                |-                  |
 
 
 # Installation
 
-### Kernel Space
-
-#### FreeBSD
-
 ```
-$ cd generic-ebpf/FreeBSD/ebpf/kernel
 $ make
-# kldload ./ebpf.ko
+
+// load ebpf and ebpf_dev kernel module
+$ make load
 ```
-
-#### Linux
-
-```
-$ cd generic-ebpf/LINUX/ebpf/kernel
-$ make
-# insmod ebpf.ko
-```
-
-### User Space
-
-#### FreeBSD
-
-```
-$ cd generic-ebpf/FreeBSD/ebpf/user
-$ make
-```
-
-After compilation, you see libebpf.a. Please statically link it to your program.
-#### Linux
-
-```
-$ cd generic-ebpf/LINUX/ebpf/user
-$ make
-```
-
-After compilation, you see libebpf.a. Please statically link it to your program.
-
-#### MacOSX
-
-```
-$ cd generic-ebpf/MacOSX/ebpf/user
-$ make
-```
-
-After compilation, you see libebpf.a. Please statically link it to your program.
 
 ## Running tests
 

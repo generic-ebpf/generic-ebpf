@@ -18,9 +18,10 @@ obj-m:=ebpf.o
 LINUX_SRC:=/lib/modules/$(shell uname -r)/build
 
 EXTRA_CFLAGS:= \
-	-O3 \
+	-Ofast \
 	-I$(CURDIR)/$(TOP_DIR) \
 	-I$(CURDIR) \
+	-Wall \
 	-std=gnu11 -Wno-declaration-after-statement \
 
 all:

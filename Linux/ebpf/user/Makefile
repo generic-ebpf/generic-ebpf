@@ -21,8 +21,7 @@ CFLAGS += \
 	-I $(CURDIR) \
 	-D user \
 	-Wall \
-	-g \
-	-std=gnu11 -Wno-declaration-after-statement \
+	-std=gnu11 -Wno-declaration-after-statement
 
 all: libebpf.a test
 
@@ -33,4 +32,4 @@ test: $(TEST_DIR)/test.o libebpf.a
 	$(CC) $(CFLAGS) -o $(TEST_DIR)/$@ $^ -lm
 
 clean:
-	rm libebpf.a $(ebpf-objs) $(TEST_DIR)/test $(TEST_DIR)/test.o
+	rm -f libebpf.a *.o $(SRC_DIR)/*.o $(TEST_DIR)/test $(TEST_DIR)/test.o 2> /dev/null
