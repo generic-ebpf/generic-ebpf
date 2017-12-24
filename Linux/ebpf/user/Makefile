@@ -1,10 +1,13 @@
-TOP_DIR:=../../sys
+TOP_DIR:=../../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
-TEST_DIR:=../../test
+TEST_DIR:=../../../tests/ebpf_tests
 
 ebpf-objs += $(SRC_DIR)/ebpf_vm.o
 ebpf-objs += $(SRC_DIR)/ebpf_loader.o
 ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
+ebpf-objs += $(SRC_DIR)/ebpf_map.o
+ebpf-objs += $(SRC_DIR)/ebpf_obj.o
+ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
 ebpf-objs += ./ebpf_linux_user.o
 
 ifeq ($(shell arch), x86_64)
