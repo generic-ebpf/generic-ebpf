@@ -34,7 +34,7 @@ unload-Linux:
 
 load-FreeBSD:
 	kldload ./ebpf.ko
-	kldload ./ebpf_dev.ko
+	kldload ./ebpf-dev.ko
 
 unload-FreeBSD:
 	kldunload ebpf-dev.ko

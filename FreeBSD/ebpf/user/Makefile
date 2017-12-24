@@ -34,4 +34,4 @@ test: $(TEST_DIR)/test.o libebpf.a
 	$(CC) $(CFLAGS) -o $(TEST_DIR)/$@ $(TEST_DIR)/test.o libebpf.a
 
 clean:
-	rm libebpf.a $(ebpf-objs) $(TEST_DIR)/test.o
+	rm -f libebpf.a $(ebpf-objs) $(TEST_DIR)/test.o
