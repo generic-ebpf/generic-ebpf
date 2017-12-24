@@ -14,8 +14,9 @@
  * limitations under the License.
  */
 
-#include "ebpf_linux.h"
+#include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf.h>
+#include <dev/ebpf/ebpf_map.h>
 
 void *
 ebpf_malloc(size_t size)
@@ -101,6 +102,12 @@ EXPORT_SYMBOL(ebpf_exalloc);
 EXPORT_SYMBOL(ebpf_exfree);
 EXPORT_SYMBOL(ebpf_error);
 EXPORT_SYMBOL(ebpf_assert);
+EXPORT_SYMBOL(ebpf_map_delete_elem);
+EXPORT_SYMBOL(ebpf_map_lookup_elem);
+EXPORT_SYMBOL(ebpf_map_update_elem);
+EXPORT_SYMBOL(ebpf_map_get_next_key);
+EXPORT_SYMBOL(ebpf_obj_delete);
+EXPORT_SYMBOL(ebpf_obj_new);
 
 module_init(ebpf_init);
 module_exit(ebpf_fini);
