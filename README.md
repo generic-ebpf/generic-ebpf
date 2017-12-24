@@ -2,7 +2,7 @@
 Generic eBPF VM runtime. It (currently) consists of two components
 
 1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel.
-2. ebpf_dev: Character device for loading ebpf vm or other related objects (e.g. map) into kernel. Alternative of Linux bpf(2).
+2. ebpf_dev: Character device for loading ebpf program or other related objects (e.g. map) into kernel. Alternative of Linux bpf(2).
 
 Current support status
 
