@@ -10,7 +10,7 @@ Current support status
 |:--------------:|:------------------:|:------------------:|
 |FreeBSD Kernel  |Yes                 |Yes                 |
 |FreeBSD User    |Yes                 |-                   |
-|Linux Kernel    |Yes                 |No (but will be Yes)|
+|Linux Kernel    |Yes                 |Yes                 |
 |Linux User      |Yes                 |-                   |
 |MacOSX User     |Yes                 |-                   |
 
