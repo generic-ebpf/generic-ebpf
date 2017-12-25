@@ -1,4 +1,6 @@
 # generic-ebpf
+[![Build Status](https://travis-ci.org/YutaroHayakawa/generic-ebpf.svg?branch=master)](https://travis-ci.org/YutaroHayakawa/generic-ebpf)
+
 Generic eBPF VM runtime. It (currently) consists of two components
 
 1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel.
@@ -13,7 +15,6 @@ Current support status
 |Linux Kernel   |Yes                |Yes                |
 |Linux User     |Yes                |-                  |
 |MacOSX User    |Yes                |-                  |
-
 
 # Installation
 
