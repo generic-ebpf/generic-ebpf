@@ -25,6 +25,11 @@ CFLAGS += \
 	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
+.if $(COVERAGE) == 1
+CFLAGS += -fprofile-arcs -ftest-coverage
+LDFLAGS += -fprofile-arcs
+.endif
+
 all: libebpf.a
 
 libebpf.a: $(ebpf-objs)

@@ -23,6 +23,10 @@ CFLAGS += \
 	-Wall \
 	-std=gnu11 -Wno-declaration-after-statement
 
+ifeq ($(COVERAGE), 1)
+	CFLAGS += -fprofile-arcs -ftest-coverage -lgcov
+endif
+
 all: libebpf.a
 
 libebpf.a: $(ebpf-objs)
