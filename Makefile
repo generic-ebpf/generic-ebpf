@@ -27,7 +27,10 @@ ebpf_tests:
 ebpf_obj_tests:
 	make -C tests/ebpf_obj_tests
 
-tests: ebpf_tests ebpf_obj_tests
+ebpf_map_tests:
+	make -C tests/ebpf_map_tests
+
+tests: ebpf_tests ebpf_obj_tests ebpf_map_tests
 
 do_ebpf_tests:
 	make -C tests/ebpf_tests do_test
@@ -35,7 +38,10 @@ do_ebpf_tests:
 do_ebpf_obj_tests:
 	make -C tests/ebpf_obj_tests do_test
 
-do_test: do_ebpf_tests do_ebpf_obj_tests
+do_ebpf_map_tests:
+	make -C tests/ebpf_map_tests do_test
+
+do_test: do_ebpf_tests do_ebpf_obj_tests do_ebpf_map_tests
 
 clean_ebpf_tests:
 	make -C tests/ebpf_tests clean
@@ -43,7 +49,10 @@ clean_ebpf_tests:
 clean_ebpf_obj_tests:
 	make -C tests/ebpf_obj_tests clean
 
-clean_tests: clean_ebpf_tests clean_ebpf_obj_tests
+clean_ebpf_map_tests:
+	make -C tests/ebpf_map_tests clean
+
+clean_tests: clean_ebpf_tests clean_ebpf_obj_tests clean_ebpf_map_tests
 
 load-Linux:
 	insmod ./ebpf.ko
