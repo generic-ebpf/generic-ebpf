@@ -1,0 +1,14 @@
+language: cpp
+compiler:
+  - clang
+  - clang++
+python:
+  - "2.7"
+install:
+  - ./install_deps.sh
+  - pip install --user cpp-coveralls
+script:
+  - make COVERAGE=1
+  - make do_test
+after_success:
+  - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf
