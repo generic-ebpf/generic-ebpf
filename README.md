@@ -30,10 +30,8 @@ $ make load
 
 ### Tests for Interpreter and JIT compiler
 ```
-$ cd generic-ebpf/tests/ebpf_tests
-// Maybe under Python virtual environment
-$ pip install -r requirements.txt
-$ nosetests
+// after make
+$ make do_test
 ```
 
 ## Example Applications
