@@ -17,20 +17,22 @@
 #pragma once
 
 #ifdef __FreeBSD__
-#ifdef user
-#include <ebpf_freebsd_user.h>
-#else
+#ifdef _KERNEL
 #include "ebpf_freebsd.h"
+#else
+#include <ebpf_freebsd_user.h>
 #endif
 #elif defined(linux)
-#ifdef user
-#include <ebpf_linux_user.h>
-#else
+#ifdef _KERNEL
 #include <ebpf_linux.h>
+#else
+#include <ebpf_linux_user.h>
 #endif
 #elif defined(__APPLE__)
-#ifdef user
+#ifdef _KERNEL
 #include <ebpf_osx_user.h>
+#else
+#error Kernel space code isn't supported
 #endif
 #else
 #error Unsupported platform
