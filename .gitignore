@@ -1,6 +1,15 @@
+*.a
+*.ko
+*.o
+*.gcov
+*/**/*.a
 */**/*.o
 */**/*.ko
 */**/*.pyc
+*/**/*.gcda
+*/**/*.gcno
+*/**/*.gcov
+*/**/*test
 test/.noseids
 test/test_framework/.noseids
 test/venv
