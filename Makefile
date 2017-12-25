@@ -21,8 +21,29 @@ clean_user:
 	rm -f libebpf.a
 	make -C $(platform)/ebpf/user clean
 
-tests:
-	make -C $(platform)/ebpf/user test
+ebpf_tests:
+	make -C tests/ebpf_tests
+
+map_tests:
+	make -C tests/map_tests
+
+tests: ebpf_tests map_tests
+
+do_ebpf_tests:
+	make -C tests/ebpf_tests do_test
+
+do_map_tests:
+	make -C tests/map_tests do_test
+
+do_test: do_ebpf_tests do_map_tests
+
+clean_ebpf_tests:
+	make -C tests/ebpf_tests clean
+
+clean_map_tests:
+	make -C tests/map_tests clean
+
+clean_tests: clean_ebpf_tests clean_map_tests
 
 load-Linux:
 	insmod ./ebpf.ko
@@ -43,4 +64,4 @@ unload-FreeBSD:
 load: load-$(platform)
 unload: unload-$(platform)
 
-clean: clean_kernel clean_user
+clean: clean_kernel clean_user clean_tests

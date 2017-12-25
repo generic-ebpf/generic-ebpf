@@ -25,13 +25,10 @@ CFLAGS += \
 	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
-all: libebpf.a test
+all: libebpf.a
 
 libebpf.a: $(ebpf-objs)
 	ar rc $@ $(ebpf-objs)
 
-test: $(TEST_DIR)/test.o libebpf.a
-	$(CC) $(CFLAGS) -o $(TEST_DIR)/$@ $(TEST_DIR)/test.o libebpf.a
-
 clean:
-	rm -f libebpf.a $(ebpf-objs) $(TEST_DIR)/test.o
+	rm -f libebpf.a $(ebpf-objs)
