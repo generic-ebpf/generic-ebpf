@@ -114,3 +114,23 @@ TEST(ProgLoadTest, LoadWithNULLProg)
 
   EXPECT_EQ(EINVAL, error);
 }
+
+TEST(ProgLoadTest, CorrectLoad)
+{
+  int error;
+  struct ebpf_obj_prog *prog;
+
+  struct ebpf_inst insts[] = {
+    { EBPF_OP_EXIT, 0, 0, 0, 0 }
+  };
+
+  union ebpf_req req;
+  req.prog_fdp = NULL;
+  req.prog_type = EBPF_PROG_TYPE_TEST;
+  req.prog_len = 1;
+  req.prog = insts;
+
+  error = ebpf_obj_new((struct ebpf_obj **)&prog, EBPF_OBJ_TYPE_PROG, &req);
+
+  EXPECT_EQ(0, error);
+}
