@@ -9,7 +9,7 @@ install:
   - ./install_deps.sh
   - pip install --user cpp-coveralls
 script:
-  - platform=Linux make user COVERAGE=1
+  - COVERAGE=1 platform=Linux make user
   - platform=Linux make tests
   - platform=Linux make do_test
 after_success:

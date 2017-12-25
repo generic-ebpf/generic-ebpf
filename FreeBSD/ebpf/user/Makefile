@@ -1,3 +1,4 @@
+CC=clang
 TOP_DIR:=../../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
 TEST_DIR:=../../../tests/ebpf_tests
@@ -25,9 +26,8 @@ CFLAGS += \
 	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
-.if $(COVERAGE) == 1
-CFLAGS += -fprofile-arcs -ftest-coverage
-LDFLAGS += -fprofile-arcs
+.if defined(COVERAGE) && $(COVERAGE) == 1
+CFLAGS += -coverage
 .endif
 
 all: libebpf.a

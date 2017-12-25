@@ -24,7 +24,7 @@ CFLAGS += \
 	-std=gnu11 -Wno-declaration-after-statement
 
 ifeq ($(COVERAGE), 1)
-	CFLAGS += -fprofile-arcs -ftest-coverage -lgcov
+	CFLAGS += -fprofile-arcs -ftest-coverage
 endif
 
 all: libebpf.a

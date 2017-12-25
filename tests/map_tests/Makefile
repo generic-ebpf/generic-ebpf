@@ -10,7 +10,7 @@ libebpf = ../../libebpf.a
 CXXFLAGS = \
 	-I ../../sys \
 	-I $(platdir) \
-	-I ../googletest/googletest/include
+	-I ../googletest/googletest/include \
 
 map_tests = \
 	create_test update_test delete_test get_next_key_test
@@ -18,16 +18,16 @@ map_tests = \
 all: $(map_tests)
 
 create_test: create_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ create_test.cpp $(gtestobjs) $(libebpf) -lpthread
+	$(CXX) $(CXXFLAGS) -o $@ create_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
 update_test: update_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ update_test.cpp $(gtestobjs) $(libebpf) -lpthread
+	$(CXX) $(CXXFLAGS) -o $@ update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
 delete_test: delete_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ delete_test.cpp $(gtestobjs) $(libebpf) -lpthread
+	$(CXX) $(CXXFLAGS) -o $@ delete_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
 get_next_key_test: get_next_key_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread
+	$(CXX) $(CXXFLAGS) -o $@ get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
 do_test:
 	./create_test && ./update_test && ./delete_test && ./get_next_key_test
