@@ -13,4 +13,4 @@ script:
   - platform=Linux make tests
   - platform=Linux make do_test
 after_success:
-  - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf
+  - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E "*.h"
