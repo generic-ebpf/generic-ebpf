@@ -10,6 +10,7 @@ LINUX_SRC:=/lib/modules/$(shell uname -r)/build
 
 EXTRA_CFLAGS:= \
 	-Ofast \
+	-D _KERNEL \
 	-I$(CURDIR)/$(TOP_DIR) \
 	-I$(CURDIR) \
 	-I$(CURDIR)/../ebpf/kernel \
