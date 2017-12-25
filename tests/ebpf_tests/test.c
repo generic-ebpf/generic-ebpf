@@ -147,7 +147,7 @@ main(int argc, char **argv)
             return 1;
         }
 
-        ret = fn(mem, mem_len);
+        ret = ebpf_exec_jit(vm, mem, mem_len);
     } else {
         ret = ebpf_exec(vm, mem, mem_len);
     }
