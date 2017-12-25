@@ -13,12 +13,15 @@ CXXFLAGS = \
 	-I ../googletest/googletest/include \
 
 map_tests = \
-	create_test update_test delete_test get_next_key_test
+	create_test lookup_test update_test delete_test get_next_key_test
 
 all: $(map_tests)
 
 create_test: create_test.cpp
 	$(CXX) $(CXXFLAGS) -o $@ create_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+
+lookup_test: lookup_test.cpp
+	$(CXX) $(CXXFLAGS) -o $@ lookup_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
 update_test: update_test.cpp
 	$(CXX) $(CXXFLAGS) -o $@ update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
@@ -30,7 +33,11 @@ get_next_key_test: get_next_key_test.cpp
 	$(CXX) $(CXXFLAGS) -o $@ get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
 do_test:
-	./create_test && ./update_test && ./delete_test && ./get_next_key_test
+	./create_test
+	./lookup_test
+	./update_test
+	./delete_test
+	./get_next_key_test
 
 clean:
 	rm -f $(map_tests)
