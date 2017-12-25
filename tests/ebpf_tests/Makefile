@@ -1,5 +1,5 @@
 test: test.c
-	$(CC) -o $@ -I ../../sys test.c ../../libebpf.a
+	$(CC) -o $@ -I ../../sys test.c ../../libebpf.a -lm
 
 do_test:
 	nosetests

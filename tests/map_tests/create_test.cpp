@@ -11,14 +11,13 @@ TEST(MapCreateTest, CreateWithNULLMapPointer)
   int error;
   struct ebpf_obj_map *map;
 
-  union ebpf_req req = {
-    .map_fdp = NULL,
-    .map_type = EBPF_MAP_TYPE_ARRAY,
-    .key_size = sizeof(uint32_t),
-    .value_size = sizeof(uint32_t),
-    .max_entries = 0,
-    .map_flags = 0
-  };
+  union ebpf_req req;
+  req.map_fdp = NULL;
+  req.map_type = EBPF_MAP_TYPE_ARRAY;
+  req.key_size = sizeof(uint32_t);
+  req.value_size = sizeof(uint32_t);
+  req.max_entries = 0;
+  req.map_flags = 0;
 
   error = ebpf_obj_new(NULL, EBPF_OBJ_TYPE_MAP, &req);
 
@@ -40,14 +39,13 @@ TEST(MapCreateTest, CreateWithInvalidMapType1)
   int error;
   struct ebpf_obj_map *map;
 
-  union ebpf_req req = {
-    .map_fdp = NULL,
-    .map_type = __EBPF_MAP_TYPE_MAX,
-    .key_size = sizeof(uint32_t),
-    .value_size = sizeof(uint32_t),
-    .max_entries = 0,
-    .map_flags = 0
-  };
+  union ebpf_req req;
+  req.map_fdp = NULL;
+  req.map_type = __EBPF_MAP_TYPE_MAX;
+  req.key_size = sizeof(uint32_t);
+  req.value_size = sizeof(uint32_t);
+  req.max_entries = 0;
+  req.map_flags = 0;
 
   error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, &req);
 
@@ -59,14 +57,13 @@ TEST(MapCreateTest, CreateWithInvalidMapType2)
   int error;
   struct ebpf_obj_map *map;
 
-  union ebpf_req req = {
-    .map_fdp = NULL,
-    .map_type = __EBPF_MAP_TYPE_MAX + 1,
-    .key_size = sizeof(uint32_t),
-    .value_size = sizeof(uint32_t),
-    .max_entries = 0,
-    .map_flags = 0
-  };
+  union ebpf_req req;
+  req.map_fdp = NULL;
+  req.map_type = __EBPF_MAP_TYPE_MAX + 1;
+  req.key_size = sizeof(uint32_t);
+  req.value_size = sizeof(uint32_t);
+  req.max_entries = 0;
+  req.map_flags = 0;
 
   error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, &req);
 
@@ -78,14 +75,13 @@ TEST(MapCreateTest, CreateWithZeroKey)
   int error;
   struct ebpf_obj_map *map;
 
-  union ebpf_req req = {
-    .map_fdp = NULL,
-    .map_type = EBPF_MAP_TYPE_ARRAY,
-    .key_size = 0,
-    .value_size = sizeof(uint32_t),
-    .max_entries = 100,
-    .map_flags = 0
-  };
+  union ebpf_req req;
+  req.map_fdp = NULL;
+  req.map_type = EBPF_MAP_TYPE_ARRAY;
+  req.key_size = 0;
+  req.value_size = sizeof(uint32_t);
+  req.max_entries = 100;
+  req.map_flags = 0;
 
   error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, &req);
 
@@ -97,14 +93,13 @@ TEST(MapCreateTest, CreateWithZeroValue)
   int error;
   struct ebpf_obj_map *map;
 
-  union ebpf_req req = {
-    .map_fdp = NULL,
-    .map_type = EBPF_MAP_TYPE_ARRAY,
-    .key_size = sizeof(uint32_t),
-    .value_size = 0,
-    .max_entries = 100,
-    .map_flags = 0
-  };
+  union ebpf_req req;
+  req.map_fdp = NULL;
+  req.map_type = EBPF_MAP_TYPE_ARRAY;
+  req.key_size = sizeof(uint32_t);
+  req.value_size = 0;
+  req.max_entries = 100;
+  req.map_flags = 0;
 
   error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, &req);
 
@@ -116,14 +111,13 @@ TEST(MapCreateTest, CreateWithZeroMaxEntries)
   int error;
   struct ebpf_obj_map *map;
 
-  union ebpf_req req = {
-    .map_fdp = NULL,
-    .map_type = EBPF_MAP_TYPE_ARRAY,
-    .key_size = sizeof(uint32_t),
-    .value_size = sizeof(uint32_t),
-    .max_entries = 0,
-    .map_flags = 0
-  };
+  union ebpf_req req;
+  req.map_fdp = NULL;
+  req.map_type = EBPF_MAP_TYPE_ARRAY;
+  req.key_size = sizeof(uint32_t);
+  req.value_size = sizeof(uint32_t);
+  req.max_entries = 0;
+  req.map_flags = 0;
 
   error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, &req);
 

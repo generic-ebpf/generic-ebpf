@@ -15,14 +15,13 @@ protected:
   virtual void SetUp() {
     int error;
 
-    union ebpf_req req = {
-      .map_fdp = NULL,
-      .map_type = EBPF_MAP_TYPE_ARRAY,
-      .key_size = sizeof(uint32_t),
-      .value_size = sizeof(uint32_t),
-      .max_entries = 100,
-      .map_flags = 0
-    };
+    union ebpf_req req;
+    req.map_fdp = NULL;
+    req.map_type = EBPF_MAP_TYPE_ARRAY;
+    req.key_size = sizeof(uint32_t);
+    req.value_size = sizeof(uint32_t);
+    req.max_entries = 100;
+    req.map_flags = 0;
 
     error = ebpf_obj_new((struct ebpf_obj **)&map,
         EBPF_OBJ_TYPE_MAP, &req);

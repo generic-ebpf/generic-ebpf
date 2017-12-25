@@ -30,9 +30,9 @@
 #endif
 #elif defined(__APPLE__)
 #ifdef _KERNEL
-#include <ebpf_osx_user.h>
+#error Kernel space code is not supported
 #else
-#error Kernel space code isn't supported
+#include <ebpf_osx_user.h>
 #endif
 #else
 #error Unsupported platform
