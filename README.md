@@ -1,5 +1,6 @@
 # generic-ebpf
 [![Build Status](https://travis-ci.org/YutaroHayakawa/generic-ebpf.svg?branch=master)](https://travis-ci.org/YutaroHayakawa/generic-ebpf)
+[![Coverage Status](https://coveralls.io/repos/github/YutaroHayakawa/generic-ebpf/badge.svg)](https://coveralls.io/github/YutaroHayakawa/generic-ebpf)
 
 Generic eBPF VM runtime. It (currently) consists of two components
 
