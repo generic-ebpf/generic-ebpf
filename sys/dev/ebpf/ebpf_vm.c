@@ -350,11 +350,11 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
             reg[inst.dst] = (int64_t)reg[inst.dst] >> reg[inst.src];
             break;
 
-            /*
-             * HACK runtime bounds check
-             *
-             * Needed since we don't have a verifier yet.
-             */
+/*
+ * HACK runtime bounds check
+ *
+ * Needed since we don't have a verifier yet.
+ */
 #define BOUNDS_CHECK_LOAD(size)                                                \
     do {                                                                       \
         if (!bounds_check((uint8_t *)reg[inst.src] + inst.offset, size,        \

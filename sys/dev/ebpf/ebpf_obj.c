@@ -7,8 +7,8 @@
 static int
 ebpf_obj_prog_ctor(struct ebpf_obj_prog *obj, union ebpf_req *req)
 {
-    if (req->prog_type >= __EBPF_PROG_TYPE_MAX || !req->prog
-        || !req->prog_len) {
+    if (req->prog_type >= __EBPF_PROG_TYPE_MAX || !req->prog ||
+        !req->prog_len) {
         return EINVAL;
     }
 

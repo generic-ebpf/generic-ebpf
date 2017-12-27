@@ -29,7 +29,7 @@
 #include <sys/ebpf.h>
 
 #if defined(__APPLE__)
-#include "../../Darwin/ebpf/user/elf.h" 
+#include "../../Darwin/ebpf/user/elf.h"
 #else
 #include <elf.h>
 #endif
@@ -67,8 +67,7 @@ int
 main(int argc, char **argv)
 {
     struct option longopts[] = {{
-                                    .name = "help",
-                                    .val = 'h',
+                                    .name = "help", .val = 'h',
                                 },
                                 {.name = "mem", .val = 'm', .has_arg = 1},
                                 {.name = "jit", .val = 'j'},

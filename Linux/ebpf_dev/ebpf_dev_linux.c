@@ -25,21 +25,20 @@ ebpf_objfile_release(struct inode *inode, struct file *filp)
     struct ebpf_obj *obj = filp->private_data;
 
     if (!atomic_read(&inode->i_count)) {
-      ebpf_obj_delete(obj);
+        ebpf_obj_delete(obj);
     }
 
     return 0;
 }
 
 static const struct file_operations ebpf_objfile_ops = {
-    .release = ebpf_objfile_release
-};
+    .release = ebpf_objfile_release};
 
 int
 ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data)
 {
     return anon_inode_getfd("ebpf-map", &ebpf_objfile_ops, data,
-                O_RDWR | O_CLOEXEC);
+                            O_RDWR | O_CLOEXEC);
 }
 
 int
@@ -47,7 +46,7 @@ ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
 {
     *f = fget(fd);
     if (!f) {
-      return EBUSY;
+        return EBUSY;
     }
     return 0;
 }
@@ -94,33 +93,28 @@ linux_ebpf_ioctl(struct file *filp, unsigned int cmd, unsigned long data)
 
     error = copy_from_user(&req, (void *)data, sizeof(union ebpf_req));
     if (error) {
-      return -error;
+        return -error;
     }
 
     error = ebpf_ioctl(cmd, &req, current);
     if (error) {
-      return -error;
+        return -error;
     }
 
     if ((void *)data) {
-      error = copy_to_user((void *)data, &req, sizeof(union ebpf_req));
+        error = copy_to_user((void *)data, &req, sizeof(union ebpf_req));
     }
 
     return -error;
 }
 
-static struct file_operations ebpf_dev_fops = {
-  .owner = THIS_MODULE,
-  .open = ebpf_open,
-  .unlocked_ioctl = linux_ebpf_ioctl,
-  .release = ebpf_close
-};
+static struct file_operations ebpf_dev_fops = {.owner = THIS_MODULE,
+                                               .open = ebpf_open,
+                                               .unlocked_ioctl =
+                                                   linux_ebpf_ioctl,
+                                               .release = ebpf_close};
 
-struct miscdevice ebpf_dev_cdev = {
-  MISC_DYNAMIC_MINOR,
-  "ebpf",
-  &ebpf_dev_fops
-};
+struct miscdevice ebpf_dev_cdev = {MISC_DYNAMIC_MINOR, "ebpf", &ebpf_dev_fops};
 
 /*
  * Kernel module operations
