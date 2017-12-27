@@ -25,9 +25,14 @@
 #include <string.h>
 #include <getopt.h>
 #include <errno.h>
-#include <elf.h>
 #include <math.h>
 #include <sys/ebpf.h>
+
+#if defined(__APPLE__)
+#include "../../Darwin/ebpf/user/elf.h" 
+#else
+#include <elf.h>
+#endif
 
 /* MaxOSX and FreeBSD doesn't have memfrob */
 #if defined(__APPLE__) || defined(__FreeBSD__)

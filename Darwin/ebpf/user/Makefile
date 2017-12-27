@@ -1,10 +1,12 @@
-TOP_DIR:=../../sys
+TOP_DIR:=../../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
-TEST_DIR:=../../test
 
 ebpf-objs += $(SRC_DIR)/ebpf_vm.o
 ebpf-objs += $(SRC_DIR)/ebpf_loader.o
 ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
+ebpf-objs += $(SRC_DIR)/ebpf_map.o
+ebpf-objs += $(SRC_DIR)/ebpf_obj.o
+ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
 ebpf-objs += ./ebpf_osx_user.o
 
 ARCH:=$(shell arch)
@@ -22,13 +24,14 @@ CFLAGS += \
 	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
-all: libebpf.a test
+ifeq ($(COVERAGE), 1)
+	CFLAGS += -fprofile-arcs -ftest-coverage
+endif
+
+all: libebpf.a
 
 libebpf.a: $(ebpf-objs)
 	ar rc $@ $^
 
-test: $(TEST_DIR)/test.o libebpf.a
-	$(CC) $(CFLAGS) -o $(TEST_DIR)/$@ $(TEST_DIR)/test.o libebpf.a
-
 clean:
-	rm libebpf.a $(ebpf-objs) $(TEST_DIR)/test.o $(TEST_DIR)/test
+	rm -f libebpf.a $(ebpf-objs)

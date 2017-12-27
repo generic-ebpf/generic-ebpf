@@ -1,7 +1,7 @@
 #!/bin/sh
 
 cd tests
-pip install --user -r requirements.txt
+pip install -r requirements.txt
 
 if [ ! -d googletest ]; then
   git clone https://github.com/google/googletest

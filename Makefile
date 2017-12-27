@@ -1,5 +1,3 @@
-platform != uname
-
 all: user kernel tests
 
 kernel:
