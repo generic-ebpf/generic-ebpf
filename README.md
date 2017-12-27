@@ -20,11 +20,15 @@ Current support status
 # Installation
 
 ```
-$ make
-
-// load ebpf and ebpf_dev kernel module
-$ make load
+$ platform=`uname` make
 ```
+
+After compilation, you will see at least one of below
+- ebpf.ko: Kernel module for ebpf library
+- ebpf-dev.ko: Kernel module for ebpf_dev character device
+- libebpf.a: User space library for ebpf
+
+Please load or link them. Note that ebpf_dev.ko depends on ebpf.ko.
 
 ## Running tests
 

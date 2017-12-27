@@ -1,74 +1,47 @@
-all: user kernel tests
+.PHONY: all clean FreeBSD_all Linux_all Darwin_all FreeBSD_clean Linux_clean Darwin_clean \
+	ebpf_user ebpf_kernel ebpf_dev tests clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev do_test \
+	clean_tests
 
-kernel:
-	make -C $(platform)/ebpf/kernel
-	make -C $(platform)/ebpf_dev
-	cp $(platform)/ebpf/kernel/ebpf.ko .
-	cp $(platform)/ebpf_dev/ebpf-dev.ko .
+all: $(platform)_all
+clean: $(platform)_clean
 
-clean_kernel:
-	rm -f ebpf.ko ebpf-dev.ko
-	make -C $(platform)/ebpf/kernel clean
-	make -C $(platform)/ebpf_dev clean
+FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev tests
+Linux_all: ebpf_user ebpf_kernel ebpf_dev tests
+Darwin_all: ebpf_user tests
 
-user:
+FreeBSD_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests
+Linux_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests
+Darwin_clean: clean_ebpf_user clean_tests
+
+ebpf_user:
 	make -C $(platform)/ebpf/user
 	cp $(platform)/ebpf/user/libebpf.a .
 
-clean_user:
+ebpf_kernel:
+	make -C $(platform)/ebpf/kernel
+	cp $(platform)/ebpf/kernel/ebpf.ko .
+
+ebpf_dev:
+	make -C $(platform)/ebpf_dev
+	cp $(platform)/ebpf_dev/ebpf-dev.ko .
+
+tests: ebpf_user
+	make -C tests
+
+clean_ebpf_user:
 	rm -f libebpf.a
 	make -C $(platform)/ebpf/user clean
 
-ebpf_tests:
-	make -C tests/ebpf_tests
+clean_ebpf_kernel:
+	rm -f ebpf.ko
+	make -C $(platform)/ebpf/kernel clean
 
-ebpf_obj_tests:
-	make -C tests/ebpf_obj_tests
+clean_ebpf_dev:
+	rm -f ebpf-dev.ko
+	make -C $(platform)/ebpf_dev clean
 
-ebpf_map_tests:
-	make -C tests/ebpf_map_tests
+do_test:
+	make -C tests do_test
 
-tests: ebpf_tests ebpf_obj_tests ebpf_map_tests
-
-do_ebpf_tests:
-	make -C tests/ebpf_tests do_test
-
-do_ebpf_obj_tests:
-	make -C tests/ebpf_obj_tests do_test
-
-do_ebpf_map_tests:
-	make -C tests/ebpf_map_tests do_test
-
-do_test: do_ebpf_tests do_ebpf_obj_tests do_ebpf_map_tests
-
-clean_ebpf_tests:
-	make -C tests/ebpf_tests clean
-
-clean_ebpf_obj_tests:
-	make -C tests/ebpf_obj_tests clean
-
-clean_ebpf_map_tests:
-	make -C tests/ebpf_map_tests clean
-
-clean_tests: clean_ebpf_tests clean_ebpf_obj_tests clean_ebpf_map_tests
-
-load-Linux:
-	insmod ./ebpf.ko
-	insmod ./ebpf-dev.ko
-
-unload-Linux:
-	rmmod ebpf_dev
-	rmmod ebpf
-
-load-FreeBSD:
-	kldload ./ebpf.ko
-	kldload ./ebpf-dev.ko
-
-unload-FreeBSD:
-	kldunload ebpf-dev.ko
-	kldunload ebpf.ko
-
-load: load-$(platform)
-unload: unload-$(platform)
-
-clean: clean_kernel clean_user clean_tests
+clean_tests:
+	make -C tests clean

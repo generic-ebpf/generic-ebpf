@@ -1,16 +1,21 @@
-os: linux
 language: cpp
 compiler:
   - gcc
   - g++
 python:
   - "2.7"
+matrix:
+  include:
+    - os: linux
+      env: platform=Linux
+    - os: osx
+      env: platform=Darwin
 install:
   - ./install_deps.sh
   - pip install --user cpp-coveralls
 script:
-  - COVERAGE=1 platform=Linux make user
-  - platform=Linux make tests
-  - platform=Linux make do_test
+  - COVERAGE=1 make
+  - make tests
+  - make do_test
 after_success:
   - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E ".*\.h"
