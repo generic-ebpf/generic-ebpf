@@ -1,6 +1,5 @@
 TOP_DIR:=../../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
-TEST_DIR:=../../../tests/ebpf_tests
 
 ebpf-objs += $(SRC_DIR)/ebpf_vm.o
 ebpf-objs += $(SRC_DIR)/ebpf_loader.o
@@ -19,7 +18,6 @@ CFLAGS += \
 	-I $(SRC_DIR) \
 	-I $(TOP_DIR) \
 	-I $(CURDIR) \
-	-D user \
 	-Wall \
 	-std=gnu11 -Wno-declaration-after-statement
 

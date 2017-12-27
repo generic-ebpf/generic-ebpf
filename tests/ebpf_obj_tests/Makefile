@@ -1,4 +1,3 @@
-platform != uname
 platdir = ../../$(platform)/ebpf/user
 
 gtestobjs = \
