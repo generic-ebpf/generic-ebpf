@@ -8,6 +8,7 @@ gtestobjs = \
 libebpf = ../../libebpf.a
 
 CXXFLAGS = \
+	-O0 \
 	-I ../../sys \
 	-I $(platdir) \
 	-I ../googletest/googletest/include \

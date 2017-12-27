@@ -2,6 +2,9 @@
 	ebpf_user ebpf_kernel ebpf_dev tests clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev do_test \
 	clean_tests
 
+# will be replaced by configure
+platform={{platform}}
+
 all: $(platform)_all
 clean: $(platform)_clean
 

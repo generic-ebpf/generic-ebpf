@@ -1,0 +1,3 @@
+#!/bin/sh
+plat=`uname`
+sed -i.bak 's/{{platform}}/'"${plat}"'/g' Makefile

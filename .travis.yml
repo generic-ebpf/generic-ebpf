@@ -9,8 +9,9 @@ install:
   - ./install_deps.sh
   - pip install --user cpp-coveralls
 script:
-  - COVERAGE=1 platform=`uname` make ebpf_user
-  - platform=`uname` make tests
-  - platfrom=`uname` make do_test
+  - ./configure
+  - COVERAGE=1 make ebpf_user
+  - make tests
+  - make do_test
 after_success:
   - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E ".*\.h"
