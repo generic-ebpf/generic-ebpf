@@ -20,7 +20,8 @@ Current support status
 # Installation
 
 ```
-$ platform=`uname` make
+$ ./configure
+$ make
 ```
 
 After compilation, you will see at least one of below
@@ -28,7 +29,7 @@ After compilation, you will see at least one of below
 - ebpf-dev.ko: Kernel module for ebpf_dev character device
 - libebpf.a: User space library for ebpf
 
-Please load or link them. Note that ebpf_dev.ko depends on ebpf.ko.
+Please load or link them. Note that ebpf_dev.ko depends on ebpf.ko, so please load ebpf.ko before ebpf_dev.ko
 
 ## Running tests
 
