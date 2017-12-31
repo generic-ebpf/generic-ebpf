@@ -3,12 +3,12 @@
 	clean_tests
 
 # will be replaced by configure
-export platform={{platform}}
+export platform=FreeBSD
 
 all: $(platform)_all
 clean: $(platform)_clean
 
-FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev tests
+FreeBSD_all: ebpf_user ebpf_kernel tests
 Linux_all: ebpf_user ebpf_kernel ebpf_dev tests
 Darwin_all: ebpf_user tests
 

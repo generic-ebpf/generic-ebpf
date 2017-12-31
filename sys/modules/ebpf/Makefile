@@ -14,7 +14,7 @@ CORES += ebpf_freebsd.c
 CORES += ebpf_loader.c
 CORES += ebpf_verifer.c
 CORES += ebpf_vm.c
-CORES += ebpf_obj.c
+CORES += ebpf_prog.c
 CORES += ebpf_map.c
 
 MAPS += ebpf_map_array.c

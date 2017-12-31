@@ -5,7 +5,7 @@ ebpf-objs += $(SRC_DIR)/ebpf_vm.o
 ebpf-objs += $(SRC_DIR)/ebpf_loader.o
 ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
 ebpf-objs += $(SRC_DIR)/ebpf_map.o
-ebpf-objs += $(SRC_DIR)/ebpf_obj.o
+ebpf-objs += $(SRC_DIR)/ebpf_prog.o
 ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
 ebpf-objs += ./ebpf_osx_user.o
 

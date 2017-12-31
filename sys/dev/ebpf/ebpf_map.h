@@ -16,35 +16,54 @@
 
 #pragma once
 
-#include "ebpf_obj.h"
+#include "ebpf_platform.h"
+#include <sys/ebpf.h>
 
-typedef int ebpf_map_create_t(struct ebpf_obj_map *self, uint16_t key_size,
+extern const struct ebpf_map_ops *ebpf_map_ops[];
+
+struct ebpf_map;
+
+typedef int ebpf_map_init_t(struct ebpf_map *self, uint16_t key_size,
                               uint16_t value_size, uint16_t max_entries,
                               uint32_t flags);
-typedef void *ebpf_map_lookup_elem_t(struct ebpf_obj_map *self, void *key,
+typedef void *ebpf_map_lookup_elem_t(struct ebpf_map *self, void *key,
                                      uint64_t flags);
-typedef int ebpf_map_update_elem_t(struct ebpf_obj_map *self, void *key,
+typedef int ebpf_map_update_elem_t(struct ebpf_map *self, void *key,
                                    void *value, uint64_t flags);
-typedef int ebpf_map_delete_elem_t(struct ebpf_obj_map *self, void *key);
-typedef int ebpf_map_get_next_key_t(struct ebpf_obj_map *self, void *key,
+typedef int ebpf_map_delete_elem_t(struct ebpf_map *self, void *key);
+typedef int ebpf_map_get_next_key_t(struct ebpf_map *self, void *key,
                                     void *next_key);
-typedef void ebpf_map_destroy_t(struct ebpf_obj_map *self);
+typedef void ebpf_map_deinit_t(struct ebpf_map *self, void *arg);
 
 struct ebpf_map_ops {
-    ebpf_map_create_t *create;
+    ebpf_map_init_t *init;
     ebpf_map_lookup_elem_t *lookup_elem;
     ebpf_map_update_elem_t *update_elem;
     ebpf_map_delete_elem_t *delete_elem;
     ebpf_map_get_next_key_t *get_next_key;
-    ebpf_map_destroy_t *destroy;
+    ebpf_map_deinit_t *deinit;
 };
 
-extern const struct ebpf_map_ops *ebpf_map_ops[];
+struct ebpf_map {
+    uint16_t type;
+    uint32_t key_size;
+    uint32_t value_size;
+    uint32_t map_flags;
+    uint32_t max_entries;
+    void *data;
+    void (*deinit)(struct ebpf_map *, void *);
+};
 
-extern void *ebpf_map_lookup_elem(struct ebpf_obj_map *self, void *key,
-                                  uint64_t flags);
-extern int ebpf_map_update_elem(struct ebpf_obj_map *self, void *key,
-                                void *value, uint64_t flags);
-extern int ebpf_map_delete_elem(struct ebpf_obj_map *self, void *key);
-extern int ebpf_map_get_next_key(struct ebpf_obj_map *self, void *key,
-                                 void *next_key);
+int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size, uint16_t value_size, uint32_t max_entries, uint32_t map_flags);
+void *ebpf_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags);
+int ebpf_map_update_elem(struct ebpf_map *self, void *key, void *value, uint64_t flags);
+int ebpf_map_delete_elem(struct ebpf_map *self, void *key);
+int ebpf_map_get_next_key(struct ebpf_map *self, void *key, void *next_key);
+
+/*
+ * Users can extend (make subclass of) struct ebpf_map, so the destructor of struct ebpf_map might be
+ * overwritten. ebpf_map_deinit just calls map_object->dtor and its default value is
+ * ebpf_map_deinit_default. This is useful for managing external reference count or something.
+ */
+void ebpf_map_deinit(struct ebpf_map *mapp, void *arg);
+void ebpf_map_deinit_default(struct ebpf_map *mapp, void *arg);

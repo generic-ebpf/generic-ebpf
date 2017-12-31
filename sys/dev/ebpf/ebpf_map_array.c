@@ -22,14 +22,14 @@ struct ebpf_map_array {
 };
 
 static int
-array_map_create(struct ebpf_obj_map *self, uint16_t key_size,
+array_map_init(struct ebpf_map *self, uint16_t key_size,
                  uint16_t value_size, uint16_t max_entries, uint32_t flags)
 {
     if (key_size != sizeof(uint32_t)) {
         return EINVAL;
     }
 
-    self->map_type = EBPF_MAP_TYPE_ARRAY;
+    self->type = EBPF_MAP_TYPE_ARRAY;
     self->key_size = key_size;
     self->value_size = value_size;
     self->max_entries = max_entries;
@@ -52,7 +52,7 @@ array_map_create(struct ebpf_obj_map *self, uint16_t key_size,
 }
 
 static int
-array_map_update_elem(struct ebpf_obj_map *self, void *key, void *value,
+array_map_update_elem(struct ebpf_map *self, void *key, void *value,
                       uint64_t flags)
 {
     struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
@@ -84,7 +84,7 @@ array_map_update_elem(struct ebpf_obj_map *self, void *key, void *value,
 }
 
 static void *
-array_map_lookup_elem(struct ebpf_obj_map *self, void *key, uint64_t flags)
+array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 {
     struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
 
@@ -101,7 +101,7 @@ array_map_lookup_elem(struct ebpf_obj_map *self, void *key, uint64_t flags)
 }
 
 static int
-array_map_delete_elem(struct ebpf_obj_map *self, void *key)
+array_map_delete_elem(struct ebpf_map *self, void *key)
 {
     struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
 
@@ -126,7 +126,7 @@ array_map_delete_elem(struct ebpf_obj_map *self, void *key)
 }
 
 static int
-array_map_get_next_key(struct ebpf_obj_map *self, void *key, void *next_key)
+array_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 {
     struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
     uint32_t *nk = (uint32_t *)next_key;
@@ -159,7 +159,7 @@ array_map_get_next_key(struct ebpf_obj_map *self, void *key, void *next_key)
 }
 
 static void
-array_map_destroy(struct ebpf_obj_map *self)
+array_map_deinit(struct ebpf_map *self, void *arg)
 {
     struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
 
@@ -173,10 +173,10 @@ array_map_destroy(struct ebpf_obj_map *self)
     ebpf_free(map);
 }
 
-const struct ebpf_map_ops array_map_ops = {.create = array_map_create,
+const struct ebpf_map_ops array_map_ops = {.init = array_map_init,
                                            .update_elem = array_map_update_elem,
                                            .lookup_elem = array_map_lookup_elem,
                                            .delete_elem = array_map_delete_elem,
                                            .get_next_key =
                                                array_map_get_next_key,
-                                           .destroy = array_map_destroy};
+                                           .deinit = array_map_deinit};
