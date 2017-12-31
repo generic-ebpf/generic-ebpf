@@ -170,6 +170,7 @@ array_map_deinit(struct ebpf_map *self, void *arg)
     }
 
     ebpf_free(map->array);
+    ebpf_free(self->data);
 }
 
 const struct ebpf_map_ops array_map_ops = {.init = array_map_init,
