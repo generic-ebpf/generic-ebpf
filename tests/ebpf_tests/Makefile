@@ -2,7 +2,7 @@ test: test.c
 	$(CC) -o $@ -O0 -I ../../sys test.c ../../libebpf.a -lm -coverage
 
 do_test:
-	nosetests
+	PYTHONPATH=../../tools nosetests
 
 clean:
 	rm -f test
