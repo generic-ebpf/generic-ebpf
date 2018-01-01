@@ -26,7 +26,7 @@ ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
     }
 
     struct ebpf_inst *insts = ebpf_calloc(prog_len, sizeof(struct ebpf_inst));
-    if (!prog) {
+    if (!insts) {
         return ENOMEM;
     }
     memcpy(insts, prog, prog_len * sizeof(struct ebpf_inst));

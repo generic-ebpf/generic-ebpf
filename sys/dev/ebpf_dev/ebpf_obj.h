@@ -16,27 +16,32 @@
 
 #pragma once
 
-#include <sys/param.h>
-#include <sys/conf.h>
-#include <sys/module.h>
-#include <sys/kernel.h>
-#include <sys/malloc.h>
-#include <sys/systm.h>
-#include <sys/libkern.h>
-#include <sys/elf.h>
-#include <sys/endian.h>
-#include <sys/ioccom.h>
-#include <sys/file.h>
-#include <sys/filedesc.h>
-#include <sys/fcntl.h>
-#include <sys/refcount.h>
-#include <sys/capsicum.h>
-#include <machine/stdarg.h>
+#include "ebpf_dev_platform.h"
+#include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_prog.h>
+#include <sys/ebpf.h>
 
-typedef struct thread ebpf_thread_t;
-typedef struct file ebpf_file_t;
+enum ebpf_obj_type {
+    EBPF_OBJ_TYPE_PROG = 0,
+    EBPF_OBJ_TYPE_MAP,
+    __EBPF_OBJ_TYPE_MAX
+};
 
-#include <dev/ebpf_dev/ebpf_obj.h>
+struct ebpf_obj {
+    uint16_t type;
+    ebpf_file_t *f;
+};
 
-#define EBPF_OBJ(filep) filep->f_data
-#define EBPF_OBJ_MAP(filep) (struct ebpf_obj_map *)EBPF_OBJ(filep)
+struct ebpf_obj_prog {
+    struct ebpf_prog prog;
+    struct ebpf_obj obj;
+};
+
+struct ebpf_obj_map {
+    struct ebpf_map map;
+    struct ebpf_obj obj;
+};
+
+void *ebpf_obj_container_of(struct ebpf_obj *obj);
+void *ebpf_objfile_get_container(ebpf_file_t *fp);
+void ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread_t *td);

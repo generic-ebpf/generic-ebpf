@@ -11,6 +11,7 @@ CFLAGS += -I../../
 KMOD    = ebpf-dev
 
 SRCS += ebpf_dev_freebsd.c
+SRCS += ebpf_obj.c
 SRCS += ebpf_dev.c
 
 .include <bsd.kmod.mk>

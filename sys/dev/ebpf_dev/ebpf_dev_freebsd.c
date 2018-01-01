@@ -15,7 +15,7 @@
  */
 
 #include <dev/ebpf_dev/ebpf_dev_platform.h>
-#include <dev/ebpf/ebpf_obj.h>
+#include <dev/ebpf_dev/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 
@@ -29,20 +29,31 @@ ebpf_objfile_close(struct file *fp, struct thread *td)
     struct ebpf_obj *obj = fp->f_data;
 
     if (!fp->f_count) {
-        ebpf_obj_delete(obj);
+        ebpf_obj_delete(obj, td);
     }
 
     return 0;
 }
 
+bool
+is_ebpf_objfile(ebpf_file_t *fp)
+{
+    if (!fp) {
+        return false;
+    }
+    return fp->f_ops == &ebpf_objf_ops;
+}
+
 int
-ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data)
+ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
 {
     int error;
-    int fd;
-    struct file *fp;
 
-    error = falloc(td, &fp, &fd, 0);
+    if (!td || !fp || !fd || !data) {
+        return EINVAL;
+    }
+
+    error = falloc(td, fp, fd, 0);
     if (error) {
         return error;
     }
@@ -61,10 +72,10 @@ ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data)
      * finit reserves two reference count for us, so release one
      * since we don't need it.
      */
-    finit(fp, FREAD | FWRITE, DTYPE_NONE, data, &ebpf_objf_ops);
-    fdrop(fp, td);
+    finit(*fp, FREAD | FWRITE, DTYPE_NONE, data, &ebpf_objf_ops);
+    fdrop(*fp, td);
 
-    return fd;
+    return 0;
 }
 
 int

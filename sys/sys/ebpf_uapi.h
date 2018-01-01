@@ -40,10 +40,10 @@ union ebpf_req {
     // Attribute of EBPFIOC_MAP_*_ELEM and EBPFIOC_MAP_GET_*_KEY
     struct {
         int map_fd;
-        uint64_t key;
+        void *key;
         union {
-            uint64_t value;
-            uint64_t next_key;
+            void *value;
+            void *next_key;
         };
         uint64_t flags;
     };

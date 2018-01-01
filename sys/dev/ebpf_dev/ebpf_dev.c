@@ -20,58 +20,80 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 
+static void ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg) {
+    struct ebpf_obj_prog *prog = (struct ebpf_obj_prog *)self;
+    ebpf_thread_t *td = (ebpf_thread_t *)arg;
+    ebpf_fdrop(prog->obj.f, td);
+}
+
+static void ebpf_dev_map_deinit(struct ebpf_map *self, void *arg) {
+    struct ebpf_obj_map *map = (struct ebpf_obj_map *)self;
+    ebpf_thread_t *td = (ebpf_thread_t *)arg;
+    ebpf_fdrop(map->obj.f, td);
+}
+
 static int
 ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
     struct ebpf_obj_prog *prog;
-    struct ebpf_inst *tmp;
+    struct ebpf_inst *insts;
 
-    if (!req || !td) {
+    if (!req || !req->prog_fdp || req->prog_type >= __EBPF_PROG_TYPE_MAX ||
+        !req->prog || !req->prog_len || !td) {
         return EINVAL;
     }
 
-    /*
-     * Assume the program is already pass the user space
-     * verification, believe it and allocate requested amount
-     * of memory without any checks
-     */
-    tmp = ebpf_calloc(req->prog_len, 1);
-    if (!tmp) {
+    insts = ebpf_calloc(req->prog_len, sizeof(struct ebpf_inst));
+    if (!insts) {
         return ENOMEM;
     }
 
-    /*
-     * Redundant copy, but it is needed for better generarization
-     * of ebpf_obj_new
-     */
-    error = ebpf_copyin(req->prog, tmp, req->prog_len);
+    error = ebpf_copyin(req->prog, insts,
+        req->prog_len * sizeof(struct ebpf_inst));
     if (error) {
-        ebpf_free(tmp);
+        ebpf_free(insts);
         return error;
     }
 
-    req->prog = tmp;
-
-    error = ebpf_obj_new((struct ebpf_obj **)&prog, EBPF_OBJ_TYPE_PROG, req);
-    if (error) {
-        ebpf_free(tmp);
-        return error;
+    prog = ebpf_malloc(sizeof(struct ebpf_obj_prog));
+    if (!prog) {
+        ebpf_free(insts);
+        return ENOMEM;
     }
 
-    ebpf_free(tmp);
-
-    error = ebpf_obj_get_fdesc(td, (struct ebpf_obj *)prog);
-    if (error < 0) {
+    error = ebpf_prog_init(&prog->prog, req->prog_type, insts, req->prog_len);
+    if (error) {
+        ebpf_free(insts);
         ebpf_free(prog);
         return error;
     }
 
-    error = ebpf_copyout(&error, req->prog_fdp, sizeof(int));
+    int fd;
+    ebpf_file_t *f;
+
+    error = ebpf_fopen(td, &f, &fd, &prog->obj);
     if (error) {
+        ebpf_prog_deinit(&prog->prog, td);
         ebpf_free(prog);
+        ebpf_free(insts);
         return error;
     }
+
+    prog->obj.f = f;
+    prog->obj.type = EBPF_OBJ_TYPE_PROG;
+
+    // set destructor after object bounded to file
+    prog->prog.deinit = ebpf_dev_prog_deinit;
+
+    error = ebpf_copyout(&fd, req->prog_fdp, sizeof(int));
+    if (error) {
+        ebpf_prog_deinit(&prog->prog, td);
+        ebpf_free(insts);
+        return error;
+    }
+
+    ebpf_free(insts);
 
     return 0;
 }
@@ -82,24 +104,41 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
     int error;
     struct ebpf_obj_map *map;
 
-    if (!req || !td) {
+    if (!req || !req->map_fdp || !td) {
         return EINVAL;
     }
 
-    error = ebpf_obj_new((struct ebpf_obj **)&map, EBPF_OBJ_TYPE_MAP, req);
+    map = ebpf_malloc(sizeof(struct ebpf_obj_map));
+    if (!map) {
+        return ENOMEM;
+    }
+
+    error = ebpf_map_init(&map->map, req->map_type, req->key_size,
+        req->value_size, req->max_entries, req->map_flags);
     if (error) {
+        ebpf_free(map);
         return error;
     }
 
-    error = ebpf_obj_get_fdesc(td, (struct ebpf_obj *)map);
-    if (error < 0) {
-        ebpf_obj_delete((struct ebpf_obj *)map);
+    int fd;
+    ebpf_file_t *f;
+
+    error = ebpf_fopen(td, &f, &fd, &map->obj);
+    if (error) {
+        ebpf_map_deinit(&map->map, td);
+        ebpf_free(map);
         return error;
     }
 
-    error = ebpf_copyout(&error, req->map_fdp, sizeof(int));
+    map->obj.f = f;
+    map->obj.type = EBPF_OBJ_TYPE_MAP;
+
+    // set destructor after object bounded to file
+    map->map.deinit = ebpf_dev_map_deinit;
+
+    error = ebpf_copyout(&fd, req->map_fdp, sizeof(int));
     if (error) {
-        ebpf_obj_delete((struct ebpf_obj *)map);
+        ebpf_map_deinit(&map->map, td);
         return error;
     }
 
@@ -122,26 +161,29 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
     }
 
     void *k, *v;
-    struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+    struct ebpf_obj_map *map = ebpf_objfile_get_container(f);
+    if (!map) {
+        return EINVAL;
+    }
 
-    k = ebpf_malloc(map->key_size);
+    k = ebpf_malloc(map->map.key_size);
     if (!k) {
         error = ENOMEM;
         goto err0;
     }
 
-    error = ebpf_copyin((void *)req->key, k, map->key_size);
+    error = ebpf_copyin((void *)req->key, k, map->map.key_size);
     if (error) {
         goto err1;
     }
 
-    v = ebpf_map_lookup_elem(map, k, req->flags);
+    v = ebpf_map_lookup_elem(&map->map, k, req->flags);
     if (!v) {
         error = ENOENT;
         goto err1;
     }
 
-    error = ebpf_copyout(v, (void *)req->value, map->value_size);
+    error = ebpf_copyout(v, (void *)req->value, map->map.value_size);
 
 err1:
     ebpf_free(k);
@@ -166,31 +208,34 @@ ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
     }
 
     void *k, *v;
-    struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+    struct ebpf_obj_map *map = ebpf_objfile_get_container(f);
+    if (!map) {
+        return EINVAL;
+    }
 
-    k = ebpf_malloc(map->key_size);
+    k = ebpf_malloc(map->map.key_size);
     if (!k) {
         error = ENOMEM;
         goto err0;
     }
 
-    error = ebpf_copyin((void *)req->key, k, map->key_size);
+    error = ebpf_copyin((void *)req->key, k, map->map.key_size);
     if (error) {
         goto err1;
     }
 
-    v = ebpf_malloc(map->value_size);
+    v = ebpf_malloc(map->map.value_size);
     if (!v) {
         error = ENOMEM;
         goto err1;
     }
 
-    error = ebpf_copyin((void *)req->value, v, map->value_size);
+    error = ebpf_copyin((void *)req->value, v, map->map.value_size);
     if (error) {
         goto err2;
     }
 
-    error = ebpf_map_update_elem(map, k, v, req->flags);
+    error = ebpf_map_update_elem(&map->map, k, v, req->flags);
     if (error) {
         goto err2;
     }
@@ -226,20 +271,23 @@ ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
     }
 
     void *k;
-    struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+    struct ebpf_obj_map *map = ebpf_objfile_get_container(f);
+    if (!map) {
+        return EINVAL;
+    }
 
-    k = ebpf_malloc(map->key_size);
+    k = ebpf_malloc(map->map.key_size);
     if (!k) {
         error = ENOMEM;
         goto err0;
     }
 
-    error = ebpf_copyin((void *)req->key, k, map->key_size);
+    error = ebpf_copyin((void *)req->key, k, map->map.key_size);
     if (error) {
         goto err1;
     }
 
-    error = ebpf_map_delete_elem(map, k);
+    error = ebpf_map_delete_elem(&map->map, k);
 
 err1:
     ebpf_free(k);
@@ -264,31 +312,34 @@ ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
     }
 
     void *k, *nk;
-    struct ebpf_obj_map *map = EBPF_OBJ_MAP(f);
+    struct ebpf_obj_map *map = ebpf_objfile_get_container(f);
+    if (!map) {
+        return EINVAL;
+    }
 
-    k = ebpf_malloc(map->key_size);
+    k = ebpf_malloc(map->map.key_size);
     if (!k) {
         error = ENOMEM;
         goto err0;
     }
 
-    error = ebpf_copyin((void *)req->key, k, map->key_size);
+    error = ebpf_copyin((void *)req->key, k, map->map.key_size);
     if (error) {
         goto err1;
     }
 
-    nk = ebpf_malloc(map->key_size);
+    nk = ebpf_malloc(map->map.key_size);
     if (!nk) {
         error = ENOMEM;
         goto err1;
     }
 
-    error = ebpf_map_get_next_key(map, k, nk);
+    error = ebpf_map_get_next_key(&map->map, k, nk);
     if (error) {
         goto err2;
     }
 
-    error = ebpf_copyout(nk, (void *)req->next_key, map->key_size);
+    error = ebpf_copyout(nk, (void *)req->next_key, map->map.key_size);
 
 err2:
     ebpf_free(nk);

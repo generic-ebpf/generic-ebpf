@@ -16,8 +16,6 @@
 
 #pragma once
 
-#include <dev/ebpf/ebpf_obj.h>
-
 #ifdef __FreeBSD__
 #include "ebpf_dev_freebsd.h"
 #elif defined(linux)
@@ -26,10 +24,14 @@
 #error Unsupported platform
 #endif
 
+struct ebpf_obj;
+
 /*
  * Prototypes of platform dependent functions.
  */
-int ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data);
+bool is_ebpf_objfile(ebpf_file_t *fp);
+int ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd,
+    struct ebpf_obj *data);
 int ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f);
 int ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td);
 int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
