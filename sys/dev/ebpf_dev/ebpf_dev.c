@@ -18,6 +18,7 @@
 #include <dev/ebpf/ebpf_map.h>
 
 #include <sys/ebpf.h>
+#include <sys/ebpf_vm.h>
 #include <sys/ebpf_dev.h>
 
 static void
@@ -354,6 +355,70 @@ err0:
     return error;
 }
 
+static int
+ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
+{
+    int error;
+    struct ebpf_vm *vm;
+
+    vm = ebpf_create();
+    if (vm == NULL) {
+        return ENOMEM;
+    }
+
+    ebpf_file_t *f;
+    error = ebpf_fget(td, req->prog_fd, &f);
+    if (error) {
+        goto err0;
+    }
+
+    struct ebpf_obj_prog *prog_obj = ebpf_objfile_get_container(f);
+    if (!prog_obj) {
+        error =  EINVAL;
+        goto err1;
+    }
+
+    error = ebpf_load(vm, prog_obj->prog.prog,
+        prog_obj->prog.prog_len * sizeof(struct ebpf_inst));
+    if (error < 0) {
+        error =  EINVAL;
+        goto err1;
+    }
+
+    void *ctx = ebpf_calloc(req->ctx_len, 1);
+    if (ctx == NULL) {
+        error = ENOMEM;
+        goto err1;
+    }
+
+    error = ebpf_copyin(req->ctx, ctx, req->ctx_len);
+    if (error) {
+        goto err2;
+    }
+
+    uint64_t result;
+    if (req->jit) {
+        ebpf_jit_fn fn = ebpf_compile(vm);
+        if (!fn) {
+            error = EINVAL;
+            goto err2;
+        }
+        result = fn(ctx, req->ctx_len);
+    } else {
+        result = ebpf_exec(vm, ctx, req->ctx_len);
+    }
+
+    error = ebpf_copyout(&result, req->test_result, sizeof(uint64_t));
+
+err2:
+    ebpf_free(ctx);
+err1:
+    ebpf_fdrop(f, td);
+err0:
+    ebpf_destroy(vm);
+    return error;
+}
+
 int
 ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
 {
@@ -382,6 +447,9 @@ ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
         break;
     case EBPFIOC_MAP_GET_NEXT_KEY:
         error = ebpf_ioc_map_get_next_key(req, td);
+        break;
+    case EBPFIOC_RUN_TEST:
+        error = ebpf_ioc_run_test(req, td);
         break;
     default:
         error = EINVAL;

@@ -47,4 +47,12 @@ union ebpf_req {
         };
         uint64_t flags;
     };
+    // Attribute of EBPFIOC_RUN_TEST
+    struct {
+        int prog_fd;
+        void *ctx;
+        uint16_t ctx_len;
+        int jit;
+        uint64_t *test_result;
+    };
 };

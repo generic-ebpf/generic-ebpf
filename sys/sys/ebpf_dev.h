@@ -24,3 +24,4 @@
 #define EBPFIOC_MAP_UPDATE_ELEM _IOWR('i', 154, union ebpf_req)
 #define EBPFIOC_MAP_DELETE_ELEM _IOWR('i', 155, union ebpf_req)
 #define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)
+#define EBPFIOC_RUN_TEST _IOWR('i', 157, union ebpf_req)
