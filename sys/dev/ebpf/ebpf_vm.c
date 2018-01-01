@@ -87,12 +87,12 @@ int
 ebpf_load(struct ebpf_vm *vm, const void *code, uint32_t code_len)
 {
     if (vm->insts) {
-        ebpf_error("code has already been loaded into this VM");
+        ebpf_error("code has already been loaded into this VM\n");
         return -1;
     }
 
     if (code_len % 8 != 0) {
-        ebpf_error("code_len must be a multiple of 8");
+        ebpf_error("code_len must be a multiple of 8\n");
         return -1;
     }
 
@@ -102,7 +102,7 @@ ebpf_load(struct ebpf_vm *vm, const void *code, uint32_t code_len)
 
     vm->insts = ebpf_malloc(code_len);
     if (vm->insts == NULL) {
-        ebpf_error("out of memory");
+        ebpf_error("out of memory\n");
         return -1;
     }
 

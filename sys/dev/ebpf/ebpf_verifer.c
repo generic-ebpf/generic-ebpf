@@ -27,12 +27,12 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
               uint32_t num_insts)
 {
     if (num_insts >= MAX_INSTS) {
-        ebpf_error("too many instructions (max %u)", MAX_INSTS);
+        ebpf_error("too many instructions (max %u)\n", MAX_INSTS);
         return false;
     }
 
     if (num_insts == 0 || insts[num_insts - 1].opcode != EBPF_OP_EXIT) {
-        ebpf_error("no exit at end of instructions");
+        ebpf_error("no exit at end of instructions\n");
         return false;
     }
 
@@ -70,7 +70,7 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
         case EBPF_OP_LE:
         case EBPF_OP_BE:
             if (inst.imm != 16 && inst.imm != 32 && inst.imm != 64) {
-                ebpf_error("invalid endian immediate at PC %d", i);
+                ebpf_error("invalid endian immediate at PC %d\n", i);
                 return false;
             }
             break;
@@ -119,7 +119,7 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
 
         case EBPF_OP_LDDW:
             if (i + 1 >= num_insts || insts[i + 1].opcode != 0) {
-                ebpf_error("incomplete lddw at PC %d", i);
+                ebpf_error("incomplete lddw at PC %d\n", i);
                 return false;
             }
             i++; /* Skip next instruction */
@@ -149,26 +149,26 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
         case EBPF_OP_JSLE_IMM:
         case EBPF_OP_JSLE_REG:
             if (inst.offset == -1) {
-                ebpf_error("infinite loop at PC %d", i);
+                ebpf_error("infinite loop at PC %d\n", i);
                 return false;
             }
             int new_pc = i + 1 + inst.offset;
             if (new_pc < 0 || new_pc >= num_insts) {
-                ebpf_error("jump out of bounds at PC %d", i);
+                ebpf_error("jump out of bounds at PC %d\n", i);
                 return false;
             } else if (insts[new_pc].opcode == 0) {
-                ebpf_error("jump to middle of lddw at PC %d", i);
+                ebpf_error("jump to middle of lddw at PC %d\n", i);
                 return false;
             }
             break;
 
         case EBPF_OP_CALL:
             if (inst.imm < 0 || inst.imm >= MAX_EXT_FUNCS) {
-                ebpf_error("invalid call immediate at PC %d", i);
+                ebpf_error("invalid call immediate at PC %d\n", i);
                 return false;
             }
             if (!vm->ext_funcs[inst.imm]) {
-                ebpf_error("call to nonexistent function %u at PC %d", inst.imm,
+                ebpf_error("call to nonexistent function %u at PC %d\n", inst.imm,
                            i);
                 return false;
             }
@@ -182,23 +182,23 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
         case EBPF_OP_DIV64_IMM:
         case EBPF_OP_MOD64_IMM:
             if (inst.imm == 0) {
-                ebpf_error("division by zero at PC %d", i);
+                ebpf_error("division by zero at PC %d\n", i);
                 return false;
             }
             break;
 
         default:
-            ebpf_error("unknown opcode 0x%02x at PC %d", inst.opcode, i);
+            ebpf_error("unknown opcode 0x%02x at PC %d\n", inst.opcode, i);
             return false;
         }
 
         if (inst.src > 10) {
-            ebpf_error("invalid source register at PC %d", i);
+            ebpf_error("invalid source register at PC %d\n", i);
             return false;
         }
 
         if (inst.dst > 9 && !(store && inst.dst == 10)) {
-            ebpf_error("invalid destination register at PC %d", i);
+            ebpf_error("invalid destination register at PC %d\n", i);
             return false;
         }
     }
