@@ -18,10 +18,6 @@
 #include "ebpf_platform.h"
 #include "ebpf_internal.h"
 
-static bool bounds_check(void *addr, int size, const char *type,
-                         uint16_t cur_pc, void *mem, size_t mem_len,
-                         void *stack);
-
 struct ebpf_vm *
 ebpf_create(void)
 {
@@ -350,81 +346,49 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
             reg[inst.dst] = (int64_t)reg[inst.dst] >> reg[inst.src];
             break;
 
-/*
- * HACK runtime bounds check
- *
- * Needed since we don't have a verifier yet.
- */
-#define BOUNDS_CHECK_LOAD(size)                                                \
-    do {                                                                       \
-        if (!bounds_check((uint8_t *)reg[inst.src] + inst.offset, size,        \
-                          "load", cur_pc, mem, mem_len, stack)) {              \
-            return UINT64_MAX;                                                 \
-        }                                                                      \
-    } while (0)
-#define BOUNDS_CHECK_STORE(size)                                               \
-    do {                                                                       \
-        if (!bounds_check((uint8_t *)reg[inst.dst] + inst.offset, size,        \
-                          "store", cur_pc, mem, mem_len, stack)) {             \
-            return UINT64_MAX;                                                 \
-        }                                                                      \
-    } while (0)
-
         case EBPF_OP_LDXW:
-            BOUNDS_CHECK_LOAD(4);
             reg[inst.dst] =
                 *(uint32_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
         case EBPF_OP_LDXH:
-            BOUNDS_CHECK_LOAD(2);
             reg[inst.dst] =
                 *(uint16_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
         case EBPF_OP_LDXB:
-            BOUNDS_CHECK_LOAD(1);
             reg[inst.dst] =
                 *(uint8_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
         case EBPF_OP_LDXDW:
-            BOUNDS_CHECK_LOAD(8);
             reg[inst.dst] =
                 *(uint64_t *)(uintptr_t)(reg[inst.src] + inst.offset);
             break;
 
         case EBPF_OP_STW:
-            BOUNDS_CHECK_STORE(4);
             *(uint32_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = inst.imm;
             break;
         case EBPF_OP_STH:
-            BOUNDS_CHECK_STORE(2);
             *(uint16_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = inst.imm;
             break;
         case EBPF_OP_STB:
-            BOUNDS_CHECK_STORE(1);
             *(uint8_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = inst.imm;
             break;
         case EBPF_OP_STDW:
-            BOUNDS_CHECK_STORE(8);
             *(uint64_t *)(uintptr_t)(reg[inst.dst] + inst.offset) = inst.imm;
             break;
 
         case EBPF_OP_STXW:
-            BOUNDS_CHECK_STORE(4);
             *(uint32_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
                 reg[inst.src];
             break;
         case EBPF_OP_STXH:
-            BOUNDS_CHECK_STORE(2);
             *(uint16_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
                 reg[inst.src];
             break;
         case EBPF_OP_STXB:
-            BOUNDS_CHECK_STORE(1);
             *(uint8_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
                 reg[inst.src];
             break;
         case EBPF_OP_STXDW:
-            BOUNDS_CHECK_STORE(8);
             *(uint64_t *)(uintptr_t)(reg[inst.dst] + inst.offset) =
                 reg[inst.src];
             break;
@@ -567,26 +531,5 @@ ebpf_exec_jit(const struct ebpf_vm *vm, void *mem, size_t mem_len)
         return vm->jitted(mem, mem_len);
     } else {
         return UINT64_MAX;
-    }
-}
-
-static bool
-bounds_check(void *addr, int size, const char *type, uint16_t cur_pc, void *mem,
-             size_t mem_len, void *stack)
-{
-    if ((uint8_t *)mem &&
-        ((uint8_t *)addr >= (uint8_t *)mem &&
-         ((uint8_t *)addr + size) <= ((uint8_t *)mem + mem_len))) {
-        /* Context access */
-        return true;
-    } else if (addr >= stack &&
-               ((uint8_t *)addr + size) <= ((uint8_t *)stack + STACK_SIZE)) {
-        /* Stack access */
-        return true;
-    } else {
-        ebpf_error("out of bounds memory %s at PC %u, addr %p, size %d\n", type,
-                   cur_pc, addr, size);
-        ebpf_error("mem %p/%zd stack %p/%d\n", mem, mem_len, stack, STACK_SIZE);
-        return false;
     }
 }
