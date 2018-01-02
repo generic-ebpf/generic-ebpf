@@ -2,7 +2,7 @@
 	clean_ebpf_tests clean_prog_tests clean_ebpf_map_tests clean_ebpf_dev_tests \
 	ebpf_tests_do_test ebpf_prog_tests_do_test ebpf_map_tests_do_test ebpf_dev_tests_do_test \
 
-all: ebpf_tests ebpf_prog_tests ebpf_map_tests
+all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests
 clean: clean_ebpf_tests clean_ebpf_prog_tests clean_ebpf_map_tests
 do_test: ebpf_tests_do_test ebpf_prog_tests_do_test ebpf_map_tests_do_test
 
@@ -41,3 +41,6 @@ ebpf_map_tests_do_test:
 
 ebpf_dev_tests_do_test:
 	make -C ebpf_dev_tests do_test
+
+gtest:
+	make -C googletest/googletest/make gtest_main.a

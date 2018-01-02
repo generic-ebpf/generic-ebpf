@@ -1,8 +1,7 @@
 platdir = ../../$(platform)/ebpf/user
 
-gtestobjs = \
-	../googletest/googletest/src/gtest_main.cc \
-	../gtest/gtest-all.cc
+gtestobjs = ../googletest/googletest/make/gtest-all.o \
+	../googletest/googletest/make/gtest_main.o
 
 libebpf = ../../libebpf.a
 
