@@ -26,6 +26,7 @@
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <sys/endian.h>
+#include <sys/stddef.h>
 #include <elf.h>
 #include <assert.h>
 #include <errno.h>

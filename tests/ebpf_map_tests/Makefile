@@ -21,7 +21,11 @@ map_tests = \
 	array_map_delete_test \
 	array_map_get_next_key_test \
 	array_map_lookup_test \
-	array_map_update_test
+	array_map_update_test \
+	tommyhashtbl_map_delete_test \
+	tommyhashtbl_map_get_next_key_test \
+	tommyhashtbl_map_lookup_test \
+	tommyhashtbl_map_update_test
 
 all: $(map_tests)
 
@@ -52,16 +56,32 @@ array_map_lookup_test: array_map_lookup_test.cpp
 array_map_update_test: array_map_update_test.cpp
 	$(CXX) $(CXXFLAGS) -o $@ array_map_update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
 
+tommyhashtbl_map_delete_test: tommyhashtbl_map_delete_test.cpp
+	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_delete_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+
+tommyhashtbl_map_get_next_key_test: tommyhashtbl_map_get_next_key_test.cpp
+	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+
+tommyhashtbl_map_lookup_test: tommyhashtbl_map_lookup_test.cpp
+	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_lookup_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+
+tommyhashtbl_map_update_test: tommyhashtbl_map_update_test.cpp
+	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+
 do_test:
-	./map_create_test
-	./map_lookup_test
-	./map_update_test
-	./map_delete_test
-	./map_get_next_key_test
-	./array_map_delete_test
-	./array_map_get_next_key_test
-	./array_map_lookup_test
-	./array_map_update_test
+	- ./map_create_test
+	- ./map_lookup_test
+	- ./map_update_test
+	- ./map_delete_test
+	- ./map_get_next_key_test
+	- ./array_map_delete_test
+	- ./array_map_get_next_key_test
+	- ./array_map_lookup_test
+	- ./array_map_update_test
+	- ./tommyhashtbl_map_delete_test
+	- ./tommyhashtbl_map_get_next_key_test
+	- ./tommyhashtbl_map_lookup_test
+	- ./tommyhashtbl_map_update_test
 
 clean:
 	rm -f $(map_tests) *.gcda *.gcno

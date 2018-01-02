@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace {
-class ArrayMapGetNextKeyTest : public ::testing::Test {
+class TommyHashtblMapGetNextKeyTest : public ::testing::Test {
   protected:
     struct ebpf_map map;
 
@@ -21,7 +21,7 @@ class ArrayMapGetNextKeyTest : public ::testing::Test {
         uint32_t gkey2 = 70;
         uint32_t gval2 = 120;
 
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL, sizeof(uint32_t),
                               sizeof(uint32_t), 100, 0);
         assert(!error);
 
@@ -38,27 +38,17 @@ class ArrayMapGetNextKeyTest : public ::testing::Test {
     }
 };
 
-TEST_F(ArrayMapGetNextKeyTest, GetNextKeyWithMaxKey)
-{
-    int error;
-    uint32_t key = 99, next_key = 0;
-
-    error = ebpf_map_get_next_key(&map, &key, &next_key);
-
-    EXPECT_EQ(50, next_key);
-}
-
-TEST_F(ArrayMapGetNextKeyTest, GetFirstKey)
+TEST_F(TommyHashtblMapGetNextKeyTest, GetFirstKey)
 {
     int error;
     uint32_t next_key = 0;
 
     error = ebpf_map_get_next_key(&map, NULL, &next_key);
 
-    EXPECT_EQ(50, next_key);
+    EXPECT_EQ(0, error);
 }
 
-TEST_F(ArrayMapGetNextKeyTest, CorrectGetNextKey)
+TEST_F(TommyHashtblMapGetNextKeyTest, CorrectGetNextKey)
 {
     int error;
     uint32_t key = 50, next_key = 0;
