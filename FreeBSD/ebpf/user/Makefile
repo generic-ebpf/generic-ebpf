@@ -11,6 +11,10 @@ ebpf-objs += $(SRC_DIR)/ebpf_map.o
 ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
 ebpf-objs += ./ebpf_freebsd_user.o
 
+ebpf-objs += $(SRC_DIR)/tommyds/tommy.o
+
+ebpf-objs += $(SRC_DIR)/ebpf_map_tommyhashtbl.o
+
 TARGET != uname -m
 .if $(TARGET) == "amd64"
 ebpf-objs += $(TOP_DIR)/amd64/amd64/ebpf_jit_x86_64.o

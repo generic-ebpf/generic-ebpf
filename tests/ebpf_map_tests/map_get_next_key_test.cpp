@@ -32,7 +32,7 @@ class MapGetNextKeyTest : public ::testing::Test {
 TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLMap)
 {
     int error;
-    uint32_t key = 50, next_key;
+    uint32_t key = 50, next_key = 0;
 
     error = ebpf_map_get_next_key(NULL, &key, &next_key);
 
@@ -42,7 +42,7 @@ TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLMap)
 TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLKey)
 {
     int error;
-    uint32_t key = 50, next_key;
+    uint32_t key = 50, next_key = 0;
 
     error = ebpf_map_get_next_key(&map, NULL, &next_key);
 

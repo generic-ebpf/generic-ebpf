@@ -133,13 +133,30 @@ TEST_F(EbpfDevMapCreateTest, CreateWithZeroMaxEntries)
     EXPECT_EQ(EINVAL, errno);
 }
 
-TEST_F(EbpfDevMapCreateTest, CorrectCreate)
+TEST_F(EbpfDevMapCreateTest, CorrectCreateArrayMap)
 {
     int fd, error;
 
     union ebpf_req req;
     req.map_fdp = &fd;
     req.map_type = EBPF_MAP_TYPE_ARRAY;
+    req.key_size = sizeof(uint32_t);
+    req.value_size = sizeof(uint32_t);
+    req.max_entries = 100;
+    req.map_flags = 0;
+
+    error = ioctl(ebpf_fd, EBPFIOC_MAP_CREATE, &req);
+    EXPECT_EQ(0, error);
+    close(fd);
+}
+
+TEST_F(EbpfDevMapCreateTest, CorrectCreateTommyHashMap)
+{
+    int fd, error;
+
+    union ebpf_req req;
+    req.map_fdp = &fd;
+    req.map_type = EBPF_MAP_TYPE_TOMMYHASHTBL;
     req.key_size = sizeof(uint32_t);
     req.value_size = sizeof(uint32_t);
     req.max_entries = 100;

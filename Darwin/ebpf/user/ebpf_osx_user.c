@@ -30,6 +30,12 @@ ebpf_calloc(size_t number, size_t size)
 }
 
 void *
+ebpf_realloc(void *ptr, size_t size)
+{
+    return realloc(ptr, size);
+}
+
+void *
 ebpf_exalloc(size_t size)
 {
     void *ret = NULL;
