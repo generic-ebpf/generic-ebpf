@@ -3,10 +3,6 @@ clean: $(platform)_clean
 do_test: $(platform)_do_test
 do_kernel_test: $(platform)_do_kernel_test
 
-clean: clean_ebpf_tests clean_ebpf_prog_tests clean_ebpf_map_tests
-do_test: ebpf_tests_do_test ebpf_prog_tests_do_test ebpf_map_tests_do_test
-do_kernel_test: ebpf_dev_tests ebpf_dev_do_tests
-
 FreeBSD_all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests ebpf_dev_tests
 Linux_all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests ebpf_dev_tests
 Darwin_all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests

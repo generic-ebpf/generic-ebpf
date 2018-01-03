@@ -1,17 +1,21 @@
-os: linux
+os:
+  - linux
+  - osx
 language: cpp
+sudo: true
 compiler:
   - gcc
   - g++
 python:
   - "2.7"
 install:
-  - ./install_deps.sh
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install linux-headers-`uname -r`; fi
+  - git submodule init && git submodule update
+  - pip install --user -r requirements.txt
   - pip install --user cpp-coveralls
 script:
   - ./configure
-  - COVERAGE=1 make ebpf_user
-  - make tests
+  - COVERAGE=1 make
   - make do_test
 after_success:
   - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E ".*\.h"
