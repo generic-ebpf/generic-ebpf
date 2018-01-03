@@ -1,6 +1,4 @@
-os:
-  - linux
-  - osx
+os: linux
 language: cpp
 sudo: true
 compiler:
@@ -9,7 +7,7 @@ compiler:
 python:
   - "2.7"
 install:
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo apt-get install linux-headers-`uname -r`; fi
+  - sudo apt-get install linux-headers-`uname -r`
   - git submodule init && git submodule update
   - pip install --user -r requirements.txt
   - pip install --user cpp-coveralls
