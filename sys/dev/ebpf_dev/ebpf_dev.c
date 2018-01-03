@@ -21,7 +21,19 @@
 #include <sys/ebpf_vm.h>
 #include <sys/ebpf_dev.h>
 
-static void
+void ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg);
+void ebpf_dev_map_deinit(struct ebpf_map *self, void *arg);
+int ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td);
+int ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td);
+void test_vm_attach_func(struct ebpf_vm *vm);
+int ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td);
+
+void
 ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
 {
     struct ebpf_obj_prog *prog = (struct ebpf_obj_prog *)self;
@@ -29,7 +41,7 @@ ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
     ebpf_fdrop(prog->obj.f, td);
 }
 
-static void
+void
 ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
 {
     struct ebpf_obj_map *map = (struct ebpf_obj_map *)self;
@@ -37,7 +49,92 @@ ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
     ebpf_fdrop(map->obj.f, td);
 }
 
-static int
+int
+ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td)
+{
+    int error;
+    struct ebpf_inst *prog = prog_obj->prog.prog, *cur;
+    uint16_t prog_len = prog_obj->prog.prog_len;
+    ebpf_file_t *f;
+    struct ebpf_obj_map *map;
+
+    for (uint32_t i = 0; i < prog_len; i++) {
+        cur = prog + i;
+
+        if (cur->opcode != EBPF_OP_LDDW) {
+            continue;
+        }
+
+        if (i == prog_len - 1 || cur[1].opcode != 0 ||
+            cur[1].dst != 0 || cur[1].src != 0 ||
+            cur[1].offset != 0) {
+            error = EINVAL;
+            goto err0;
+        }
+
+        // Normal lddw
+        if (cur->src == 0) {
+            continue;
+        }
+        
+        if (cur->src != EBPF_PSEUDO_MAPFD) {
+            error = EINVAL;
+            goto err0;
+        }
+
+        error = ebpf_fget(td, cur->imm, &f);
+        if (error) {
+            goto err0;
+        }
+
+        map = ebpf_objfile_get_container(f);
+        if (!map) {
+            error = EINVAL;
+            goto err1;
+        }
+
+        if (prog_obj->nattached_maps == EBPF_OBJ_PROG_MAX_ATTACHED_MAPS) {
+            error = E2BIG;
+            goto err1;
+        }
+
+        cur[0].imm = (uint32_t)map;
+        cur[1].imm = ((uint64_t)map) >> 32;
+
+        for (int j = 0; j < EBPF_OBJ_PROG_MAX_ATTACHED_MAPS; j++) {
+            if (prog_obj->attached_maps[j]) {
+                if (prog_obj->attached_maps[j] == map) {
+                    ebpf_fdrop(f, td);
+                    break;
+                }
+            } else {
+                prog_obj->attached_maps[j] = map;
+                prog_obj->nattached_maps++;
+                break;
+            }
+        }
+
+        i++;
+    }
+
+    return 0;
+
+err1:
+    ebpf_fdrop(f, td);
+err0:
+    for (int i = 0; i < EBPF_OBJ_PROG_MAX_ATTACHED_MAPS; i++) {
+        if (prog_obj->attached_maps[i]) {
+            ebpf_fdrop(f, td);
+            prog_obj->attached_maps[i] = NULL;
+        } else {
+            break;
+        }
+    }
+
+    return error;
+}
+
+int
 ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -61,7 +158,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
         return error;
     }
 
-    prog = ebpf_malloc(sizeof(struct ebpf_obj_prog));
+    prog = ebpf_calloc(sizeof(struct ebpf_obj_prog), 1);
     if (!prog) {
         ebpf_free(insts);
         return ENOMEM;
@@ -74,14 +171,22 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
         return error;
     }
 
+    error = ebpf_prog_mapfd_to_addr(prog, td);
+    if (error) {
+        ebpf_prog_deinit(&prog->prog, td);
+        ebpf_free(insts);
+        ebpf_free(prog);
+        return error;
+    }
+
     int fd;
     ebpf_file_t *f;
 
     error = ebpf_fopen(td, &f, &fd, &prog->obj);
     if (error) {
         ebpf_prog_deinit(&prog->prog, td);
-        ebpf_free(prog);
         ebpf_free(insts);
+        ebpf_free(prog);
         return error;
     }
 
@@ -103,7 +208,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
     return 0;
 }
 
-static int
+int
 ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -150,7 +255,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
     return 0;
 }
 
-static int
+int
 ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -197,7 +302,7 @@ err0:
     return error;
 }
 
-static int
+int
 ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -260,7 +365,7 @@ err0:
     return error;
 }
 
-static int
+int
 ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -301,7 +406,7 @@ err0:
     return error;
 }
 
-static int
+int
 ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -355,7 +460,14 @@ err0:
     return error;
 }
 
-static int
+void
+test_vm_attach_func(struct ebpf_vm *vm) {
+    ebpf_register(vm, 0, "ebpf_map_update_elem", ebpf_map_update_elem);
+    ebpf_register(vm, 1, "ebpf_map_lookup_elem", ebpf_map_lookup_elem);
+    ebpf_register(vm, 2, "ebpf_map_delete_elem", ebpf_map_delete_elem);
+}
+    
+int
 ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 {
     int error;
@@ -365,6 +477,7 @@ ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
     if (vm == NULL) {
         return ENOMEM;
     }
+    test_vm_attach_func(vm);
 
     ebpf_file_t *f;
     error = ebpf_fget(td, req->prog_fd, &f);

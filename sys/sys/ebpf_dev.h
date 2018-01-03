@@ -18,6 +18,9 @@
 
 #include "ebpf_uapi.h"
 
+#define EBPF_DEV_PROG_MAX_ATTACHED_MAPS 64
+#define EBPF_PSEUDO_MAPFD 1
+
 #define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
 #define EBPFIOC_MAP_CREATE _IOWR('i', 152, union ebpf_req)
 #define EBPFIOC_MAP_LOOKUP_ELEM _IOWR('i', 153, union ebpf_req)
@@ -25,3 +28,9 @@
 #define EBPFIOC_MAP_DELETE_ELEM _IOWR('i', 155, union ebpf_req)
 #define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)
 #define EBPFIOC_RUN_TEST _IOWR('i', 157, union ebpf_req)
+
+enum ebpf_test_calls {
+  TEST_CALL_EBPF_MAP_UPDATE_ELEM = 0,
+  TEST_CALL_EBPF_MAP_LOOKUP_ELEM,
+  TEST_CALL_EBPF_MAP_DELETE_ELEM
+};

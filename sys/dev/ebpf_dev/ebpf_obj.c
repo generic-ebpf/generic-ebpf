@@ -62,12 +62,19 @@ ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread_t *td)
     }
 
     if (obj->type == EBPF_OBJ_TYPE_PROG) {
-        struct ebpf_prog *prog;
-        prog = (struct ebpf_prog *)ebpf_obj_container_of(obj);
+        struct ebpf_obj_prog *prog;
+        prog = (struct ebpf_obj_prog *)ebpf_obj_container_of(obj);
         if (!prog) {
             return;
         }
-        ebpf_prog_deinit_default(prog, NULL);
+
+        for (int i = 0; i < EBPF_OBJ_PROG_MAX_ATTACHED_MAPS; i++) {
+            if (prog->attached_maps[i]) {
+                ebpf_fdrop(prog->attached_maps[i]->obj.f, td);
+            }
+        }
+
+        ebpf_prog_deinit_default((struct ebpf_prog *)prog, NULL);
         ebpf_free(prog);
     } else if (obj->type == EBPF_OBJ_TYPE_MAP) {
         struct ebpf_map *map;
