@@ -1,9 +1,6 @@
-.PHONY: all clean FreeBSD_all Linux_all Darwin_all FreeBSD_clean Linux_clean Darwin_clean \
-	ebpf_user ebpf_kernel ebpf_dev tests clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev do_test \
-	clean_tests
-
 # will be replaced by configure
 export platform={{platform}}
+export gtestpath=$(PWD)/extern/googletest
 
 all: $(platform)_all
 clean: $(platform)_clean
@@ -28,6 +25,7 @@ ebpf_dev:
 	make -C $(platform)/ebpf_dev
 	cp $(platform)/ebpf_dev/ebpf-dev.ko .
 
+.PHONY: tests
 tests:
 	make -C tests
 

@@ -63,7 +63,7 @@ ebpf_dev_tests_do_test:
 	make -C ebpf_dev_tests do_test
 
 gtest:
-	make -C googletest/googletest/make gtest_main.a
+	make -C $(gtestpath)/googletest/make gtest_main.a
 
 clean_gtest:
-	make -C googletest/googletest/make clean
+	make -C $(gtestpath)/googletest/make clean

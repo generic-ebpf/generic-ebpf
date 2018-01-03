@@ -1,8 +1,8 @@
 platdir = ../../$(platform)/ebpf/user
 
 gtestobjs = \
-	../googletest/googletest/make/gtest-all.o \
-	../googletest/googletest/make/gtest_main.o
+	$(gtestpath)/googletest/make/gtest-all.o \
+	$(gtestpath)/googletest/make/gtest_main.o
 
 libebpf = ../../libebpf.a
 
@@ -10,7 +10,7 @@ CXXFLAGS = \
 	-O0 \
 	-I ../../sys \
 	-I $(platdir) \
-	-I ../googletest/googletest/include \
+	-I $(gtestpath)/googletest/include \
 
 map_tests = \
 	map_create_test \
