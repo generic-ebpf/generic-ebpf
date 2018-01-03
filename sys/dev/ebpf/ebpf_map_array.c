@@ -57,7 +57,7 @@ array_map_update_elem(struct ebpf_map *self, void *key, void *value,
 {
     struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
 
-    if (map->counter == self->max_entries - 1) {
+    if (map->counter == self->max_entries) {
         return EBUSY;
     }
 

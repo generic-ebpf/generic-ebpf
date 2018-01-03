@@ -71,7 +71,7 @@ tommyhashtbl_map_update_elem(struct ebpf_map *self, void *key, void *value, uint
 {
     struct ebpf_map_tommyhashtbl *map = (struct ebpf_map_tommyhashtbl *)self->data;
 
-    if (tommy_hashtable_count(&map->table) == self->max_entries - 1) {
+    if (tommy_hashtable_count(&map->table) == self->max_entries) {
         return EBUSY;
     }
 
