@@ -28,7 +28,7 @@ ebpf_dev:
 	make -C $(platform)/ebpf_dev
 	cp $(platform)/ebpf_dev/ebpf-dev.ko .
 
-tests: ebpf_user
+tests:
 	make -C tests
 
 clean_ebpf_user:
@@ -45,6 +45,9 @@ clean_ebpf_dev:
 
 do_test:
 	make -C tests do_test
+
+do_kernel_test:
+	make -C tests do_kernel_test
 
 clean_tests:
 	make -C tests clean
