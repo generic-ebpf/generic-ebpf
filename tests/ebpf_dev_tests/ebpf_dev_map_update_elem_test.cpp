@@ -139,4 +139,22 @@ TEST_F(EbpfDevMapUpdateElemTest, CorrectUpdate)
     error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req);
     EXPECT_EQ(0, error);
 }
+
+TEST_F(EbpfDevMapUpdateElemTest, CorrectUpdateMoreThanMaxEntries)
+{
+    int error;
+
+    union ebpf_req req;
+    for (uint32_t i = 0; i < 101; i++) {
+      req.map_fd = map_fd;
+      req.key = &i;
+      req.value = &i;
+      req.flags = 0;
+      error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req);
+      if (i == 100) {
+        EXPECT_EQ(-1, error);
+        EXPECT_EQ(EBUSY, errno);
+      }
+    }
+}
 }

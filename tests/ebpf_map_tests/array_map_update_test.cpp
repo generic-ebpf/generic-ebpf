@@ -49,6 +49,20 @@ TEST_F(ArrayMapUpdateTest, CorrectUpdate)
     EXPECT_EQ(0, error);
 }
 
+TEST_F(ArrayMapUpdateTest, CorrectUpdateOverwrite)
+{
+    int error;
+    uint32_t key = 50, value = 100;
+
+    error = ebpf_map_update_elem(&map, &key, &value, 0);
+    assert(!error);
+
+    value = 101;
+    error = ebpf_map_update_elem(&map, &key, &value, 0);
+
+    EXPECT_EQ(0, error);
+}
+
 TEST_F(ArrayMapUpdateTest, CorrectUpdateMoreThanMaxEntries)
 {
     int error;

@@ -66,6 +66,25 @@ tommyhashtbl_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_s
     return 0;
 }
 
+static void *
+tommyhashtbl_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
+{
+    struct ebpf_map_tommyhashtbl *map = (struct ebpf_map_tommyhashtbl *)self->data;
+
+    if (tommy_hashtable_count(&map->table) == 0) {
+        return NULL;
+    }
+
+    struct ebpf_map_tommyhashtbl_elem *elem = tommy_hashtable_search(&map->table,
+        tommyhashtbl_map_cmp, key, tommy_hash_u64(0, key, self->key_size));
+
+    if (!elem) {
+      return NULL;
+    }
+
+    return elem->value;
+}
+
 static int
 tommyhashtbl_map_update_elem(struct ebpf_map *self, void *key, void *value, uint64_t flags)
 {
@@ -73,6 +92,12 @@ tommyhashtbl_map_update_elem(struct ebpf_map *self, void *key, void *value, uint
 
     if (tommy_hashtable_count(&map->table) == self->max_entries) {
         return EBUSY;
+    }
+
+    void *prev_value = tommyhashtbl_map_lookup_elem(self, key, flags);
+    if (prev_value) {
+        memcpy(prev_value, value, self->value_size);
+        return 0;
     }
 
     void *k = ebpf_calloc(self->key_size, 1);
@@ -104,25 +129,6 @@ tommyhashtbl_map_update_elem(struct ebpf_map *self, void *key, void *value, uint
         tommy_hash_u64(0, k, self->key_size));
 
     return 0;
-}
-
-static void *
-tommyhashtbl_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
-{
-    struct ebpf_map_tommyhashtbl *map = (struct ebpf_map_tommyhashtbl *)self->data;
-
-    if (tommy_hashtable_count(&map->table) == 0) {
-        return NULL;
-    }
-
-    struct ebpf_map_tommyhashtbl_elem *elem = tommy_hashtable_search(&map->table,
-        tommyhashtbl_map_cmp, key, tommy_hash_u64(0, key, self->key_size));
-
-    if (!elem) {
-      return NULL;
-    }
-
-    return elem->value;
 }
 
 static int
