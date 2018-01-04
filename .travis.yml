@@ -1,19 +1,18 @@
 os: linux
 language: cpp
-sudo: true
 compiler:
   - gcc
   - g++
 python:
   - "2.7"
 install:
-  - sudo apt-get install linux-headers-`uname -r`
   - git submodule init && git submodule update
   - pip install --user -r requirements.txt
   - pip install --user cpp-coveralls
 script:
   - ./configure
-  - COVERAGE=1 make
+  - COVERAGE=1 make ebpf_user
+  - make tests
   - make do_test
 after_success:
   - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E ".*\.h"
