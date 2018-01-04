@@ -16,6 +16,7 @@
 
 #include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf.h>
+#include <dev/ebpf/ebpf_prog.h>
 #include <dev/ebpf/ebpf_map.h>
 
 void *
@@ -102,15 +103,19 @@ EXPORT_SYMBOL(ebpf_exalloc);
 EXPORT_SYMBOL(ebpf_exfree);
 EXPORT_SYMBOL(ebpf_error);
 EXPORT_SYMBOL(ebpf_assert);
+EXPORT_SYMBOL(ebpf_prog_init);
+EXPORT_SYMBOL(ebpf_prog_deinit_default);
+EXPORT_SYMBOL(ebpf_prog_deinit);
 EXPORT_SYMBOL(ebpf_map_delete_elem);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
 EXPORT_SYMBOL(ebpf_map_get_next_key);
-EXPORT_SYMBOL(ebpf_obj_delete);
-EXPORT_SYMBOL(ebpf_obj_new);
+EXPORT_SYMBOL(ebpf_map_init);
+EXPORT_SYMBOL(ebpf_map_deinit_default);
+EXPORT_SYMBOL(ebpf_map_deinit);
 
 module_init(ebpf_init);
 module_exit(ebpf_fini);
 MODULE_AUTHOR("Yutaro Hayakawa");
 MODULE_DESCRIPTION("Generic eBPF Module");
-MODULE_LICENSE("Apache2");
+MODULE_LICENSE("GPL");

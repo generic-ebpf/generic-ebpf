@@ -30,10 +30,10 @@
 #include <linux/uaccess.h>
 #include <asm/byteorder.h>
 
-#include <dev/ebpf/ebpf_obj.h>
-
 typedef struct task_struct ebpf_thread_t;
 typedef struct file ebpf_file_t;
+
+#include <dev/ebpf_dev/ebpf_obj.h>
 
 #define EBPF_OBJ(filep) filep->private_data
 #define EBPF_OBJ_MAP(filep) (struct ebpf_obj_map *)filep->private_data

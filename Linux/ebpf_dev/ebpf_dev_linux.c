@@ -15,7 +15,9 @@
  */
 
 #include <dev/ebpf_dev/ebpf_dev_platform.h>
-#include <dev/ebpf/ebpf_obj.h>
+#include <dev/ebpf/ebpf_prog.h>
+#include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf_dev/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 
@@ -25,20 +27,38 @@ ebpf_objfile_release(struct inode *inode, struct file *filp)
     struct ebpf_obj *obj = filp->private_data;
 
     if (!atomic_read(&inode->i_count)) {
-        ebpf_obj_delete(obj);
+        ebpf_obj_delete(obj, current);
     }
 
     return 0;
 }
 
-static const struct file_operations ebpf_objfile_ops = {
-    .release = ebpf_objfile_release};
+static const struct file_operations ebpf_objf_ops = {
+    .release = ebpf_objfile_release
+};
+
+bool
+is_ebpf_objfile(ebpf_file_t *fp)
+{
+    if (!fp) {
+        return false;
+    }
+    return fp->f_op == &ebpf_objf_ops;
+}
 
 int
-ebpf_obj_get_fdesc(ebpf_thread_t *td, struct ebpf_obj *data)
+ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
 {
-    return anon_inode_getfd("ebpf-map", &ebpf_objfile_ops, data,
-                            O_RDWR | O_CLOEXEC);
+    *fd = anon_inode_getfd("ebpf-map", &ebpf_objf_ops, data, O_RDWR);
+
+    *fp = fget(*fd);
+    if (!fp) {
+        return EBUSY;
+    }
+
+    fput(*fp);
+
+    return 0;
 }
 
 int
@@ -134,13 +154,14 @@ ebpf_dev_init(void)
     return 0;
 }
 
-EXPORT_SYMBOL(ebpf_obj_get_fdesc);
+EXPORT_SYMBOL(ebpf_fopen);
 EXPORT_SYMBOL(ebpf_fget);
 EXPORT_SYMBOL(ebpf_fdrop);
 EXPORT_SYMBOL(ebpf_copyin);
 EXPORT_SYMBOL(ebpf_copyout);
+EXPORT_SYMBOL(ebpf_objfile_get_container);
+EXPORT_SYMBOL(ebpf_obj_delete);
 
 module_init(ebpf_dev_init);
 module_exit(ebpf_dev_fini);
-
 MODULE_LICENSE("GPL");
