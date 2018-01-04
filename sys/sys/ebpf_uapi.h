@@ -56,3 +56,14 @@ union ebpf_req {
         uint64_t *test_result;
     };
 };
+
+#define EBPF_PSEUDO_MAP_DESC 1
+#define EBPF_PROG_MAX_ATTACHED_MAPS 64
+
+struct ebpf_map_def {
+  uint32_t type;
+  uint32_t key_size;
+  uint32_t value_size;
+  uint32_t max_entries;
+  uint32_t flags;
+};

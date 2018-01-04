@@ -9,6 +9,7 @@ extern "C" {
 #include <sys/ioctl.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
+#include "util.h"
 }
 
 namespace {
@@ -21,14 +22,14 @@ class EbpfDevRunTestTest : public ::testing::Test {
     {
         int error;
 
-        ebpf_fd = open("/dev/ebpf", O_RDWR);
+        ebpf_fd = ebpf_init();
         assert(ebpf_fd > 0);
     }
 
     virtual void
     TearDown()
     {
-        close(ebpf_fd);
+        ebpf_done(ebpf_fd);
     }
 };
 
@@ -41,47 +42,27 @@ TEST_F(EbpfDevRunTestTest, LoadCtxToR0AndReturn)
         {EBPF_OP_EXIT, 0, 0, 0, 0}
     };
 
-    union ebpf_req req;
-    req.prog_fdp = &prog_fd;
-    req.prog_type = EBPF_PROG_TYPE_TEST;
-    req.prog = insts;
-    req.prog_len = 2;
-    req.map_flags = 0;
-
-    error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);
-    assert(!error);
+    prog_fd = ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts)/8);
+    assert(prog_fd > 0);
 
     uint64_t ctx = 100, result;
 
-    union ebpf_req test_req;
-    test_req.prog_fd = prog_fd;
-    test_req.ctx = &ctx;
-    test_req.ctx_len = sizeof(uint64_t);
-    test_req.jit = 0;
-    test_req.test_result = &result;
-
-    error = ioctl(ebpf_fd, EBPFIOC_RUN_TEST, &test_req);
+    error = ebpf_run_test(ebpf_fd, prog_fd, &ctx, sizeof(uint64_t), 0, &result);
     EXPECT_EQ(0, error);
     EXPECT_EQ(100, result);
+
+    close(prog_fd);
 }
 
 TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
 {
-    int error, map_fd;
-
-    union ebpf_req map_req;
-    map_req.map_fdp = &map_fd;
-    map_req.map_type = EBPF_MAP_TYPE_ARRAY;
-    map_req.key_size = sizeof(uint32_t);
-    map_req.value_size = sizeof(uint32_t);
-    map_req.max_entries = 100;
-    map_req.map_flags = 0;
-
-    error = ioctl(ebpf_fd, EBPFIOC_MAP_CREATE, &map_req);
-    assert(!error);
+    int error;
+    int map_fd = ebpf_map_create(ebpf_fd, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+        sizeof(uint32_t), 100, 0);
+    assert(map_fd > 0);
 
     struct ebpf_inst insts[] = {
-        {EBPF_OP_LDDW, 1, EBPF_PSEUDO_MAPFD, 0, map_fd}, // load mapfd
+        {EBPF_OP_LDDW, 1, EBPF_PSEUDO_MAP_DESC, 0, map_fd}, // load mapfd
         {0, 0, 0, 0, 0},
         {EBPF_OP_LDDW, 4, 0, 0, 0}, // key = 0
         {0, 0, 0, 0, 0},
@@ -89,44 +70,26 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
         {EBPF_OP_MOV64_REG, 2, 10, 0, 0},
         {EBPF_OP_ADD64_IMM, 2, 0, 0, -4}, // get stack address
         {EBPF_OP_MOV64_IMM, 3, 0, 0, 0}, // flags = 0 
-        {EBPF_OP_CALL, 0, 0, 0, TEST_CALL_EBPF_MAP_LOOKUP_ELEM},
+        {EBPF_OP_CALL, 0, 0, 0, 1},
         {EBPF_OP_MOV64_REG, 1, 0, 0, 0},
         {EBPF_OP_LDXW, 0, 1, 0, 0},
         {EBPF_OP_EXIT, 0, 0, 0, 0}
     };
 
-    int prog_fd;
-    union ebpf_req prog_req;
-    prog_req.prog_fdp = &prog_fd;
-    prog_req.prog_type = EBPF_PROG_TYPE_TEST;
-    prog_req.prog = insts;
-    prog_req.prog_len = 12;
-
-    error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &prog_req);
-    assert(!error); 
+    int prog_fd = ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts)/8);
+    assert(prog_fd > 0);
 
     uint32_t k = 0, v = 100;
-    union ebpf_req map_update_req;
-    map_update_req.map_fd = map_fd;
-    map_update_req.key = &k;
-    map_update_req.value = &v;
-    map_update_req.flags = 0;
-
-    error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &map_update_req);
+    error = ebpf_map_update_elem(ebpf_fd, map_fd, &k, &v, 0);
     assert(!error);
 
-    sleep(5);
-
     uint64_t ctx = 1000, result;
-    union ebpf_req test_req;
-    test_req.prog_fd = prog_fd;
-    test_req.ctx = &ctx;
-    test_req.ctx_len = sizeof(uint64_t);
-    test_req.jit = 0;
-    test_req.test_result = &result;
+    error = ebpf_run_test(ebpf_fd, prog_fd, &ctx, sizeof(uint64_t), 0, &result);
 
-    error = ioctl(ebpf_fd, EBPFIOC_RUN_TEST, &test_req);
     EXPECT_EQ(0, error);
     EXPECT_EQ(100, result);
+
+    close(map_fd);
+    close(prog_fd);
 }
 }

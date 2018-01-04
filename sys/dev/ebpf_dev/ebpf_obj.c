@@ -68,7 +68,7 @@ ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread_t *td)
             return;
         }
 
-        for (int i = 0; i < EBPF_OBJ_PROG_MAX_ATTACHED_MAPS; i++) {
+        for (int i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
             if (prog->attached_maps[i]) {
                 ebpf_fdrop(prog->attached_maps[i]->obj.f, td);
             }

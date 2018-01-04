@@ -42,7 +42,7 @@ struct ebpf_obj_map {
 struct ebpf_obj_prog {
     struct ebpf_prog prog;
     struct ebpf_obj obj;
-    struct ebpf_obj_map *attached_maps[EBPF_OBJ_PROG_MAX_ATTACHED_MAPS];
+    struct ebpf_obj_map *attached_maps[EBPF_PROG_MAX_ATTACHED_MAPS];
     uint16_t nattached_maps;
 };
 
