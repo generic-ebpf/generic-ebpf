@@ -20,13 +20,17 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 
-static void ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg) {
+static void
+ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
+{
     struct ebpf_obj_prog *prog = (struct ebpf_obj_prog *)self;
     ebpf_thread_t *td = (ebpf_thread_t *)arg;
     ebpf_fdrop(prog->obj.f, td);
 }
 
-static void ebpf_dev_map_deinit(struct ebpf_map *self, void *arg) {
+static void
+ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
+{
     struct ebpf_obj_map *map = (struct ebpf_obj_map *)self;
     ebpf_thread_t *td = (ebpf_thread_t *)arg;
     ebpf_fdrop(map->obj.f, td);
@@ -49,8 +53,8 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
         return ENOMEM;
     }
 
-    error = ebpf_copyin(req->prog, insts,
-        req->prog_len * sizeof(struct ebpf_inst));
+    error =
+        ebpf_copyin(req->prog, insts, req->prog_len * sizeof(struct ebpf_inst));
     if (error) {
         ebpf_free(insts);
         return error;
@@ -114,7 +118,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
     }
 
     error = ebpf_map_init(&map->map, req->map_type, req->key_size,
-        req->value_size, req->max_entries, req->map_flags);
+                          req->value_size, req->max_entries, req->map_flags);
     if (error) {
         ebpf_free(map);
         return error;

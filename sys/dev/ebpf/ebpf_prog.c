@@ -19,7 +19,7 @@
 
 int
 ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
-    struct ebpf_inst *prog, uint32_t prog_len)
+               struct ebpf_inst *prog, uint32_t prog_len)
 {
     if (!prog_obj || type >= __EBPF_PROG_TYPE_MAX || !prog || !prog_len) {
         return EINVAL;

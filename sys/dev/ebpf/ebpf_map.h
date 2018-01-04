@@ -24,8 +24,8 @@ extern const struct ebpf_map_ops *ebpf_map_ops[];
 struct ebpf_map;
 
 typedef int ebpf_map_init_t(struct ebpf_map *self, uint16_t key_size,
-                              uint16_t value_size, uint16_t max_entries,
-                              uint32_t flags);
+                            uint16_t value_size, uint16_t max_entries,
+                            uint32_t flags);
 typedef void *ebpf_map_lookup_elem_t(struct ebpf_map *self, void *key,
                                      uint64_t flags);
 typedef int ebpf_map_update_elem_t(struct ebpf_map *self, void *key,
@@ -54,16 +54,22 @@ struct ebpf_map {
     void (*deinit)(struct ebpf_map *, void *);
 };
 
-int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size, uint16_t value_size, uint32_t max_entries, uint32_t map_flags);
+int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size,
+                  uint16_t value_size, uint32_t max_entries,
+                  uint32_t map_flags);
 void *ebpf_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags);
-int ebpf_map_update_elem(struct ebpf_map *self, void *key, void *value, uint64_t flags);
+int ebpf_map_update_elem(struct ebpf_map *self, void *key, void *value,
+                         uint64_t flags);
 int ebpf_map_delete_elem(struct ebpf_map *self, void *key);
 int ebpf_map_get_next_key(struct ebpf_map *self, void *key, void *next_key);
 
 /*
- * Users can extend (make subclass of) struct ebpf_map, so the destructor of struct ebpf_map might be
- * overwritten. ebpf_map_deinit just calls map_object->dtor and its default value is
- * ebpf_map_deinit_default. This is useful for managing external reference count or something.
+ * Users can extend (make subclass of) struct ebpf_map, so the destructor of
+ * struct ebpf_map might be
+ * overwritten. ebpf_map_deinit just calls map_object->dtor and its default
+ * value is
+ * ebpf_map_deinit_default. This is useful for managing external reference count
+ * or something.
  */
 void ebpf_map_deinit(struct ebpf_map *mapp, void *arg);
 void ebpf_map_deinit_default(struct ebpf_map *mapp, void *arg);

@@ -22,17 +22,18 @@ const struct ebpf_map_ops *ebpf_map_ops[] = {[EBPF_MAP_TYPE_ARRAY] =
                                                  &array_map_ops};
 
 int
-ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size, uint16_t value_size, uint32_t max_entries, uint32_t flags)
+ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size,
+              uint16_t value_size, uint32_t max_entries, uint32_t flags)
 {
     int error;
 
-    if (!mapp || type >= __EBPF_MAP_TYPE_MAX || !key_size ||
-        !value_size || !max_entries) {
+    if (!mapp || type >= __EBPF_MAP_TYPE_MAX || !key_size || !value_size ||
+        !max_entries) {
         return EINVAL;
     }
 
-    error = ebpf_map_ops[type]->init(
-        mapp, key_size, value_size, max_entries, flags);
+    error = ebpf_map_ops[type]->init(mapp, key_size, value_size, max_entries,
+                                     flags);
     if (error) {
         return error;
     }

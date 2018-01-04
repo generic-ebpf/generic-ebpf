@@ -33,9 +33,8 @@ ebpf_objfile_release(struct inode *inode, struct file *filp)
     return 0;
 }
 
-static const struct file_operations ebpf_objf_ops = {
-    .release = ebpf_objfile_release
-};
+static const struct file_operations ebpf_objf_ops = {.release =
+                                                         ebpf_objfile_release};
 
 bool
 is_ebpf_objfile(ebpf_file_t *fp)

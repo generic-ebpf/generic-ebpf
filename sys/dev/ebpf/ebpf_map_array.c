@@ -22,8 +22,8 @@ struct ebpf_map_array {
 };
 
 static int
-array_map_init(struct ebpf_map *self, uint16_t key_size,
-                 uint16_t value_size, uint16_t max_entries, uint32_t flags)
+array_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
+               uint16_t max_entries, uint32_t flags)
 {
     if (key_size != sizeof(uint32_t)) {
         return EINVAL;

@@ -26,6 +26,6 @@ struct ebpf_prog {
 };
 
 int ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
-    struct ebpf_inst *prog, uint32_t prog_len);
+                   struct ebpf_inst *prog, uint32_t prog_len);
 void ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg);
 void ebpf_prog_deinit(struct ebpf_prog *prog_obj, void *arg);

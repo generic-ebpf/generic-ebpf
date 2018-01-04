@@ -18,7 +18,9 @@
 
 #define ebpf_offsetof(type, member) __builtin_offsetof(type, member)
 
-void *ebpf_obj_container_of(struct ebpf_obj *obj) {
+void *
+ebpf_obj_container_of(struct ebpf_obj *obj)
+{
     if (!obj) {
         return NULL;
     }
@@ -33,7 +35,9 @@ void *ebpf_obj_container_of(struct ebpf_obj *obj) {
     }
 }
 
-void *ebpf_objfile_get_container(ebpf_file_t *fp) {
+void *
+ebpf_objfile_get_container(ebpf_file_t *fp)
+{
     if (!fp) {
         return NULL;
     }
