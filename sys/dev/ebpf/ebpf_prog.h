@@ -17,6 +17,7 @@
 #pragma once
 
 #include <sys/ebpf.h>
+#include <sys/ebpf_inst.h>
 
 struct ebpf_prog {
     uint16_t type;

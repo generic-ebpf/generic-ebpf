@@ -12,7 +12,8 @@
 #include <sys/ioctl.h>
 #include <assert.h>
 
-#include <sys/ebpf.h>
+#include <sys/ebpf_inst.h>
+#include <sys/ebpf_uapi.h>
 #include <sys/ebpf_dev.h>
 
 struct map_entry {

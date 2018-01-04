@@ -8,6 +8,7 @@ extern "C" {
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/ebpf.h>
+#include <sys/ebpf_inst.h>
 #include <sys/ebpf_dev.h>
 #include "util.h"
 }

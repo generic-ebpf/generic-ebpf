@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <math.h>
 #include <sys/ebpf.h>
+#include <sys/ebpf_vm.h>
 
 #if defined(__APPLE__)
 #include "../../Darwin/ebpf/user/elf.h"

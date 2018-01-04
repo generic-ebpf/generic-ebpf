@@ -18,7 +18,8 @@
 #pragma once
 
 #include "ebpf_platform.h"
-#include <sys/ebpf.h>
+#include <sys/ebpf_vm.h>
+#include <sys/ebpf_inst.h>
 
 #define MAX_INSTS 65536
 #define MAX_EXT_FUNCS 64
