@@ -8,11 +8,11 @@
 
 #include <sys/ebpf_dev.h>
 #include "libbpf.h"
-#include "ebpf_elf_loader.h"
+#include "ebpf_dev_loader.h"
 
 int main(void) {
   int error;
-  struct ebpf_elf_loader_ctx ctx;
+  struct ebpf_dev_loader_ctx ctx;
 
   char *ftable[] = {
     "ebpf_map_update_elem",

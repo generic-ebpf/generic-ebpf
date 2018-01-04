@@ -21,7 +21,7 @@ struct map_entry {
   int fd;
 };
 
-struct ebpf_elf_loader_ctx {
+struct ebpf_dev_loader_ctx {
   char *fname;
   bool found_prog;
   bool found_map;
@@ -44,7 +44,7 @@ struct ebpf_elf_loader_ctx {
 };
 
 static struct map_entry*
-ebpf_elf_loader_lookup_map_entry(struct ebpf_elf_loader_ctx *ctx, const char *name)
+ebpf_elf_loader_lookup_map_entry(struct ebpf_dev_loader_ctx *ctx, const char *name)
 {
   for (int i = 0; i < ctx->num_map; i++) {
     if (strcmp(name, ctx->maps[i]->name) == 0) {
@@ -74,16 +74,16 @@ ebpf_elf_loader_lookup_map_entry(struct ebpf_elf_loader_ctx *ctx, const char *na
 #endif
 
 static void
-ebpf_elf_loader_init(struct ebpf_elf_loader_ctx *ctx, char *fname, char **func_table)
+ebpf_elf_loader_init(struct ebpf_dev_loader_ctx *ctx, char *fname, char **func_table)
 {
-  memset(ctx, 0, sizeof(struct ebpf_elf_loader_ctx));
+  memset(ctx, 0, sizeof(struct ebpf_dev_loader_ctx));
   ctx->fname = fname;
   ctx->func_table = func_table;
   ctx->ebpf_fd = ebpf_dev_init();
 }
 
 static void
-ebpf_elf_loader_deinit(struct ebpf_elf_loader_ctx *ctx)
+ebpf_elf_loader_deinit(struct ebpf_dev_loader_ctx *ctx)
 {
   if (FOUND_PROG(ctx)) {
     free(ctx->prog_shdr);
@@ -115,7 +115,7 @@ ebpf_elf_loader_deinit(struct ebpf_elf_loader_ctx *ctx)
 }
 
 static int
-handle_section(struct ebpf_elf_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int idx)
+handle_section(struct ebpf_dev_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int idx)
 {
   Elf_Scn *scn;
   scn = elf_getscn(elf, idx);
@@ -172,7 +172,7 @@ handle_section(struct ebpf_elf_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int i
 }
 
 static int
-resolve_relocation(struct ebpf_elf_loader_ctx *ctx)
+resolve_relocation(struct ebpf_dev_loader_ctx *ctx)
 {
   GElf_Shdr *prog_reloc = ctx->prog_reloc;
   Elf_Data *prog_reloc_data = ctx->prog_reloc_data;
@@ -254,7 +254,7 @@ resolve_relocation(struct ebpf_elf_loader_ctx *ctx)
 }
 
 static int
-ebpf_elf_load(struct ebpf_elf_loader_ctx *ctx)
+ebpf_elf_load(struct ebpf_dev_loader_ctx *ctx)
 {
   int error;
 

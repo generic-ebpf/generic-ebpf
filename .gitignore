@@ -14,4 +14,3 @@ test/.noseids
 test/test_framework/.noseids
 test/venv
 test/test
-Makefile
