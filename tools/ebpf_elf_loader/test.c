@@ -1,8 +1,6 @@
 #include <stdint.h>
 #include <sys/ebpf_uapi.h>
 
-void* ebpf_map_lookup_elem(struct ebpf_map_def *map, void *key, uint64_t flags);
-
 __attribute__((section("map")))
 struct ebpf_map_def hash = {
   .type = EBPF_MAP_TYPE_TOMMYHASHTBL,

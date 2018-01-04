@@ -17,20 +17,21 @@
 #pragma once
 
 #include <stdint.h>
+#include <sys/ebpf_dev.h>
 
 static int
-ebpf_init(void)
+ebpf_dev_init(void)
 {
     return open("/dev/ebpf", O_RDWR);
 }
 
 static void
-ebpf_done(int ebpf_fd) {
+ebpf_dev_deinit(int ebpf_fd) {
   close(ebpf_fd);
 }
 
 static int
-ebpf_load_prog(int ebpf_fd, uint16_t prog_type, void *prog, uint32_t prog_len)
+ebpf_dev_load_prog(int ebpf_fd, uint16_t prog_type, void *prog, uint32_t prog_len)
 {
     int fd, error;
 
@@ -49,7 +50,7 @@ ebpf_load_prog(int ebpf_fd, uint16_t prog_type, void *prog, uint32_t prog_len)
 }
 
 static int
-ebpf_map_create(int ebpf_fd, uint16_t type, uint32_t key_size,
+ebpf_dev_map_create(int ebpf_fd, uint16_t type, uint32_t key_size,
     uint32_t value_size, uint32_t max_entries, uint32_t map_flags)
 {
     int fd, error;
@@ -71,7 +72,7 @@ ebpf_map_create(int ebpf_fd, uint16_t type, uint32_t key_size,
 }
 
 static int
-ebpf_map_update_elem(int ebpf_fd, int map_fd, void *key, void *value,
+ebpf_dev_map_update_elem(int ebpf_fd, int map_fd, void *key, void *value,
     uint64_t flags)
 {
     int error;
@@ -86,7 +87,7 @@ ebpf_map_update_elem(int ebpf_fd, int map_fd, void *key, void *value,
 }
 
 static int
-ebpf_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
+ebpf_dev_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
     uint64_t flags)
 {
     int error;
@@ -101,7 +102,7 @@ ebpf_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
 }
 
 static int
-ebpf_map_delete_elem(int ebpf_fd, int map_fd, void *key)
+ebpf_dev_map_delete_elem(int ebpf_fd, int map_fd, void *key)
 {
     int error;
 
@@ -113,7 +114,7 @@ ebpf_map_delete_elem(int ebpf_fd, int map_fd, void *key)
 }
 
 static int
-ebpf_map_get_next_key(int ebpf_fd, int map_fd, void *key, void *next_key)
+ebpf_dev_map_get_next_key(int ebpf_fd, int map_fd, void *key, void *next_key)
 {
     int error;
 
@@ -126,7 +127,7 @@ ebpf_map_get_next_key(int ebpf_fd, int map_fd, void *key, void *next_key)
 }
 
 static int
-ebpf_run_test(int ebpf_fd, int prog_fd, void *ctx, uint16_t ctx_len,
+ebpf_dev_run_test(int ebpf_fd, int prog_fd, void *ctx, uint16_t ctx_len,
     int jit, uint64_t *result)
 {
     union ebpf_req req;

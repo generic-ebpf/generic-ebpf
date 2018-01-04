@@ -67,13 +67,19 @@ ebpf_elf_loader_lookup_map_entry(struct ebpf_elf_loader_ctx *ctx, const char *na
 #define FOUND_PROG_RELOC(ctx)       (ctx)->found_prog_reloc
 #define MARK_PROG_RELOC_FOUND(ctx)  ((ctx)->found_prog_reloc = true)
 
+#ifdef DEBUG
+#define D(_fmt, ...) fprintf(stderr, _fmt "\n", ##__VA_ARGS__)
+#else
+#define D(_fmt, ...) ;
+#endif
+
 static void
 ebpf_elf_loader_init(struct ebpf_elf_loader_ctx *ctx, char *fname, char **func_table)
 {
   memset(ctx, 0, sizeof(struct ebpf_elf_loader_ctx));
   ctx->fname = fname;
   ctx->func_table = func_table;
-  ctx->ebpf_fd = ebpf_init();
+  ctx->ebpf_fd = ebpf_dev_init();
 }
 
 static void
@@ -105,7 +111,7 @@ ebpf_elf_loader_deinit(struct ebpf_elf_loader_ctx *ctx)
     free(ctx->maps[i]);
   }
 
-  close(ctx->ebpf_fd);
+  ebpf_dev_deinit(ctx->ebpf_fd);
 }
 
 static int
@@ -174,7 +180,7 @@ resolve_relocation(struct ebpf_elf_loader_ctx *ctx)
 
   int numrels = prog_reloc->sh_size / prog_reloc->sh_entsize;
   if (numrels == 0) {
-    printf("relocation section is empty\n");
+    D("relocation section is empty");
     return 0;
   }
 
@@ -202,28 +208,28 @@ resolve_relocation(struct ebpf_elf_loader_ctx *ctx)
 
     if (func_idx != -1) {
       if (inst->opcode != EBPF_OP_CALL) {
-        printf("Invalid function call\n");
+        D("Invalid function call");
         return -1;
       }
 
       inst->imm = func_idx;
-      printf("Successfully relocated function call. %s index: %u\n\n", symname, func_idx);
+      D("Successfully relocated function call. %s index: %u\n", symname, func_idx);
       continue;
     }
 
     if (inst->opcode == EBPF_OP_LDDW) {
       if (!FOUND_MAP(ctx)) {
-        printf("Map section is not found. What is this?\n");
+        D("Map section is not found. What is this?");
         return -1;
       }
 
       uint8_t *mapdata = ctx->map_data->d_buf;
       struct ebpf_map_def *map = (struct ebpf_map_def *)(mapdata + sym.st_value);
-      printf("Found map relocation entry. It's definition is\n"
-             "  Type: %u KeySize: %u ValueSize: %u MaxEntries: %u Flags: %u\n\n",
+      D("Found map relocation entry. It's definition is\n"
+             "  Type: %u KeySize: %u ValueSize: %u MaxEntries: %u Flags: %u\n",
              map->type, map->key_size, map->value_size, map->max_entries, map->flags);
 
-      int mapfd = ebpf_map_create(ctx->ebpf_fd, map->type, map->key_size,
+      int mapfd = ebpf_dev_map_create(ctx->ebpf_fd, map->type, map->key_size,
           map->value_size, map->max_entries, map->flags);
       assert(mapfd > 0);
       if (ctx->num_map != EBPF_PROG_MAX_ATTACHED_MAPS) {
@@ -232,7 +238,7 @@ resolve_relocation(struct ebpf_elf_loader_ctx *ctx)
         ent->fd = mapfd;
         ctx->maps[ctx->num_map] = ent;
         ctx->num_map++;
-        printf("Registered map entry. name: %s fd: %d\n", ent->name, ent->fd);
+        D("Registered map entry. name: %s fd: %d", ent->name, ent->fd);
       }
 
       // assume create map success
@@ -241,18 +247,10 @@ resolve_relocation(struct ebpf_elf_loader_ctx *ctx)
       continue;
     }
 
-    printf("Unknown type relocation entry. name: %s r_offset: %lu\n\n", symname, rel.r_offset);
+    D("Unknown type relocation entry. name: %s r_offset: %lu\n", symname, rel.r_offset);
   }
 
   return 0;
-}
-
-static void
-write_prog_to_file(void *ebpf_prog, size_t len)
-{
-  FILE *f = fopen("test.bin", "w");
-  size_t wsize = fwrite(ebpf_prog, len, 1, f);
-  fclose(f);
 }
 
 static int
@@ -262,25 +260,24 @@ ebpf_elf_load(struct ebpf_elf_loader_ctx *ctx)
 
   int fd = open(ctx->fname, O_RDWR);
   if (fd < 0) {
-    perror("open");
     return -1;
   }
 
   if (elf_version(EV_CURRENT) == EV_NONE) {
-    printf("Invalid elf version\n");
+    D("Invalid elf version");
     return -1;
   }
 
   Elf *elf = elf_begin(fd, ELF_C_READ, NULL);
   if (!elf) {
-    printf("%s\n", elf_errmsg(elf_errno()));
+    D("%s", elf_errmsg(elf_errno()));
     return -1;
   }
   ctx->elf = elf;
 
   GElf_Ehdr ehdr;
   if (gelf_getehdr(elf, &ehdr) != &ehdr) {
-    printf("%s\n", elf_errmsg(elf_errno()));
+    D("%s", elf_errmsg(elf_errno()));
     return -1;
   }
   ctx->ehdr = &ehdr;
@@ -288,18 +285,18 @@ ebpf_elf_load(struct ebpf_elf_loader_ctx *ctx)
   for (int i = 1; i < ehdr.e_shnum; i++) {
     error = handle_section(ctx, &ehdr, elf, i);
     if (error) {
-      printf("Error occured while parsing sections\n");
+      D("Error occured while parsing sections");
       return -1;
     }
   }
 
   if (!FOUND_SYMTAB(ctx)) {
-    printf("Error: Symtab missing\n");
+    D("Error: Symtab missing");
     return -1;
   }
 
   if (!FOUND_PROG(ctx)) {
-    printf("Error: " PROG_SEC " missing\n");
+    D("Error: " PROG_SEC " missing");
     return -1;
   }
 
@@ -309,9 +306,6 @@ ebpf_elf_load(struct ebpf_elf_loader_ctx *ctx)
 
   elf_end(elf);
 
-  // for debugging
-  write_prog_to_file(ctx->prog_data->d_buf, ctx->prog_data->d_size);
-
-  return ebpf_load_prog(ctx->ebpf_fd, EBPF_PROG_TYPE_TEST, ctx->prog_data->d_buf,
+  return ebpf_dev_load_prog(ctx->ebpf_fd, EBPF_PROG_TYPE_TEST, ctx->prog_data->d_buf,
       ctx->prog_data->d_size / sizeof(struct ebpf_inst));
 }
