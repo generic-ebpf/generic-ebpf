@@ -29,3 +29,5 @@
 #define htobe16(x) cpu_to_be16(x)
 #define htobe32(x) cpu_to_be32(x)
 #define htobe64(x) cpu_to_be64(x)
+
+#define ENOTSUP EOPNOTSUPP

@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdarg.h>
+#include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
 #include <sys/mman.h>
