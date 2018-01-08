@@ -7,6 +7,8 @@ ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
 ebpf-objs += $(SRC_DIR)/ebpf_map.o
 ebpf-objs += $(SRC_DIR)/ebpf_prog.o
 ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
+ebpf-objs += $(SRC_DIR)/tommyds/tommy.o
+ebpf-objs += $(SRC_DIR)/ebpf_map_tommyhashtbl.o
 ebpf-objs += ./ebpf_osx_user.o
 
 ARCH:=$(shell arch)
