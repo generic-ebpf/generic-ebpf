@@ -50,3 +50,5 @@ Enhansing eBPF programmability to [VALE](http://info.iet.unipi.it/~luigi/papers/
  
 ## Notes
 Our ebpf interpreter and jit codes (and its tests) are based on [ubpf](https://github.com/iovisor/ubpf)
+Currently, we have experimental [tommyds](https://github.com/amadvance/tommyds) backed map implementation.
+However, this might be change in the future commit.
