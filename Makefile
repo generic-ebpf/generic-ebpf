@@ -3,7 +3,7 @@
 	clean_tests
 
 # will be replaced by configure
-export platform=Darwin
+export platform={{platform}}
 
 all: $(platform)_all
 clean: $(platform)_clean
