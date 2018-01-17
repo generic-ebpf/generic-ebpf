@@ -58,6 +58,7 @@ ebpf_map_tests_do_test:
 ebpf_dev_tests_do_test:
 	make -C ebpf_dev_tests do_test
 
+.PHONY: gtest
 gtest:
 	make -C $(gtestpath)/googletest/make gtest_main.a
 
