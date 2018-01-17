@@ -8,6 +8,7 @@
 
 #include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf.h>
+#include <sys/ebpf_vm.h>
 #include <dev/ebpf/ebpf_prog.h>
 #include <dev/ebpf/ebpf_map.h>
 
