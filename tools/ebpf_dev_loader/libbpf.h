@@ -75,8 +75,6 @@ static int
 ebpf_dev_map_update_elem(int ebpf_fd, int map_fd, void *key, void *value,
     uint64_t flags)
 {
-    int error;
-
     union ebpf_req req;
     req.map_fd = map_fd;
     req.key = key;
@@ -90,8 +88,6 @@ static int
 ebpf_dev_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
     uint64_t flags)
 {
-    int error;
-
     union ebpf_req req;
     req.map_fd = map_fd;
     req.key = key;
@@ -104,8 +100,6 @@ ebpf_dev_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
 static int
 ebpf_dev_map_delete_elem(int ebpf_fd, int map_fd, void *key)
 {
-    int error;
-
     union ebpf_req req;
     req.map_fd = map_fd;
     req.key = key;
@@ -116,8 +110,6 @@ ebpf_dev_map_delete_elem(int ebpf_fd, int map_fd, void *key)
 static int
 ebpf_dev_map_get_next_key(int ebpf_fd, int map_fd, void *key, void *next_key)
 {
-    int error;
-
     union ebpf_req req;
     req.map_fd = map_fd;
     req.key = key;

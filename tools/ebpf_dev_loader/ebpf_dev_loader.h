@@ -133,11 +133,13 @@ handle_section(struct ebpf_dev_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int i
   if (!FOUND_SYMTAB(ctx) && shdr->sh_type == SHT_SYMTAB) {
     ctx->symtab = shdr;
     ctx->symbols = elf_getdata(scn, 0);
+    if (!ctx->symbols || elf_getdata(scn, ctx->symbols) != NULL) {
+      return -1;
+    }
     MARK_SYMTAB_FOUND(ctx);
     return 0;
   }
 
-  Elf_Data *data;
   char *shname = elf_strptr(elf, ehdr->e_shstrndx, shdr->sh_name);
   if (!shname) {
     free(shdr);
@@ -147,6 +149,9 @@ handle_section(struct ebpf_dev_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int i
   if (!FOUND_PROG(ctx) && strcmp(shname, PROG_SEC) == 0) {
     ctx->prog_shdr = shdr;
     ctx->prog_data = elf_getdata(scn, 0);
+    if (!ctx->prog_data || elf_getdata(scn, ctx->prog_data) != NULL) {
+      return -1;
+    }
     MARK_PROG_FOUND(ctx);
     return 0;
   }
@@ -154,6 +159,9 @@ handle_section(struct ebpf_dev_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int i
   if (!FOUND_MAP(ctx) && strcmp(shname, MAP_SEC) == 0) {
     ctx->map_shdr = shdr;
     ctx->map_data = elf_getdata(scn, 0);
+    if (!ctx->map_data || elf_getdata(scn, ctx->map_data) != NULL) {
+      return -1;
+    }
     MARK_MAP_FOUND(ctx);
     return 0;
   }
@@ -161,6 +169,9 @@ handle_section(struct ebpf_dev_loader_ctx *ctx, GElf_Ehdr *ehdr, Elf *elf, int i
   if (!FOUND_PROG_RELOC(ctx) && strcmp(shname, PROG_RELOC_SEC) == 0) {
     ctx->prog_reloc = shdr;
     ctx->prog_reloc_data = elf_getdata(scn, 0);
+    if (!ctx->prog_reloc_data || elf_getdata(scn, ctx->prog_reloc_data) != NULL) {
+      return -1;
+    }
     MARK_PROG_RELOC_FOUND(ctx);
     return 0;
   }
