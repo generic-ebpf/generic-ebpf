@@ -19,19 +19,21 @@
 #include <stdint.h>
 #include <sys/ebpf_dev.h>
 
-static int
+int
 ebpf_dev_init(void)
 {
     return open("/dev/ebpf", O_RDWR);
 }
 
-static void
-ebpf_dev_deinit(int ebpf_fd) {
+void
+ebpf_dev_deinit(int ebpf_fd)
+{
   close(ebpf_fd);
 }
 
-static int
-ebpf_dev_load_prog(int ebpf_fd, uint16_t prog_type, void *prog, uint32_t prog_len)
+int
+ebpf_dev_load_prog(int ebpf_fd, uint16_t prog_type, void *prog,
+    uint32_t prog_len)
 {
     int fd, error;
 
@@ -49,7 +51,7 @@ ebpf_dev_load_prog(int ebpf_fd, uint16_t prog_type, void *prog, uint32_t prog_le
     return fd;
 }
 
-static int
+int
 ebpf_dev_map_create(int ebpf_fd, uint16_t type, uint32_t key_size,
     uint32_t value_size, uint32_t max_entries, uint32_t map_flags)
 {
@@ -71,7 +73,7 @@ ebpf_dev_map_create(int ebpf_fd, uint16_t type, uint32_t key_size,
     return fd;
 }
 
-static int
+int
 ebpf_dev_map_update_elem(int ebpf_fd, int map_fd, void *key, void *value,
     uint64_t flags)
 {
@@ -84,7 +86,7 @@ ebpf_dev_map_update_elem(int ebpf_fd, int map_fd, void *key, void *value,
     return ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req);
 }
 
-static int
+int
 ebpf_dev_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
     uint64_t flags)
 {
@@ -97,7 +99,7 @@ ebpf_dev_map_lookup_elem(int ebpf_fd, int map_fd, void *key, void *value,
     return ioctl(ebpf_fd, EBPFIOC_MAP_LOOKUP_ELEM, &req);
 }
 
-static int
+int
 ebpf_dev_map_delete_elem(int ebpf_fd, int map_fd, void *key)
 {
     union ebpf_req req;
@@ -107,7 +109,7 @@ ebpf_dev_map_delete_elem(int ebpf_fd, int map_fd, void *key)
     return ioctl(ebpf_fd, EBPFIOC_MAP_LOOKUP_ELEM, &req);
 }
 
-static int
+int
 ebpf_dev_map_get_next_key(int ebpf_fd, int map_fd, void *key, void *next_key)
 {
     union ebpf_req req;
@@ -118,7 +120,7 @@ ebpf_dev_map_get_next_key(int ebpf_fd, int map_fd, void *key, void *next_key)
     return ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
 }
 
-static int
+int
 ebpf_dev_run_test(int ebpf_fd, int prog_fd, void *ctx, uint16_t ctx_len,
     int jit, uint64_t *result)
 {
