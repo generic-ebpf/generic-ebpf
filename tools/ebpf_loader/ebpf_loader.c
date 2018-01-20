@@ -25,11 +25,11 @@
 #include <sys/ebpf_inst.h>
 #include <sys/ebpf_uapi.h>
 
-#include "ebpf_iface.h"
+#include "ebpf_driver.h"
 #include "ebpf_loader.h"
 
 EBPFLoader*
-ebpf_loader_create(EBPFIface *iface)
+ebpf_loader_create(EBPFDriver *driver)
 {
   EBPFLoader *ret = malloc(sizeof(EBPFLoader));
   if (!ret) {
@@ -37,7 +37,7 @@ ebpf_loader_create(EBPFIface *iface)
   }
   memset(ret, 0, sizeof(EBPFLoader));
 
-  ret->iface = iface;
+  ret->driver = driver;
 
   return ret;
 }
@@ -46,7 +46,7 @@ static void
 cleanup_map_entries(EBPFLoader *loader)
 {
   for (int i = 0; i < loader->num_map_entries; i++) {
-    loader->iface->close_map_desc(loader->iface, loader->map_entries[i]->map_desc);
+    loader->driver->close_map_desc(loader->driver, loader->map_entries[i]->map_desc);
     free(loader->map_entries[i]);
   }
 }
@@ -55,7 +55,7 @@ void
 ebpf_loader_destroy(EBPFLoader *loader)
 {
   cleanup_map_entries(loader);
-  loader->iface->close_prog_desc(loader->iface, loader->prog_desc);
+  loader->driver->close_prog_desc(loader->driver, loader->prog_desc);
   elf_end(loader->elf);
   free(loader);
 }
@@ -117,7 +117,7 @@ ebpf_loader_find_map_entry(EBPFLoader *loader, const char *name)
 }
 
 static int
-resolve_map_relocations(EBPFLoader *loader, GElf_Ehdr *ehdr)
+resolve_relocations(EBPFLoader *loader, GElf_Ehdr *ehdr)
 {
   uint8_t *mapdata = loader->maps->d_buf;
   struct ebpf_inst *inst, *insts = loader->prog->d_buf;
@@ -155,7 +155,7 @@ resolve_map_relocations(EBPFLoader *loader, GElf_Ehdr *ehdr)
 
           entry->name = symname;
           entry->def = map;
-          entry->map_desc = loader->iface->map_create(loader->iface,
+          entry->map_desc = loader->driver->map_create(loader->driver,
               map->type, map->key_size, map->value_size, map->max_entries,
               map->flags);
           if (entry->map_desc < 0) {
@@ -247,7 +247,7 @@ ebpf_loader_execute(EBPFLoader *loader, char *fname, uint16_t prog_type)
   }
 
   if (loader->relocations && loader->symbols && loader->maps) {
-    error = resolve_map_relocations(loader, &ehdr);
+    error = resolve_relocations(loader, &ehdr);
     if (error) {
       D("%s", elf_errmsg(elf_errno()));
       goto err1;
@@ -256,7 +256,7 @@ ebpf_loader_execute(EBPFLoader *loader, char *fname, uint16_t prog_type)
 
   close(fd);
 
-  loader->prog_desc = loader->iface->load_prog(loader->iface, prog_type,
+  loader->prog_desc = loader->driver->load_prog(loader->driver, prog_type,
       EBPF_PROG(loader), EBPF_PROG_LEN(loader));
   if (loader->prog_desc < 0) {
     goto err2;

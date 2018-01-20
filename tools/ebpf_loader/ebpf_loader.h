@@ -24,7 +24,7 @@
 #include <sys/ebpf_inst.h>
 #include <sys/ebpf_uapi.h>
 
-#include "ebpf_iface.h"
+#include "ebpf_driver.h"
 
 #ifdef DEBUG
 #define D(_fmt, ...) fprintf(stderr, _fmt "\n", ##__VA_ARGS__)
@@ -44,7 +44,7 @@ struct ebpf_map_entry {
 };
 
 typedef struct ebpf_loader_ctx {
-  EBPFIface *iface;
+  EBPFDriver *driver;
   Elf *elf;
   Elf_Data *prog;
   Elf_Data *maps;
@@ -61,7 +61,7 @@ typedef struct ebpf_loader_ctx {
 #define EBPF_MAP_ENTRIES(_loader) _loader->map_entries
 #define EBPF_NUM_MAP_ENTRIES(_loader) _loader->num_map_entries
 
-EBPFLoader* ebpf_loader_create(EBPFIface *iface);
+EBPFLoader* ebpf_loader_create(EBPFDriver *driver);
 int ebpf_loader_execute(EBPFLoader *loader, char *fname, uint16_t prog_type);
 void ebpf_loader_destroy(EBPFLoader *loader);
 

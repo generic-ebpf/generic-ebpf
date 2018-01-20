@@ -16,12 +16,12 @@
 
 #pragma once
 
-#include "ebpf_iface.h"
+#include "ebpf_driver.h"
 
-typedef struct ebpf_dev_iface {
-  EBPFIface base;
+typedef struct ebpf_dev_driver {
+  EBPFDriver base;
   int ebpf_fd;
-} EBPFDevIface;
+} EBPFDevDriver;
 
-EBPFDevIface* ebpf_dev_iface_create(void);
-void ebpf_dev_iface_destroy(EBPFDevIface *iface);
+EBPFDevDriver* ebpf_dev_driver_create(void);
+void ebpf_dev_driver_destroy(EBPFDevDriver *driver);

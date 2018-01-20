@@ -18,26 +18,26 @@
 
 #include <stdint.h>
 
-struct ebpf_iface;
-typedef struct ebpf_iface EBPFIface;
+struct ebpf_driver;
+typedef struct ebpf_driver EBPFDriver;
 
-typedef int (ebpf_load_prog_t)(EBPFIface *self, uint16_t prog_type,
+typedef int (ebpf_load_prog_t)(EBPFDriver *self, uint16_t prog_type,
     void *prog, uint32_t prog_len);
-typedef int (ebpf_map_create_t)(EBPFIface *self, uint16_t type,
+typedef int (ebpf_map_create_t)(EBPFDriver *self, uint16_t type,
     uint32_t key_size, uint32_t value_size, uint32_t max_entries,
     uint32_t map_flags);
-typedef int (ebpf_map_update_elem_t)(EBPFIface *self, int map_desc,
+typedef int (ebpf_map_update_elem_t)(EBPFDriver *self, int map_desc,
     void *key, void *value, uint64_t flags);
-typedef int (ebpf_map_lookup_elem_t)(EBPFIface *self, int map_desc,
+typedef int (ebpf_map_lookup_elem_t)(EBPFDriver *self, int map_desc,
     void *key, void *value, uint64_t flags);
-typedef int (ebpf_map_delete_elem_t)(EBPFIface *self, int map_desc,
+typedef int (ebpf_map_delete_elem_t)(EBPFDriver *self, int map_desc,
     void *key);
-typedef int (ebpf_map_get_next_key_t)(EBPFIface *self, int map_desc,
+typedef int (ebpf_map_get_next_key_t)(EBPFDriver *self, int map_desc,
     void *key, void *next_key);
-typedef void (ebpf_close_prog_desc_t)(EBPFIface *self, int prog_desc);
-typedef void (ebpf_close_map_desc_t)(EBPFIface *self, int map_desc);
+typedef void (ebpf_close_prog_desc_t)(EBPFDriver *self, int prog_desc);
+typedef void (ebpf_close_map_desc_t)(EBPFDriver *self, int map_desc);
 
-struct ebpf_iface {
+struct ebpf_driver {
   ebpf_load_prog_t *load_prog;
   ebpf_map_create_t *map_create;
   ebpf_map_update_elem_t *map_update_elem;
@@ -48,12 +48,12 @@ struct ebpf_iface {
   ebpf_close_map_desc_t *close_map_desc;
 };
 
-int ebpf_load_prog(EBPFIface *iface, uint16_t prog_type, void *prog, uint32_t prog_len);
-int ebpf_map_create(EBPFIface *iface, uint16_t type, uint32_t key_size,
+int ebpf_load_prog(EBPFDriver *driver, uint16_t prog_type, void *prog, uint32_t prog_len);
+int ebpf_map_create(EBPFDriver *driver, uint16_t type, uint32_t key_size,
     uint32_t value_size, uint32_t max_entries, uint32_t map_flags);
-int ebpf_map_update_elem(EBPFIface *iface, int map_desc, void *key, void *value, uint64_t flags);
-int ebpf_map_lookup_elem(EBPFIface *iface, int map_desc, void *key, void *value, uint64_t flags);
-int ebpf_map_delete_elem(EBPFIface *iface, int map_desc, void *key);
-int ebpf_map_get_next_key(EBPFIface *iface, int map_desc, void *key, void  *next_key);
-void ebpf_close_prog_desc(EBPFIface *iface, int prog_desc);
-void ebpf_close_map_desc(EBPFIface *iface, int map_desc);
+int ebpf_map_update_elem(EBPFDriver *driver, int map_desc, void *key, void *value, uint64_t flags);
+int ebpf_map_lookup_elem(EBPFDriver *driver, int map_desc, void *key, void *value, uint64_t flags);
+int ebpf_map_delete_elem(EBPFDriver *driver, int map_desc, void *key);
+int ebpf_map_get_next_key(EBPFDriver *driver, int map_desc, void *key, void  *next_key);
+void ebpf_close_prog_desc(EBPFDriver *driver, int prog_desc);
+void ebpf_close_map_desc(EBPFDriver *driver, int map_desc);
