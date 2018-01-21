@@ -81,6 +81,11 @@ ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
     return copy_to_user(uaddr, kaddr, len);
 }
 
+ebpf_thread_t*
+ebpf_curthread(void) {
+  return current;
+}
+
 /*
  * Character device operations
  */

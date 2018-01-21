@@ -36,4 +36,5 @@ int ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f);
 int ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td);
 int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
 int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);
+ebpf_thread_t *ebpf_curthread(void);
 int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td);

@@ -103,6 +103,11 @@ ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
     return copyout(kaddr, uaddr, len);
 }
 
+ebpf_thread_t*
+ebpf_curthread(void) {
+  return curthread;
+}
+
 /*
  * Character device operations
  */
