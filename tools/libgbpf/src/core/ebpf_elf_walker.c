@@ -182,7 +182,7 @@ find_prog_sym(struct elf_refs *refs)
         const char *name = elf_strptr(refs->elf, refs->ehdr->e_shstrndx, sym.st_name);
         D("Found prog name: %s", name);
         refs->walker->on_prog(refs->walker, name, (void *)refs->prog->d_buf,
-            refs->prog->d_size / sizeof(struct ebpf_inst));
+            refs->prog->d_size);
       }
       return 0;
     }

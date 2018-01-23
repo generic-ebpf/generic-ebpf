@@ -25,11 +25,11 @@ ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
         return EINVAL;
     }
 
-    struct ebpf_inst *insts = ebpf_calloc(prog_len, sizeof(struct ebpf_inst));
+    struct ebpf_inst *insts = ebpf_malloc(prog_len);
     if (!insts) {
         return ENOMEM;
     }
-    memcpy(insts, prog, prog_len * sizeof(struct ebpf_inst));
+    memcpy(insts, prog, prog_len);
 
     prog_obj->type = type;
     prog_obj->prog_len = prog_len;

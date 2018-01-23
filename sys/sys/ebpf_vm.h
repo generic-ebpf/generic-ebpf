@@ -39,20 +39,20 @@ int ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name,
                   void *fn);
 
 /*
- * Load code into a VM
+ * Load program into a VM
  *
  * This must be done before calling ebpf_exec or ebpf_compile and after
  * registering all functions.
  *
- * 'code' should point to eBPF bytecodes and 'code_len' should be the size in
+ * 'prog' should point to eBPF bytecodes and 'prog_len' should be the size in
  * bytes of that buffer.
  *
  * Returns 0 on success, -1 on error.
  */
-int ebpf_load(struct ebpf_vm *vm, const void *code, uint32_t code_len);
+int ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len);
 
 /*
- * Load code from an ELF binary
+ * Load program from an ELF binary
  *
  * This must be done before calling ebpf_exec or ebpf_compile and after
  * registering all functions.

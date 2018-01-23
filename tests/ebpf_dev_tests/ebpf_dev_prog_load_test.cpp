@@ -42,7 +42,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithNullProgFdp)
     req.prog_fdp = NULL;
     req.prog_type = EBPF_PROG_TYPE_TEST;
     req.prog = insts;
-    req.prog_len = 1;
+    req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
     req.map_flags = 0;
 
     error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);
@@ -60,7 +60,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithInvalidProgType1)
     req.prog_fdp = &fd;
     req.prog_type = __EBPF_PROG_TYPE_MAX;
     req.prog = insts;
-    req.prog_len = 1;
+    req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
     req.map_flags = 0;
 
     error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);
@@ -78,7 +78,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithInvalidProgType2)
     req.prog_fdp = &fd;
     req.prog_type = __EBPF_PROG_TYPE_MAX + 1;
     req.prog = insts;
-    req.prog_len = 1;
+    req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
     req.map_flags = 0;
 
     error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);
@@ -94,7 +94,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithNullInsts)
     req.prog_fdp = &fd;
     req.prog_type = EBPF_PROG_TYPE_TEST;
     req.prog = NULL;
-    req.prog_len = 1;
+    req.prog_len = sizeof(struct ebpf_inst) * 1;
     req.map_flags = 0;
 
     error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);
@@ -130,7 +130,7 @@ TEST_F(EbpfDevProgLoadTest, CorrectLoad)
     req.prog_fdp = &fd;
     req.prog_type = EBPF_PROG_TYPE_TEST;
     req.prog = insts;
-    req.prog_len = 1;
+    req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
     req.map_flags = 0;
 
     error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);

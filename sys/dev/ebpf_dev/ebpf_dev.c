@@ -54,18 +54,18 @@ ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td)
 {
     int error;
     struct ebpf_inst *prog = prog_obj->prog.prog, *cur;
-    uint16_t prog_len = prog_obj->prog.prog_len;
+    uint16_t num_insts = prog_obj->prog.prog_len / sizeof(struct ebpf_inst);
     ebpf_file_t *f;
     struct ebpf_obj_map *map;
 
-    for (uint32_t i = 0; i < prog_len; i++) {
+    for (uint32_t i = 0; i < num_insts; i++) {
         cur = prog + i;
 
         if (cur->opcode != EBPF_OP_LDDW) {
             continue;
         }
 
-        if (i == prog_len - 1 || cur[1].opcode != 0 ||
+        if (i == num_insts - 1 || cur[1].opcode != 0 ||
             cur[1].dst != 0 || cur[1].src != 0 ||
             cur[1].offset != 0) {
             error = EINVAL;
@@ -146,13 +146,13 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
         return EINVAL;
     }
 
-    insts = ebpf_calloc(req->prog_len, sizeof(struct ebpf_inst));
+    insts = ebpf_malloc(req->prog_len);
     if (!insts) {
         return ENOMEM;
     }
 
     error =
-        ebpf_copyin(req->prog, insts, req->prog_len * sizeof(struct ebpf_inst));
+        ebpf_copyin(req->prog, insts, req->prog_len);
     if (error) {
         ebpf_free(insts);
         return error;
@@ -491,8 +491,7 @@ ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
         goto err1;
     }
 
-    error = ebpf_load(vm, prog_obj->prog.prog,
-        prog_obj->prog.prog_len * sizeof(struct ebpf_inst));
+    error = ebpf_load(vm, prog_obj->prog.prog, prog_obj->prog.prog_len);
     if (error < 0) {
         error =  EINVAL;
         goto err1;

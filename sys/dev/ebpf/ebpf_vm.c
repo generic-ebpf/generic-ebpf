@@ -80,30 +80,30 @@ ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name)
 }
 
 int
-ebpf_load(struct ebpf_vm *vm, const void *code, uint32_t code_len)
+ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len)
 {
     if (vm->insts) {
-        ebpf_error("code has already been loaded into this VM\n");
+        ebpf_error("prog has already been loaded into this VM\n");
         return -1;
     }
 
-    if (code_len % 8 != 0) {
-        ebpf_error("code_len must be a multiple of 8\n");
+    if (prog_len % sizeof(struct ebpf_inst) != 0) {
+        ebpf_error("prog_len must be a multiple of 8\n");
         return -1;
     }
 
-    if (!ebpf_validate(vm, code, code_len / 8)) {
+    if (!ebpf_validate(vm, prog, prog_len / sizeof(struct ebpf_inst))) {
         return -1;
     }
 
-    vm->insts = ebpf_malloc(code_len);
+    vm->insts = ebpf_malloc(prog_len);
     if (vm->insts == NULL) {
         ebpf_error("out of memory\n");
         return -1;
     }
 
-    memcpy(vm->insts, code, code_len);
-    vm->num_insts = code_len / sizeof(vm->insts[0]);
+    memcpy(vm->insts, prog, prog_len);
+    vm->num_insts = prog_len / sizeof(struct ebpf_inst);
 
     return 0;
 }
