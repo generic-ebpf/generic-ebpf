@@ -18,8 +18,8 @@ class TommyHashtblMapLookupTest : public ::testing::Test {
         int error;
         uint32_t gkey = 50, gval = 100;
 
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL, sizeof(uint32_t),
-                              sizeof(uint32_t), 100, 0);
+        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL,
+                              sizeof(uint32_t), sizeof(uint32_t), 100, 0);
         assert(!error);
 
         error = ebpf_map_update_elem(&map, &gkey, &gval, 0);

@@ -19,10 +19,10 @@
 extern struct ebpf_map_ops array_map_ops;
 extern struct ebpf_map_ops tommyhashtbl_map_ops;
 
-const struct ebpf_map_ops *ebpf_map_ops[] = {
-  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
-  [EBPF_MAP_TYPE_TOMMYHASHTBL] = &tommyhashtbl_map_ops
-};
+const struct ebpf_map_ops *ebpf_map_ops[] = {[EBPF_MAP_TYPE_ARRAY] =
+                                                 &array_map_ops,
+                                             [EBPF_MAP_TYPE_TOMMYHASHTBL] =
+                                                 &tommyhashtbl_map_ops};
 
 int
 ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size,
@@ -87,9 +87,9 @@ ebpf_map_delete_elem(struct ebpf_map *self, void *key)
     }
 
     if (ebpf_map_ops[self->type]->delete_elem) {
-      return ebpf_map_ops[self->type]->delete_elem(self, key);
+        return ebpf_map_ops[self->type]->delete_elem(self, key);
     } else {
-      return ENOTSUP;
+        return ENOTSUP;
     }
 }
 
@@ -105,9 +105,9 @@ ebpf_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
     }
 
     if (ebpf_map_ops[self->type]->get_next_key) {
-      return ebpf_map_ops[self->type]->get_next_key(self, key, next_key);
+        return ebpf_map_ops[self->type]->get_next_key(self, key, next_key);
     } else {
-      return ENOTSUP;
+        return ENOTSUP;
     }
 }
 

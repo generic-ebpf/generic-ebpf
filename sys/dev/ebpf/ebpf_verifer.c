@@ -168,8 +168,8 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
                 return false;
             }
             if (!vm->ext_funcs[inst.imm]) {
-                ebpf_error("call to nonexistent function %u at PC %d\n", inst.imm,
-                           i);
+                ebpf_error("call to nonexistent function %u at PC %d\n",
+                           inst.imm, i);
                 return false;
             }
             break;

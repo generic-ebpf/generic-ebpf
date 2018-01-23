@@ -31,9 +31,11 @@
  * This tree is a standard AVL tree implementation that stores elements in the
  * order defined by the comparison function.
  *
- * As difference than other tommy containers, duplicate elements cannot be inserted.
+ * As difference than other tommy containers, duplicate elements cannot be
+ * inserted.
  *
- * To initialize a tree you have to call tommy_tree_init() specifing a comparison
+ * To initialize a tree you have to call tommy_tree_init() specifing a
+ * comparison
  * function that will define the order in the tree.
  *
  * \code
@@ -63,7 +65,8 @@
  * tommy_tree_insert(&tree, &obj->node, obj); // inserts the object
  * \endcode
  *
- * To find and element in the tree you have to call tommy_tree_search() providing
+ * To find and element in the tree you have to call tommy_tree_search()
+ * providing
  * the key to search.
  *
  * \code
@@ -94,7 +97,7 @@
  * tommy_tree_foreach() or tommy_tree_foreach_arg().
  * If you need a more precise control with a real iteration, you have to insert
  * all the elements also in a ::tommy_list, and use the list to iterate.
- * See the \ref multiindex example for more detail. 
+ * See the \ref multiindex example for more detail.
  */
 
 #ifndef __TOMMYTREE_H
@@ -113,19 +116,20 @@ typedef tommy_node tommy_tree_node;
 
 /**
  * Tree container type.
- * \note Don't use internal fields directly, but access the container only using functions.
+ * \note Don't use internal fields directly, but access the container only using
+ * functions.
  */
 typedef struct tommy_tree_struct {
-	tommy_tree_node* root; /**< Root node. */
-	tommy_count_t count; /**< Number of elements. */
-	tommy_compare_func* cmp; /**< Comparison function. */
+    tommy_tree_node *root;   /**< Root node. */
+    tommy_count_t count;     /**< Number of elements. */
+    tommy_compare_func *cmp; /**< Comparison function. */
 } tommy_tree;
 
 /**
  * Initializes the tree.
  * \param cmp The comparison function that defines the orderin the tree.
  */
-void tommy_tree_init(tommy_tree* tree, tommy_compare_func* cmp);
+void tommy_tree_init(tommy_tree *tree, tommy_compare_func *cmp);
 
 /**
  * Inserts an element in the tree.
@@ -135,9 +139,10 @@ void tommy_tree_init(tommy_tree* tree, tommy_compare_func* cmp);
  * the pointer to the object.
  * \param node Pointer to the node embedded into the object to insert.
  * \param data Pointer to the object to insert.
- * \return The element in the tree. Either the already existing one, or the one just inserted.
+ * \return The element in the tree. Either the already existing one, or the one
+ * just inserted.
  */
-void* tommy_tree_insert(tommy_tree* tree, tommy_tree_node* node, void* data);
+void *tommy_tree_insert(tommy_tree *tree, tommy_tree_node *node, void *data);
 
 /**
  * Searches and removes an element.
@@ -145,15 +150,15 @@ void* tommy_tree_insert(tommy_tree* tree, tommy_tree_node* node, void* data);
  * \param data Element used for comparison.
  * \return The removed element, or 0 if not found.
  */
-void* tommy_tree_remove(tommy_tree* tree, void* data);
+void *tommy_tree_remove(tommy_tree *tree, void *data);
 
 /**
  * Searches an element in the tree.
- * If the element is not found, 0 is returned. 
+ * If the element is not found, 0 is returned.
  * \param data Element used for comparison.
  * \return The first element found, or 0 if none.
  */
-void* tommy_tree_search(tommy_tree* tree, void* data);
+void *tommy_tree_search(tommy_tree *tree, void *data);
 
 /**
  * Searches an element in the tree with a specific comparison function.
@@ -164,14 +169,15 @@ void* tommy_tree_search(tommy_tree* tree, void* data);
  * The ::data argument will be the first argument of the comparison function,
  * and it can be of a different type of the objects in the tree.
  */
-void* tommy_tree_search_compare(tommy_tree* tree, tommy_compare_func* cmp, void* cmp_arg);
+void *tommy_tree_search_compare(tommy_tree *tree, tommy_compare_func *cmp,
+                                void *cmp_arg);
 
 /**
  * Removes an element from the tree.
  * You must already have the address of the element to remove.
  * \return The tommy_node::data field of the node removed.
  */
-void* tommy_tree_remove_existing(tommy_tree* tree, tommy_tree_node* node);
+void *tommy_tree_remove_existing(tommy_tree *tree, tommy_tree_node *node);
 
 /**
  * Calls the specified function for each element in the tree.
@@ -203,26 +209,27 @@ void* tommy_tree_remove_existing(tommy_tree* tree, tommy_tree_node* node);
  * tommy_tree_foreach(&tree, free);
  * \endcode
  */
-void tommy_tree_foreach(tommy_tree* tree, tommy_foreach_func* func);
+void tommy_tree_foreach(tommy_tree *tree, tommy_foreach_func *func);
 
 /**
  * Calls the specified function with an argument for each element in the tree.
  */
-void tommy_tree_foreach_arg(tommy_tree* tree, tommy_foreach_arg_func* func, void* arg);
+void tommy_tree_foreach_arg(tommy_tree *tree, tommy_foreach_arg_func *func,
+                            void *arg);
 
 /**
  * Gets the number of elements.
  */
-tommy_inline tommy_count_t tommy_tree_count(tommy_tree* tree)
+tommy_inline tommy_count_t
+tommy_tree_count(tommy_tree *tree)
 {
-	return tree->count;
+    return tree->count;
 }
 
 /**
  * Gets the size of allocated memory.
  * It includes the size of the ::tommy_tree_node of the stored elements.
  */
-tommy_size_t tommy_tree_memory_usage(tommy_tree* tree);
+tommy_size_t tommy_tree_memory_usage(tommy_tree *tree);
 
 #endif
-

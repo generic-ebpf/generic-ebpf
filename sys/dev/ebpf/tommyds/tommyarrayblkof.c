@@ -30,54 +30,60 @@
 /******************************************************************************/
 /* array */
 
-void tommy_arrayblkof_init(tommy_arrayblkof* array, tommy_size_t element_size)
+void
+tommy_arrayblkof_init(tommy_arrayblkof *array, tommy_size_t element_size)
 {
-	tommy_array_init(&array->block);
+    tommy_array_init(&array->block);
 
-	array->element_size = element_size;
-	array->count = 0;
+    array->element_size = element_size;
+    array->count = 0;
 }
 
-void tommy_arrayblkof_done(tommy_arrayblkof* array)
+void
+tommy_arrayblkof_done(tommy_arrayblkof *array)
 {
-	tommy_count_t i;
+    tommy_count_t i;
 
-	for (i = 0; i < tommy_array_size(&array->block); ++i)
-		tommy_free(tommy_array_get(&array->block, i));
+    for (i = 0; i < tommy_array_size(&array->block); ++i)
+        tommy_free(tommy_array_get(&array->block, i));
 
-	tommy_array_done(&array->block);
+    tommy_array_done(&array->block);
 }
 
-void tommy_arrayblkof_grow(tommy_arrayblkof* array, tommy_count_t count)
+void
+tommy_arrayblkof_grow(tommy_arrayblkof *array, tommy_count_t count)
 {
-	tommy_count_t block_max;
-	tommy_count_t block_mac;
+    tommy_count_t block_max;
+    tommy_count_t block_mac;
 
-	if (array->count >= count)
-		return;
-	array->count = count;
+    if (array->count >= count)
+        return;
+    array->count = count;
 
-	block_max = (count + TOMMY_ARRAYBLKOF_SIZE - 1) / TOMMY_ARRAYBLKOF_SIZE;
-	block_mac = tommy_array_size(&array->block);
+    block_max = (count + TOMMY_ARRAYBLKOF_SIZE - 1) / TOMMY_ARRAYBLKOF_SIZE;
+    block_mac = tommy_array_size(&array->block);
 
-	if (block_mac < block_max) {
-		/* grow the block array */
-		tommy_array_grow(&array->block, block_max);
+    if (block_mac < block_max) {
+        /* grow the block array */
+        tommy_array_grow(&array->block, block_max);
 
-		/* allocate new blocks */
-		while (block_mac < block_max) {
-			void** ptr = tommy_cast(void**, tommy_calloc(TOMMY_ARRAYBLKOF_SIZE, array->element_size));
+        /* allocate new blocks */
+        while (block_mac < block_max) {
+            void **ptr = tommy_cast(void **, tommy_calloc(TOMMY_ARRAYBLKOF_SIZE,
+                                                          array->element_size));
 
-			/* set the new block */
-			tommy_array_set(&array->block, block_mac, ptr);
+            /* set the new block */
+            tommy_array_set(&array->block, block_mac, ptr);
 
-			++block_mac;
-		}
-	}
+            ++block_mac;
+        }
+    }
 }
 
-tommy_size_t tommy_arrayblkof_memory_usage(tommy_arrayblkof* array)
+tommy_size_t
+tommy_arrayblkof_memory_usage(tommy_arrayblkof *array)
 {
-	return tommy_array_memory_usage(&array->block) + tommy_array_size(&array->block) * TOMMY_ARRAYBLKOF_SIZE * array->element_size;
+    return tommy_array_memory_usage(&array->block) +
+           tommy_array_size(&array->block) * TOMMY_ARRAYBLKOF_SIZE *
+               array->element_size;
 }
-

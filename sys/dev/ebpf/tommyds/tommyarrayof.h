@@ -28,7 +28,8 @@
 /** \file
  * Dynamic array based on segments of exponential growing size.
  *
- * This array is able to grow dynamically upon request, without any reallocation.
+ * This array is able to grow dynamically upon request, without any
+ * reallocation.
  *
  * This is very similar at ::tommy_array, but it allows to store elements of any
  * size and not just pointers.
@@ -43,7 +44,7 @@
 
 #include "tommytypes.h"
 
- /* for assert */
+/* for assert */
 
 /******************************************************************************/
 /* array */
@@ -61,65 +62,67 @@
 
 /**
  * Array container type.
- * \note Don't use internal fields directly, but access the container only using functions.
+ * \note Don't use internal fields directly, but access the container only using
+ * functions.
  */
 typedef struct tommy_arrayof_struct {
-	void* bucket[TOMMY_ARRAYOF_BIT_MAX]; /**< Dynamic array of buckets. */
-	tommy_size_t element_size; /**< Size of the stored element in bytes. */
-	tommy_uint_t bucket_bit; /**< Bits used in the bit mask. */
-	tommy_count_t bucket_max; /**< Number of buckets. */
-	tommy_count_t count; /**< Number of initialized elements in the array. */
+    void *bucket[TOMMY_ARRAYOF_BIT_MAX]; /**< Dynamic array of buckets. */
+    tommy_size_t element_size; /**< Size of the stored element in bytes. */
+    tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
+    tommy_count_t bucket_max;  /**< Number of buckets. */
+    tommy_count_t count; /**< Number of initialized elements in the array. */
 } tommy_arrayof;
 
 /**
  * Initializes the array.
  * \param element_size Size in byte of the element to store in the array.
  */
-void tommy_arrayof_init(tommy_arrayof* array, tommy_size_t element_size);
+void tommy_arrayof_init(tommy_arrayof *array, tommy_size_t element_size);
 
 /**
  * Deinitializes the array.
  */
-void tommy_arrayof_done(tommy_arrayof* array);
+void tommy_arrayof_done(tommy_arrayof *array);
 
 /**
  * Grows the size up to the specified value.
  * All the new elements in the array are initialized with the 0 value.
  */
-void tommy_arrayof_grow(tommy_arrayof* array, tommy_count_t size);
+void tommy_arrayof_grow(tommy_arrayof *array, tommy_count_t size);
 
 /**
  * Gets a reference of the element at the specified position.
  * You must be sure that space for this position is already
  * allocated calling tommy_arrayof_grow().
  */
-tommy_inline void* tommy_arrayof_ref(tommy_arrayof* array, tommy_count_t pos)
+tommy_inline void *
+tommy_arrayof_ref(tommy_arrayof *array, tommy_count_t pos)
 {
-	unsigned char* ptr;
-	tommy_uint_t bsr;
+    unsigned char *ptr;
+    tommy_uint_t bsr;
 
-	assert(pos < array->count);
+    assert(pos < array->count);
 
-	/* get the highest bit set, in case of all 0, return 0 */
-	bsr = tommy_ilog2_u32(pos | 1);
+    /* get the highest bit set, in case of all 0, return 0 */
+    bsr = tommy_ilog2_u32(pos | 1);
 
-	ptr = tommy_cast(unsigned char*, array->bucket[bsr]);
+    ptr = tommy_cast(unsigned char *, array->bucket[bsr]);
 
-	return ptr + pos * array->element_size;
+    return ptr + pos * array->element_size;
 }
 
 /**
  * Gets the initialized size of the array.
  */
-tommy_inline tommy_count_t tommy_arrayof_size(tommy_arrayof* array)
+tommy_inline tommy_count_t
+tommy_arrayof_size(tommy_arrayof *array)
 {
-	return array->count;
+    return array->count;
 }
 
 /**
  * Gets the size of allocated memory.
  */
-tommy_size_t tommy_arrayof_memory_usage(tommy_arrayof* array);
+tommy_size_t tommy_arrayof_memory_usage(tommy_arrayof *array);
 
 #endif
-

@@ -36,227 +36,232 @@
 
 #define PROG_SEC ".text"
 #define MAP_SEC "maps"
-#define RELOC_SEC ".rel"PROG_SEC
+#define RELOC_SEC ".rel" PROG_SEC
 
 // private
 struct elf_refs {
-  Elf *elf;
-  GElf_Ehdr *ehdr;
-  Elf_Data *prog;
-  Elf_Data *maps;
-  Elf_Data *symbols;
-  Elf_Data *relocations;
-  // information to find program symbol
-  int prog_sec_idx;
-  EBPFElfWalker *walker;
-  EBPFDriver *driver;
+    Elf *elf;
+    GElf_Ehdr *ehdr;
+    Elf_Data *prog;
+    Elf_Data *maps;
+    Elf_Data *symbols;
+    Elf_Data *relocations;
+    // information to find program symbol
+    int prog_sec_idx;
+    EBPFElfWalker *walker;
+    EBPFDriver *driver;
 };
 
 static inline int
 find_map_entry(char **maps, uint16_t num_maps, char *name)
 {
-  for (uint16_t i = 0; i < num_maps; i++) {
-    if (strcmp(maps[i], name) == 0) {
-      return 1;
+    for (uint16_t i = 0; i < num_maps; i++) {
+        if (strcmp(maps[i], name) == 0) {
+            return 1;
+        }
     }
-  }
-  return 0;
+    return 0;
 }
 
 static int
 resolve_relocations(struct elf_refs *refs)
 {
-  uint8_t *mapdata = refs->maps->d_buf;
-  struct ebpf_inst *inst, *insts = refs->prog->d_buf;
-  int map_desc;
-  struct ebpf_map_def *map_def;
-  char *symname;
-  char *discovered_maps[EBPF_PROG_MAX_ATTACHED_MAPS];
-  uint16_t num_maps = 0;
-  GElf_Rel rel;
-  GElf_Sym sym;
+    uint8_t *mapdata = refs->maps->d_buf;
+    struct ebpf_inst *inst, *insts = refs->prog->d_buf;
+    int map_desc;
+    struct ebpf_map_def *map_def;
+    char *symname;
+    char *discovered_maps[EBPF_PROG_MAX_ATTACHED_MAPS];
+    uint16_t num_maps = 0;
+    GElf_Rel rel;
+    GElf_Sym sym;
 
-  for (int i = 0; gelf_getrel(refs->relocations, i, &rel); i++) {
-    gelf_getsym(refs->symbols, GELF_R_SYM(rel.r_info), &sym);
+    for (int i = 0; gelf_getrel(refs->relocations, i, &rel); i++) {
+        gelf_getsym(refs->symbols, GELF_R_SYM(rel.r_info), &sym);
 
-    symname = elf_strptr(refs->elf, refs->ehdr->e_shstrndx, sym.st_name);
-    if (!symname) {
-      return -1;
-    }
-
-    inst = insts + rel.r_offset / sizeof(struct ebpf_inst);
-
-    if (inst->opcode == EBPF_OP_LDDW) {
-      map_def = (struct ebpf_map_def *)(mapdata + sym.st_value);
-
-      D("Found map relocation entry. It's definition is\n"
-        "  Type: %u KeySize: %u ValueSize: %u MaxEntries: %u Flags: %u",
-        map_def->type, map_def->key_size, map_def->value_size,
-        map_def->max_entries, map_def->flags);
-
-      int found = find_map_entry(discovered_maps, num_maps, symname);
-      if (!found) {
-        if (num_maps != EBPF_PROG_MAX_ATTACHED_MAPS) {
-          map_desc = refs->driver->map_create(refs->driver, map_def->type,
-              map_def->key_size, map_def->value_size, map_def->max_entries, map_def->flags);
-          if (map_desc < 0) {
+        symname = elf_strptr(refs->elf, refs->ehdr->e_shstrndx, sym.st_name);
+        if (!symname) {
             return -1;
-          }
-
-          if (refs->walker->on_map) {
-            refs->walker->on_map(refs->walker, symname, map_desc, map_def);
-          }
-
-          discovered_maps[num_maps] = symname;
-          num_maps++;
         }
-      }
 
-      inst->imm = map_desc;
-      inst->src = EBPF_PSEUDO_MAP_DESC;
+        inst = insts + rel.r_offset / sizeof(struct ebpf_inst);
 
-      continue;
+        if (inst->opcode == EBPF_OP_LDDW) {
+            map_def = (struct ebpf_map_def *)(mapdata + sym.st_value);
+
+            D("Found map relocation entry. It's definition is\n"
+              "  Type: %u KeySize: %u ValueSize: %u MaxEntries: %u Flags: %u",
+              map_def->type, map_def->key_size, map_def->value_size,
+              map_def->max_entries, map_def->flags);
+
+            int found = find_map_entry(discovered_maps, num_maps, symname);
+            if (!found) {
+                if (num_maps != EBPF_PROG_MAX_ATTACHED_MAPS) {
+                    map_desc = refs->driver->map_create(
+                        refs->driver, map_def->type, map_def->key_size,
+                        map_def->value_size, map_def->max_entries,
+                        map_def->flags);
+                    if (map_desc < 0) {
+                        return -1;
+                    }
+
+                    if (refs->walker->on_map) {
+                        refs->walker->on_map(refs->walker, symname, map_desc,
+                                             map_def);
+                    }
+
+                    discovered_maps[num_maps] = symname;
+                    num_maps++;
+                }
+            }
+
+            inst->imm = map_desc;
+            inst->src = EBPF_PSEUDO_MAP_DESC;
+
+            continue;
+        }
+
+        D("Unknown type relocation entry. name: %s r_offset: %lu", symname,
+          rel.r_offset);
     }
 
-    D("Unknown type relocation entry. name: %s r_offset: %lu",
-        symname, rel.r_offset);
-  }
-
-  return 0;
+    return 0;
 }
 
 static int
 correct_required_section(struct elf_refs *refs, int idx)
 {
-  GElf_Shdr shdr;
-  Elf_Scn *scn;
+    GElf_Shdr shdr;
+    Elf_Scn *scn;
 
-  scn = elf_getscn(refs->elf, idx);
-  if (!scn) {
-    D("%s", elf_errmsg(elf_errno()));
-    return -1;
-  }
+    scn = elf_getscn(refs->elf, idx);
+    if (!scn) {
+        D("%s", elf_errmsg(elf_errno()));
+        return -1;
+    }
 
-  if (gelf_getshdr(scn, &shdr) != &shdr) {
-    return -1;
-  }
+    if (gelf_getshdr(scn, &shdr) != &shdr) {
+        return -1;
+    }
 
-  if (!refs->symbols && shdr.sh_type == SHT_SYMTAB) {
-    refs->symbols = elf_getdata(scn, 0);
+    if (!refs->symbols && shdr.sh_type == SHT_SYMTAB) {
+        refs->symbols = elf_getdata(scn, 0);
+        return 0;
+    }
+
+    char *shname = elf_strptr(refs->elf, refs->ehdr->e_shstrndx, shdr.sh_name);
+    if (!shname) {
+        return -1;
+    }
+
+    D("Found section name: %s", shname);
+
+    if (!refs->prog && strcmp(shname, PROG_SEC) == 0) {
+        refs->prog = elf_getdata(scn, 0);
+        refs->prog_sec_idx = idx;
+        return 0;
+    }
+
+    if (!refs->maps && strcmp(shname, MAP_SEC) == 0) {
+        refs->maps = elf_getdata(scn, 0);
+        return 0;
+    }
+
+    if (!refs->relocations && strcmp(shname, RELOC_SEC) == 0) {
+        refs->relocations = elf_getdata(scn, 0);
+        return 0;
+    }
+
     return 0;
-  }
-
-  char *shname = elf_strptr(refs->elf, refs->ehdr->e_shstrndx, shdr.sh_name);
-  if (!shname) {
-    return -1;
-  }
-
-  D("Found section name: %s", shname);
-
-  if (!refs->prog && strcmp(shname, PROG_SEC) == 0) {
-    refs->prog = elf_getdata(scn, 0);
-    refs->prog_sec_idx = idx;
-    return 0;
-  }
-
-  if (!refs->maps && strcmp(shname, MAP_SEC) == 0) {
-    refs->maps = elf_getdata(scn, 0);
-    return 0;
-  }
-
-  if (!refs->relocations && strcmp(shname, RELOC_SEC) == 0) {
-    refs->relocations = elf_getdata(scn, 0);
-    return 0;
-  }
-
-  return 0;
 }
 
 static int
 find_prog_sym(struct elf_refs *refs)
 {
-  GElf_Sym sym;
-  for (int i = 0; gelf_getsym(refs->symbols, i, &sym); i++) {
-    if (sym.st_shndx == refs->prog_sec_idx && sym.st_value == 0) {
-      if (refs->walker->on_prog) {
-        const char *name = elf_strptr(refs->elf, refs->ehdr->e_shstrndx, sym.st_name);
-        D("Found prog name: %s", name);
-        refs->walker->on_prog(refs->walker, name, (void *)refs->prog->d_buf,
-            refs->prog->d_size);
-      }
-      return 0;
+    GElf_Sym sym;
+    for (int i = 0; gelf_getsym(refs->symbols, i, &sym); i++) {
+        if (sym.st_shndx == refs->prog_sec_idx && sym.st_value == 0) {
+            if (refs->walker->on_prog) {
+                const char *name =
+                    elf_strptr(refs->elf, refs->ehdr->e_shstrndx, sym.st_name);
+                D("Found prog name: %s", name);
+                refs->walker->on_prog(refs->walker, name,
+                                      (void *)refs->prog->d_buf,
+                                      refs->prog->d_size);
+            }
+            return 0;
+        }
     }
-  }
-  return -1;
+    return -1;
 }
 
 int
 ebpf_walk_elf(EBPFElfWalker *walker, EBPFDriver *driver, char *fname)
 {
-  int error;
-  struct elf_refs refs;
+    int error;
+    struct elf_refs refs;
 
-  memset(&refs, 0, sizeof(refs));
-  refs.walker = walker;
-  refs.driver = driver;
+    memset(&refs, 0, sizeof(refs));
+    refs.walker = walker;
+    refs.driver = driver;
 
-  int fd = open(fname, O_RDONLY);
-  if (fd < 0) {
-    return -1;
-  }
-
-  if (elf_version(EV_CURRENT) == EV_NONE) {
-    D("Invalid elf version");
-    goto err0;
-  }
-
-  refs.elf = elf_begin(fd, ELF_C_READ, NULL);
-  if (!refs.elf) {
-    D("%s", elf_errmsg(elf_errno()));
-    goto err0;
-  }
-
-  GElf_Ehdr ehdr;
-  if (gelf_getehdr(refs.elf, &ehdr) != &ehdr) {
-    D("%s", elf_errmsg(elf_errno()));
-    goto err1;
-  }
-  refs.ehdr = &ehdr;
-
-  for (int i = 1; i < ehdr.e_shnum; i++) {
-    error = correct_required_section(&refs, i);
-    if (error) {
-      goto err1;
+    int fd = open(fname, O_RDONLY);
+    if (fd < 0) {
+        return -1;
     }
-  }
 
-  if (!refs.prog) {
-    D("Error: " PROG_SEC " missing");
-    goto err1;
-  }
-
-  if (refs.relocations && refs.symbols) {
-    error = resolve_relocations(&refs);
-    if (error) {
-      D("%s", elf_errmsg(elf_errno()));
-      goto err1;
+    if (elf_version(EV_CURRENT) == EV_NONE) {
+        D("Invalid elf version");
+        goto err0;
     }
-  }
 
-  error = find_prog_sym(&refs);
-  if (error) {
-    D("Couldn't find program symbol");
-    goto err1;
-  }
+    refs.elf = elf_begin(fd, ELF_C_READ, NULL);
+    if (!refs.elf) {
+        D("%s", elf_errmsg(elf_errno()));
+        goto err0;
+    }
 
-  elf_end(refs.elf);
-  close(fd);
+    GElf_Ehdr ehdr;
+    if (gelf_getehdr(refs.elf, &ehdr) != &ehdr) {
+        D("%s", elf_errmsg(elf_errno()));
+        goto err1;
+    }
+    refs.ehdr = &ehdr;
 
-  return 0;
+    for (int i = 1; i < ehdr.e_shnum; i++) {
+        error = correct_required_section(&refs, i);
+        if (error) {
+            goto err1;
+        }
+    }
+
+    if (!refs.prog) {
+        D("Error: " PROG_SEC " missing");
+        goto err1;
+    }
+
+    if (refs.relocations && refs.symbols) {
+        error = resolve_relocations(&refs);
+        if (error) {
+            D("%s", elf_errmsg(elf_errno()));
+            goto err1;
+        }
+    }
+
+    error = find_prog_sym(&refs);
+    if (error) {
+        D("Couldn't find program symbol");
+        goto err1;
+    }
+
+    elf_end(refs.elf);
+    close(fd);
+
+    return 0;
 
 err1:
-  elf_end(refs.elf);
+    elf_end(refs.elf);
 err0:
-  close(fd);
-  return -1;
+    close(fd);
+    return -1;
 }

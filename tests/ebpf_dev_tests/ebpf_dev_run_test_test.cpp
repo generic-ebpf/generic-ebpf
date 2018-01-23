@@ -38,12 +38,11 @@ TEST_F(EbpfDevRunTestTest, LoadCtxToR0AndReturn)
 {
     int error, prog_fd;
 
-    struct ebpf_inst insts[] = {
-        {EBPF_OP_LDXDW, 0, 1, 0, 0},
-        {EBPF_OP_EXIT, 0, 0, 0, 0}
-    };
+    struct ebpf_inst insts[] = {{EBPF_OP_LDXDW, 0, 1, 0, 0},
+                                {EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-    prog_fd = ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts)/8);
+    prog_fd =
+        ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts) / 8);
     assert(prog_fd > 0);
 
     uint64_t ctx = 100, result;
@@ -59,7 +58,7 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
 {
     int error;
     int map_fd = ebpf_map_create(ebpf_fd, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
-        sizeof(uint32_t), 100, 0);
+                                 sizeof(uint32_t), 100, 0);
     assert(map_fd > 0);
 
     struct ebpf_inst insts[] = {
@@ -70,14 +69,14 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
         {EBPF_OP_STXW, 10, 4, -4, 0}, // push key to stack
         {EBPF_OP_MOV64_REG, 2, 10, 0, 0},
         {EBPF_OP_ADD64_IMM, 2, 0, 0, -4}, // get stack address
-        {EBPF_OP_MOV64_IMM, 3, 0, 0, 0}, // flags = 0 
+        {EBPF_OP_MOV64_IMM, 3, 0, 0, 0},  // flags = 0
         {EBPF_OP_CALL, 0, 0, 0, 1},
         {EBPF_OP_MOV64_REG, 1, 0, 0, 0},
         {EBPF_OP_LDXW, 0, 1, 0, 0},
-        {EBPF_OP_EXIT, 0, 0, 0, 0}
-    };
+        {EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-    int prog_fd = ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts)/8);
+    int prog_fd =
+        ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts) / 8);
     assert(prog_fd > 0);
 
     uint32_t k = 0, v = 100;

@@ -21,34 +21,36 @@
 #define SECTION(name) __attribute__((section(name)))
 
 struct ebpf_map_def {
-  uint32_t type;
-  uint32_t key_size;
-  uint32_t value_size;
-  uint32_t max_entries;
-  uint32_t flags;
+    uint32_t type;
+    uint32_t key_size;
+    uint32_t value_size;
+    uint32_t max_entries;
+    uint32_t flags;
 };
 
 #define DEFINE_MAP(_name, _type, _key_size, _value_size, _max_entries, _flags) \
-  SECTION("maps") \
-  struct ebpf_map_def _name = { \
-    .type = EBPF_MAP_TYPE_##_type, \
-    .key_size = _key_size, \
-    .value_size = _value_size, \
-    .max_entries = _max_entries, \
-    .flags = _flags \
-  };
+    SECTION("maps")                                                            \
+    struct ebpf_map_def _name = {.type = EBPF_MAP_TYPE_##_type,                \
+                                 .key_size = _key_size,                        \
+                                 .value_size = _value_size,                    \
+                                 .max_entries = _max_entries,                  \
+                                 .flags = _flags};
 
 enum ebpf_common_functions {
-  EBPF_FUNC_map_update_elem = 1,
-  EBPF_FUNC_map_lookup_elem,
-  EBPF_FUNC_map_delete_elem,
-  __EBPF_COMMON_FUNCTIONS_MAX
+    EBPF_FUNC_map_update_elem = 1,
+    EBPF_FUNC_map_lookup_elem,
+    EBPF_FUNC_map_delete_elem,
+    __EBPF_COMMON_FUNCTIONS_MAX
 };
 
-#define EBPF_FUNC(RETTYPE, NAME, ...) \
-  RETTYPE (*NAME)(__VA_ARGS__) __attribute__((__unused__)) = (RETTYPE (*)(__VA_ARGS__))EBPF_FUNC_##NAME
+#define EBPF_FUNC(RETTYPE, NAME, ...)                                          \
+    RETTYPE (*NAME)                                                            \
+    (__VA_ARGS__) __attribute__((__unused__)) =                                \
+        (RETTYPE(*)(__VA_ARGS__))EBPF_FUNC_##NAME
 
 // Definitions of common external functions
-static EBPF_FUNC(int, map_update_elem, struct ebpf_map_def *, void *, void *, uint64_t);
-static EBPF_FUNC(void*, map_lookup_elem, struct ebpf_map_def *, void *, uint64_t);
+static EBPF_FUNC(int, map_update_elem, struct ebpf_map_def *, void *, void *,
+                 uint64_t);
+static EBPF_FUNC(void *, map_lookup_elem, struct ebpf_map_def *, void *,
+                 uint64_t);
 static EBPF_FUNC(int, map_delete_elem, struct ebpf_map_def *, void *);

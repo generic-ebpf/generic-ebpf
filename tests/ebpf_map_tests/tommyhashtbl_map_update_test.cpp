@@ -17,8 +17,8 @@ class TommyHashtblMapUpdateTest : public ::testing::Test {
     {
         int error;
 
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL, sizeof(uint32_t),
-                              sizeof(uint32_t), 100, 0);
+        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL,
+                              sizeof(uint32_t), sizeof(uint32_t), 100, 0);
         assert(!error);
     }
 
@@ -45,8 +45,8 @@ TEST_F(TommyHashtblMapUpdateTest, CorrectUpdateMoreThanMaxEntries)
     uint32_t i;
 
     for (i = 0; i < 100; i++) {
-      error = ebpf_map_update_elem(&map, &i, &i, 0);
-      assert(!error);
+        error = ebpf_map_update_elem(&map, &i, &i, 0);
+        assert(!error);
     }
 
     error = ebpf_map_update_elem(&map, &i, &i, 0);

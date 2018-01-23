@@ -33,11 +33,14 @@
  * Elements are not stored in order, like ::tommy_trie, because some elements
  * should be used to represent the inner nodes in the trie.
  *
- * You can control the number of branches of each node using the ::TOMMY_TRIE_INPLACE_TREE_MAX define.
+ * You can control the number of branches of each node using the
+ * ::TOMMY_TRIE_INPLACE_TREE_MAX define.
  * More branches imply more speed, but a bigger memory occupation.
  *
- * Compared to ::tommy_trie you should use a lower number of branches to limit the unused memory
- * occupation of the leaf nodes. This imply a lower speed, but without the need of an external allocator.
+ * Compared to ::tommy_trie you should use a lower number of branches to limit
+ * the unused memory
+ * occupation of the leaf nodes. This imply a lower speed, but without the need
+ * of an external allocator.
  *
  * To initialize the trie you have to call tommy_trie_inplace_init().
  *
@@ -47,7 +50,8 @@
  * tommy_trie_inplace_init(&trie_inplace);
  * \endcode
  *
- * To insert elements in the trie you have to call tommy_trie_inplace_insert() for
+ * To insert elements in the trie you have to call tommy_trie_inplace_insert()
+ * for
  * each element.
  * In the insertion call you have to specify the address of the node, the
  * address of the object, and the key value to use.
@@ -65,10 +69,12 @@
  *
  * obj->value = ...; // initializes the object
  *
- * tommy_trie_inplace_insert(&trie_inplace, &obj->node, obj, obj->value); // inserts the object
+ * tommy_trie_inplace_insert(&trie_inplace, &obj->node, obj, obj->value); //
+ * inserts the object
  * \endcode
  *
- * To find and element in the trie you have to call tommy_trie_inplace_search() providing
+ * To find and element in the trie you have to call tommy_trie_inplace_search()
+ * providing
  * the key to search.
  *
  * \code
@@ -82,7 +88,8 @@
  * \endcode
  *
  * To iterate over all the elements in the trie with the same key, you have to
- * use tommy_trie_inplace_bucket() and follow the tommy_node::next pointer until NULL.
+ * use tommy_trie_inplace_bucket() and follow the tommy_node::next pointer until
+ * NULL.
  *
  * \code
  * int value_to_find = 1;
@@ -96,11 +103,13 @@
  * }
  * \endcode
  *
- * To remove an element from the trie you have to call tommy_trie_inplace_remove()
+ * To remove an element from the trie you have to call
+ * tommy_trie_inplace_remove()
  * providing the key to search and remove.
  *
  * \code
- * struct object* obj = tommy_trie_inplace_remove(&trie_inplace, value_to_remove);
+ * struct object* obj = tommy_trie_inplace_remove(&trie_inplace,
+ * value_to_remove);
  * if (obj) {
  *     free(obj); // frees the object allocated memory
  * }
@@ -137,7 +146,9 @@
 /** \internal
  * Number of bits of the first level.
  */
-#define TOMMY_TRIE_INPLACE_BUCKET_BIT ((TOMMY_KEY_BIT % TOMMY_TRIE_INPLACE_TREE_BIT) + 3 * TOMMY_TRIE_INPLACE_TREE_BIT)
+#define TOMMY_TRIE_INPLACE_BUCKET_BIT                                          \
+    ((TOMMY_KEY_BIT % TOMMY_TRIE_INPLACE_TREE_BIT) +                           \
+     3 * TOMMY_TRIE_INPLACE_TREE_BIT)
 
 /** \internal
  * Number of branches of the first level.
@@ -150,20 +161,25 @@
  * This is the node that you have to include inside your objects.
  */
 typedef struct tommy_trie_inplace_node_struct {
-	struct tommy_trie_inplace_node_struct* next; /**< Next element. 0 if it's the last. */
-	struct tommy_trie_inplace_node_struct* prev; /**< Circular previous element. */
-	void* data; /**< Pointer to the data. */
-	tommy_key_t key; /**< Used to store the key or the hash. */
-	struct tommy_trie_inplace_node_struct* map[TOMMY_TRIE_INPLACE_TREE_MAX]; /** Branches of the node. */
+    struct tommy_trie_inplace_node_struct
+        *next; /**< Next element. 0 if it's the last. */
+    struct tommy_trie_inplace_node_struct
+        *prev;       /**< Circular previous element. */
+    void *data;      /**< Pointer to the data. */
+    tommy_key_t key; /**< Used to store the key or the hash. */
+    struct tommy_trie_inplace_node_struct
+        *map[TOMMY_TRIE_INPLACE_TREE_MAX]; /** Branches of the node. */
 } tommy_trie_inplace_node;
 
 /**
  * Trie container type.
- * \note Don't use internal fields directly, but access the container only using functions.
+ * \note Don't use internal fields directly, but access the container only using
+ * functions.
  */
 typedef struct tommy_trie_inplace_struct {
-	tommy_trie_inplace_node* bucket[TOMMY_TRIE_INPLACE_BUCKET_MAX]; /**< First tree level. */
-	tommy_count_t count; /**< Number of elements. */
+    tommy_trie_inplace_node
+        *bucket[TOMMY_TRIE_INPLACE_BUCKET_MAX]; /**< First tree level. */
+    tommy_count_t count;                        /**< Number of elements. */
 } tommy_trie_inplace;
 
 /**
@@ -171,31 +187,37 @@ typedef struct tommy_trie_inplace_struct {
  *
  * The tries is completely inplace, and it doesn't need to be deinitialized.
  */
-void tommy_trie_inplace_init(tommy_trie_inplace* trie_inplace);
+void tommy_trie_inplace_init(tommy_trie_inplace *trie_inplace);
 
 /**
  * Inserts an element in the trie.
  */
-void tommy_trie_inplace_insert(tommy_trie_inplace* trie_inplace, tommy_trie_inplace_node* node, void* data, tommy_key_t key);
+void tommy_trie_inplace_insert(tommy_trie_inplace *trie_inplace,
+                               tommy_trie_inplace_node *node, void *data,
+                               tommy_key_t key);
 
 /**
  * Searches and removes the first element with the specified key.
  * If the element is not found, 0 is returned.
  * If more equal elements are present, the first one is removed.
- * This operation is faster than calling tommy_trie_inplace_bucket() and tommy_trie_inplace_remove_existing() separately.
+ * This operation is faster than calling tommy_trie_inplace_bucket() and
+ * tommy_trie_inplace_remove_existing() separately.
  * \param key Key of the element to find and remove.
  * \return The removed element, or 0 if not found.
  */
-void* tommy_trie_inplace_remove(tommy_trie_inplace* trie_inplace, tommy_key_t key);
+void *tommy_trie_inplace_remove(tommy_trie_inplace *trie_inplace,
+                                tommy_key_t key);
 
 /**
  * Gets the bucket of the specified key.
- * The bucket is guaranteed to contain ALL and ONLY the elements with the specified key.
+ * The bucket is guaranteed to contain ALL and ONLY the elements with the
+ * specified key.
  * You can access elements in the bucket following the ::next pointer until 0.
  * \param key Key of the element to find.
  * \return The head of the bucket, or 0 if empty.
  */
-tommy_trie_inplace_node* tommy_trie_inplace_bucket(tommy_trie_inplace* trie_inplace, tommy_key_t key);
+tommy_trie_inplace_node *
+tommy_trie_inplace_bucket(tommy_trie_inplace *trie_inplace, tommy_key_t key);
 
 /**
  * Searches an element in the trie.
@@ -204,14 +226,15 @@ tommy_trie_inplace_node* tommy_trie_inplace_bucket(tommy_trie_inplace* trie_inpl
  * \param key Key of the element to find.
  * \return The first element found, or 0 if none.
  */
-tommy_inline void* tommy_trie_inplace_search(tommy_trie_inplace* trie_inplace, tommy_key_t key)
+tommy_inline void *
+tommy_trie_inplace_search(tommy_trie_inplace *trie_inplace, tommy_key_t key)
 {
-	tommy_trie_inplace_node* i = tommy_trie_inplace_bucket(trie_inplace, key);
+    tommy_trie_inplace_node *i = tommy_trie_inplace_bucket(trie_inplace, key);
 
-	if (!i)
-		return 0;
+    if (!i)
+        return 0;
 
-	return i->data;
+    return i->data;
 }
 
 /**
@@ -219,21 +242,22 @@ tommy_inline void* tommy_trie_inplace_search(tommy_trie_inplace* trie_inplace, t
  * You must already have the address of the element to remove.
  * \return The tommy_node::data field of the node removed.
  */
-void* tommy_trie_inplace_remove_existing(tommy_trie_inplace* trie_inplace, tommy_trie_inplace_node* node);
+void *tommy_trie_inplace_remove_existing(tommy_trie_inplace *trie_inplace,
+                                         tommy_trie_inplace_node *node);
 
 /**
  * Gets the number of elements.
  */
-tommy_inline tommy_count_t tommy_trie_inplace_count(tommy_trie_inplace* trie_inplace)
+tommy_inline tommy_count_t
+tommy_trie_inplace_count(tommy_trie_inplace *trie_inplace)
 {
-	return trie_inplace->count;
+    return trie_inplace->count;
 }
 
 /**
  * Gets the size of allocated memory.
  * It includes the size of the ::tommy_inplace_node of the stored elements.
  */
-tommy_size_t tommy_trie_inplace_memory_usage(tommy_trie_inplace* trie_inplace);
+tommy_size_t tommy_trie_inplace_memory_usage(tommy_trie_inplace *trie_inplace);
 
 #endif
-

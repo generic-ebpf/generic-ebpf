@@ -22,7 +22,8 @@
 #include <sys/ebpf_dev.h>
 
 /*
- * Don't make functions static for now, because we want to see it by tracing tools
+ * Don't make functions static for now, because we want to see it by tracing
+ * tools
  * like DTrace.
  *
  * TODO Make them static
@@ -71,9 +72,8 @@ ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td)
             continue;
         }
 
-        if (i == num_insts - 1 || cur[1].opcode != 0 ||
-            cur[1].dst != 0 || cur[1].src != 0 ||
-            cur[1].offset != 0) {
+        if (i == num_insts - 1 || cur[1].opcode != 0 || cur[1].dst != 0 ||
+            cur[1].src != 0 || cur[1].offset != 0) {
             error = EINVAL;
             goto err0;
         }
@@ -82,7 +82,7 @@ ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td)
         if (cur->src == 0) {
             continue;
         }
-        
+
         if (cur->src != EBPF_PSEUDO_MAP_DESC) {
             error = EINVAL;
             goto err0;
@@ -157,8 +157,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
         return ENOMEM;
     }
 
-    error =
-        ebpf_copyin(req->prog, insts, req->prog_len);
+    error = ebpf_copyin(req->prog, insts, req->prog_len);
     if (error) {
         ebpf_free(insts);
         return error;
@@ -467,12 +466,13 @@ err0:
 }
 
 void
-test_vm_attach_func(struct ebpf_vm *vm) {
+test_vm_attach_func(struct ebpf_vm *vm)
+{
     ebpf_register(vm, 0, "ebpf_map_update_elem", ebpf_map_update_elem);
     ebpf_register(vm, 1, "ebpf_map_lookup_elem", ebpf_map_lookup_elem);
     ebpf_register(vm, 2, "ebpf_map_delete_elem", ebpf_map_delete_elem);
 }
-    
+
 int
 ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 {
@@ -493,13 +493,13 @@ ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 
     struct ebpf_obj_prog *prog_obj = ebpf_objfile_get_container(f);
     if (!prog_obj) {
-        error =  EINVAL;
+        error = EINVAL;
         goto err1;
     }
 
     error = ebpf_load(vm, prog_obj->prog.prog, prog_obj->prog.prog_len);
     if (error < 0) {
-        error =  EINVAL;
+        error = EINVAL;
         goto err1;
     }
 

@@ -29,7 +29,8 @@
  * Linear chained hashtable.
  *
  * This hashtable resizes dynamically and progressively using a variation of the
- * linear hashing algorithm described in http://en.wikipedia.org/wiki/Linear_hashing
+ * linear hashing algorithm described in
+ * http://en.wikipedia.org/wiki/Linear_hashing
  *
  * It starts with the minimal size of 16 buckets, it doubles the size then it
  * reaches a load factor greater than 0.5 and it halves the size with a load
@@ -43,7 +44,8 @@
  * In this way we only allocate additional table segments on the heap, without
  * freeing the previous table, and then not increasing the heap fragmentation.
  *
- * The resize takes place inside tommy_hashlin_insert() and tommy_hashlin_remove().
+ * The resize takes place inside tommy_hashlin_insert() and
+ * tommy_hashlin_remove().
  * No resize is done in the tommy_hashlin_search() operation.
  *
  * To initialize the hashtable you have to call tommy_hashlin_init().
@@ -54,7 +56,8 @@
  * tommy_hashlin_init(&hashlin);
  * \endcode
  *
- * To insert elements in the hashtable you have to call tommy_hashlin_insert() for
+ * To insert elements in the hashtable you have to call tommy_hashlin_insert()
+ * for
  * each element.
  * In the insertion call you have to specify the address of the node, the
  * address of the object, and the hash value of the key to use.
@@ -72,11 +75,14 @@
  *
  * obj->value = ...; // initializes the object
  *
- * tommy_hashlin_insert(&hashlin, &obj->node, obj, tommy_inthash_u32(obj->value)); // inserts the object
+ * tommy_hashlin_insert(&hashlin, &obj->node, obj,
+ * tommy_inthash_u32(obj->value)); // inserts the object
  * \endcode
  *
- * To find and element in the hashtable you have to call tommy_hashtable_search()
- * providing a comparison function, its argument, and the hash of the key to search.
+ * To find and element in the hashtable you have to call
+ * tommy_hashtable_search()
+ * providing a comparison function, its argument, and the hash of the key to
+ * search.
  *
  * \code
  * int compare(const void* arg, const void* obj)
@@ -85,7 +91,8 @@
  * }
  *
  * int value_to_find = 1;
- * struct object* obj = tommy_hashlin_search(&hashlin, compare, &value_to_find, tommy_inthash_u32(value_to_find));
+ * struct object* obj = tommy_hashlin_search(&hashlin, compare, &value_to_find,
+ * tommy_inthash_u32(value_to_find));
  * if (!obj) {
  *     // not found
  * } else {
@@ -93,14 +100,17 @@
  * }
  * \endcode
  *
- * To iterate over all the elements in the hashtable with the same key, you have to
- * use tommy_hashlin_bucket() and follow the tommy_node::next pointer until NULL.
+ * To iterate over all the elements in the hashtable with the same key, you have
+ * to
+ * use tommy_hashlin_bucket() and follow the tommy_node::next pointer until
+ * NULL.
  * You have also to check explicitely for the key, as the bucket may contains
  * different keys.
  *
  * \code
  * int value_to_find = 1;
- * tommy_node* i = tommy_hashlin_bucket(&hashlin, tommy_inthash_u32(value_to_find));
+ * tommy_node* i = tommy_hashlin_bucket(&hashlin,
+ * tommy_inthash_u32(value_to_find));
  * while (i) {
  *     struct object* obj = i->data; // gets the object pointer
  *
@@ -112,18 +122,22 @@
  * }
  * \endcode
  *
- * To remove an element from the hashtable you have to call tommy_hashlin_remove()
- * providing a comparison function, its argument, and the hash of the key to search
+ * To remove an element from the hashtable you have to call
+ * tommy_hashlin_remove()
+ * providing a comparison function, its argument, and the hash of the key to
+ * search
  * and remove.
  *
  * \code
- * struct object* obj = tommy_hashlin_remove(&hashlin, compare, &value_to_remove, tommy_inthash_u32(value_to_remove));
+ * struct object* obj = tommy_hashlin_remove(&hashlin, compare,
+ * &value_to_remove, tommy_inthash_u32(value_to_remove));
  * if (obj) {
  *     free(obj); // frees the object allocated memory
  * }
  * \endcode
  *
- * To destroy the hashtable you have to remove all the elements, and deinitialize
+ * To destroy the hashtable you have to remove all the elements, and
+ * deinitialize
  * the hashtable calling tommy_hashlin_done().
  *
  * \code
@@ -164,24 +178,28 @@ typedef tommy_node tommy_hashlin_node;
 
 /**
  * Hashtable container type.
- * \note Don't use internal fields directly, but access the container only using functions.
+ * \note Don't use internal fields directly, but access the container only using
+ * functions.
  */
 typedef struct tommy_hashlin_struct {
-	tommy_hashlin_node** bucket[TOMMY_HASHLIN_BIT_MAX]; /**< Dynamic array of hash buckets. One list for each hash modulus. */
-	tommy_uint_t bucket_bit; /**< Bits used in the bit mask. */
-	tommy_count_t bucket_max; /**< Number of buckets. */
-	tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
-	tommy_count_t low_max; /**< Low order max value. */
-	tommy_count_t low_mask; /**< Low order mask value. */
-	tommy_count_t split; /**< Split position. */
-	tommy_count_t count; /**< Number of elements. */
-	tommy_uint_t state; /**< Reallocation state. */
+    tommy_hashlin_node **bucket[TOMMY_HASHLIN_BIT_MAX]; /**< Dynamic array of
+                                                           hash buckets. One
+                                                           list for each hash
+                                                           modulus. */
+    tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
+    tommy_count_t bucket_max;  /**< Number of buckets. */
+    tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
+    tommy_count_t low_max;     /**< Low order max value. */
+    tommy_count_t low_mask;    /**< Low order mask value. */
+    tommy_count_t split;       /**< Split position. */
+    tommy_count_t count;       /**< Number of elements. */
+    tommy_uint_t state;        /**< Reallocation state. */
 } tommy_hashlin;
 
 /**
  * Initializes the hashtable.
  */
-void tommy_hashlin_init(tommy_hashlin* hashlin);
+void tommy_hashlin_init(tommy_hashlin *hashlin);
 
 /**
  * Deinitializes the hashtable.
@@ -189,66 +207,74 @@ void tommy_hashlin_init(tommy_hashlin* hashlin);
  * You can call this function with elements still contained,
  * but such elements are not going to be freed by this call.
  */
-void tommy_hashlin_done(tommy_hashlin* hashlin);
+void tommy_hashlin_done(tommy_hashlin *hashlin);
 
 /**
  * Inserts an element in the hashtable.
  */
-void tommy_hashlin_insert(tommy_hashlin* hashlin, tommy_hashlin_node* node, void* data, tommy_hash_t hash);
+void tommy_hashlin_insert(tommy_hashlin *hashlin, tommy_hashlin_node *node,
+                          void *data, tommy_hash_t hash);
 
 /**
  * Searches and removes an element from the hashtable.
- * You have to provide a compare function and the hash of the element you want to remove.
+ * You have to provide a compare function and the hash of the element you want
+ * to remove.
  * If the element is not found, 0 is returned.
  * If more equal elements are present, the first one is removed.
- * \param cmp Compare function called with cmp_arg as first argument and with the element to compare as a second one.
- * The function should return 0 for equal elements, anything other for different elements.
- * \param cmp_arg Compare argument passed as first argument of the compare function.
+ * \param cmp Compare function called with cmp_arg as first argument and with
+ * the element to compare as a second one.
+ * The function should return 0 for equal elements, anything other for different
+ * elements.
+ * \param cmp_arg Compare argument passed as first argument of the compare
+ * function.
  * \param hash Hash of the element to find and remove.
  * \return The removed element, or 0 if not found.
  */
-void* tommy_hashlin_remove(tommy_hashlin* hashlin, tommy_search_func* cmp, const void* cmp_arg, tommy_hash_t hash);
+void *tommy_hashlin_remove(tommy_hashlin *hashlin, tommy_search_func *cmp,
+                           const void *cmp_arg, tommy_hash_t hash);
 
 /** \internal
  * Returns the bucket at the specified position.
  */
-tommy_inline tommy_hashlin_node** tommy_hashlin_pos(tommy_hashlin* hashlin, tommy_hash_t pos)
+tommy_inline tommy_hashlin_node **
+tommy_hashlin_pos(tommy_hashlin *hashlin, tommy_hash_t pos)
 {
-	tommy_uint_t bsr;
+    tommy_uint_t bsr;
 
-	/* get the highest bit set, in case of all 0, return 0 */
-	bsr = tommy_ilog2_u32(pos | 1);
+    /* get the highest bit set, in case of all 0, return 0 */
+    bsr = tommy_ilog2_u32(pos | 1);
 
-	return &hashlin->bucket[bsr][pos];
+    return &hashlin->bucket[bsr][pos];
 }
 
 /** \internal
  * Returns a pointer to the bucket of the specified hash.
  */
-tommy_inline tommy_hashlin_node** tommy_hashlin_bucket_ref(tommy_hashlin* hashlin, tommy_hash_t hash)
+tommy_inline tommy_hashlin_node **
+tommy_hashlin_bucket_ref(tommy_hashlin *hashlin, tommy_hash_t hash)
 {
-	tommy_count_t pos;
-	tommy_count_t high_pos;
+    tommy_count_t pos;
+    tommy_count_t high_pos;
 
-	pos = hash & hashlin->low_mask;
-	high_pos = hash & hashlin->bucket_mask;
+    pos = hash & hashlin->low_mask;
+    high_pos = hash & hashlin->bucket_mask;
 
-	/* if this position is already allocated in the high half */
-	if (pos < hashlin->split) {
-		/* The following assigment is expected to be implemented */
-		/* with a conditional move instruction */
-		/* that results in a little better and constant performance */
-		/* regardless of the split position. */
-		/* This affects mostly the worst case, when the split value */
-		/* is near at its half, resulting in a totally unpredictable */
-		/* condition by the CPU. */
-		/* In such case the use of the conditional move is generally faster. */
+    /* if this position is already allocated in the high half */
+    if (pos < hashlin->split) {
+        /* The following assigment is expected to be implemented */
+        /* with a conditional move instruction */
+        /* that results in a little better and constant performance */
+        /* regardless of the split position. */
+        /* This affects mostly the worst case, when the split value */
+        /* is near at its half, resulting in a totally unpredictable */
+        /* condition by the CPU. */
+        /* In such case the use of the conditional move is generally faster. */
 
-		/* use also the high bit */
-		pos = high_pos;
-	}
+        /* use also the high bit */
+        pos = high_pos;
+    }
 
-	return tommy_hashlin_pos(hashlin, pos);
+    return tommy_hashlin_pos(hashlin, pos);
 }
 
 /**
@@ -259,32 +285,40 @@ tommy_inline tommy_hashlin_node** tommy_hashlin_bucket_ref(tommy_hashlin* hashli
  * \param hash Hash of the element to find.
  * \return The head of the bucket, or 0 if empty.
  */
-tommy_inline tommy_hashlin_node* tommy_hashlin_bucket(tommy_hashlin* hashlin, tommy_hash_t hash)
+tommy_inline tommy_hashlin_node *
+tommy_hashlin_bucket(tommy_hashlin *hashlin, tommy_hash_t hash)
 {
-	return *tommy_hashlin_bucket_ref(hashlin, hash);
+    return *tommy_hashlin_bucket_ref(hashlin, hash);
 }
 
 /**
  * Searches an element in the hashtable.
- * You have to provide a compare function and the hash of the element you want to find.
+ * You have to provide a compare function and the hash of the element you want
+ * to find.
  * If more equal elements are present, the first one is returned.
- * \param cmp Compare function called with cmp_arg as first argument and with the element to compare as a second one.
- * The function should return 0 for equal elements, anything other for different elements.
- * \param cmp_arg Compare argument passed as first argument of the compare function.
+ * \param cmp Compare function called with cmp_arg as first argument and with
+ * the element to compare as a second one.
+ * The function should return 0 for equal elements, anything other for different
+ * elements.
+ * \param cmp_arg Compare argument passed as first argument of the compare
+ * function.
  * \param hash Hash of the element to find.
  * \return The first element found, or 0 if none.
  */
-tommy_inline void* tommy_hashlin_search(tommy_hashlin* hashlin, tommy_search_func* cmp, const void* cmp_arg, tommy_hash_t hash)
+tommy_inline void *
+tommy_hashlin_search(tommy_hashlin *hashlin, tommy_search_func *cmp,
+                     const void *cmp_arg, tommy_hash_t hash)
 {
-	tommy_hashlin_node* i = tommy_hashlin_bucket(hashlin, hash);
+    tommy_hashlin_node *i = tommy_hashlin_bucket(hashlin, hash);
 
-	while (i) {
-		/* we first check if the hash matches, as in the same bucket we may have multiples hash values */
-		if (i->key == hash && cmp(cmp_arg, i->data) == 0)
-			return i->data;
-		i = i->next;
-	}
-	return 0;
+    while (i) {
+        /* we first check if the hash matches, as in the same bucket we may have
+         * multiples hash values */
+        if (i->key == hash && cmp(cmp_arg, i->data) == 0)
+            return i->data;
+        i = i->next;
+    }
+    return 0;
 }
 
 /**
@@ -292,7 +326,8 @@ tommy_inline void* tommy_hashlin_search(tommy_hashlin* hashlin, tommy_search_fun
  * You must already have the address of the element to remove.
  * \return The tommy_node::data field of the node removed.
  */
-void* tommy_hashlin_remove_existing(tommy_hashlin* hashlin, tommy_hashlin_node* node);
+void *tommy_hashlin_remove_existing(tommy_hashlin *hashlin,
+                                    tommy_hashlin_node *node);
 
 /**
  * Calls the specified function for each element in the hashtable.
@@ -314,7 +349,8 @@ void* tommy_hashlin_remove_existing(tommy_hashlin* hashlin, tommy_hashlin_node* 
  * ...
  *
  * // insert it in the hashtable
- * tommy_hashlin_insert(&hashlin, &obj->node, obj, tommy_inthash_u32(obj->value));
+ * tommy_hashlin_insert(&hashlin, &obj->node, obj,
+ * tommy_inthash_u32(obj->value));
  *
  * ...
  *
@@ -325,26 +361,28 @@ void* tommy_hashlin_remove_existing(tommy_hashlin* hashlin, tommy_hashlin_node* 
  * tommy_hashlin_done(&hashlin);
  * \endcode
  */
-void tommy_hashlin_foreach(tommy_hashlin* hashlin, tommy_foreach_func* func);
+void tommy_hashlin_foreach(tommy_hashlin *hashlin, tommy_foreach_func *func);
 
 /**
- * Calls the specified function with an argument for each element in the hashtable.
+ * Calls the specified function with an argument for each element in the
+ * hashtable.
  */
-void tommy_hashlin_foreach_arg(tommy_hashlin* hashlin, tommy_foreach_arg_func* func, void* arg);
+void tommy_hashlin_foreach_arg(tommy_hashlin *hashlin,
+                               tommy_foreach_arg_func *func, void *arg);
 
 /**
  * Gets the number of elements.
  */
-tommy_inline tommy_count_t tommy_hashlin_count(tommy_hashlin* hashlin)
+tommy_inline tommy_count_t
+tommy_hashlin_count(tommy_hashlin *hashlin)
 {
-	return hashlin->count;
+    return hashlin->count;
 }
 
 /**
  * Gets the size of allocated memory.
  * It includes the size of the ::tommy_hashlin_node of the stored elements.
  */
-tommy_size_t tommy_hashlin_memory_usage(tommy_hashlin* hashlin);
+tommy_size_t tommy_hashlin_memory_usage(tommy_hashlin *hashlin);
 
 #endif
-

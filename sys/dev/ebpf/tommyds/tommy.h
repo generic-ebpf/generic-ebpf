@@ -40,7 +40,9 @@
  * <a href="http://www.nedprod.com/programs/portable/nedtries/">nedtrie</a>,
  * <a href="http://code.google.com/p/judyarray/">judyarray</a>,
  * <a href="http://concurrencykit.org/">concurrencykit</a> and others.
- * Only <a href="http://code.google.com/p/google-sparsehash/">googledensehash</a> is a real competitor for Tommy.
+ * Only <a
+ * href="http://code.google.com/p/google-sparsehash/">googledensehash</a> is a
+ * real competitor for Tommy.
  *
  * The data structures provided are:
  *
@@ -58,21 +60,29 @@
  * - ::tommy_trie_inplace - A trie completely inplace.
  * - ::tommy_tree - A tree to keep elements in order.
  *
- * The most interesting are ::tommy_array, ::tommy_hashdyn, ::tommy_hashlin, ::tommy_trie and ::tommy_trie_inplace.
+ * The most interesting are ::tommy_array, ::tommy_hashdyn, ::tommy_hashlin,
+ * ::tommy_trie and ::tommy_trie_inplace.
  *
- * The official site of TommyDS is <a href="http://www.tommyds.it/">http://www.tommyds.it/</a>,
+ * The official site of TommyDS is <a
+ * href="http://www.tommyds.it/">http://www.tommyds.it/</a>,
  *
  * \section Use
  *
- * All the Tommy containers are used to store pointers to generic objects, associated to an
+ * All the Tommy containers are used to store pointers to generic objects,
+ * associated to an
  * integer value, that could be a key or a hash value.
  *
- * They are semantically equivalent at the C++ <a href="http://www.cplusplus.com/reference/map/multimap/">multimap\<unsigned,void*\></a>
- * and <a href="http://www.cplusplus.com/reference/unordered_map/unordered_multimap/">unordered_multimap\<unsigned,void*\></a>.
+ * They are semantically equivalent at the C++ <a
+ * href="http://www.cplusplus.com/reference/map/multimap/">multimap\<unsigned,void*\></a>
+ * and <a
+ * href="http://www.cplusplus.com/reference/unordered_map/unordered_multimap/">unordered_multimap\<unsigned,void*\></a>.
  *
- * An object, to be inserted in a container, should contain a node of type ::tommy_node.
- * Inside this node is present a pointer to the object itself in the tommy_node::data field,
- * the key used to identify the object in the tommy_node::key field, and other fields used
+ * An object, to be inserted in a container, should contain a node of type
+ * ::tommy_node.
+ * Inside this node is present a pointer to the object itself in the
+ * tommy_node::data field,
+ * the key used to identify the object in the tommy_node::key field, and other
+ * fields used
  * by the containers.
  *
  * This is a typical object declaration:
@@ -83,7 +93,8 @@
  * };
  * \endcode
  *
- * To insert an object in a container, you have to provide the address of the embedded node,
+ * To insert an object in a container, you have to provide the address of the
+ * embedded node,
  * the address of the object and the value of the key.
  * \code
  * int key_to_insert = 1;
@@ -101,7 +112,8 @@
  * }
  * \endcode
  *
- * To access all the objects with the same keys you have to iterate over the bucket
+ * To access all the objects with the same keys you have to iterate over the
+ * bucket
  * assigned at the specified key.
  * \code
  * int key_to_find = 1;
@@ -127,7 +139,8 @@
  * \endcode
  *
  * Dealing with hashtables, instead of the key, you have to provide the hash
- * value of the object, and a compare function able to differentiate objects with
+ * value of the object, and a compare function able to differentiate objects
+ * with
  * the same hash value.
  * To compute the hash value, you can use the generic tommy_hash_u32() function,
  * or the specialized integer hash function tommy_inthash_u32().
@@ -140,7 +153,8 @@
  *
  * Tommy containers support multiple elements with the same key.
  *
- * Tommy containers keep the original insertion order of elements with equal keys.
+ * Tommy containers keep the original insertion order of elements with equal
+ * keys.
  *
  * Tommy is released with the \ref license "2-clause BSD license".
  *
@@ -153,9 +167,12 @@
  * The <i>Change</i> graph shows the time required for searching, removing and
  * reinsert random objects with a different key value.
  *
- * Times are expressed in nanoseconds for each element, and <b>lower is better</b>.
+ * Times are expressed in nanoseconds for each element, and <b>lower is
+ * better</b>.
  *
- * To have some reference numbers, you can check <a href="https://gist.github.com/jboner/2841832">Latency numbers every programmer should know</a>.
+ * To have some reference numbers, you can check <a
+ * href="https://gist.github.com/jboner/2841832">Latency numbers every
+ * programmer should know</a>.
  *
  * A complete analysis is available in the \ref benchmark page.
  *
@@ -174,23 +191,41 @@
  *  - ::tommy_hashlin - Linear chained hashtable.
  *  - ::tommy_trie - Trie optimized for cache usage.
  *  - ::tommy_trie_inplace - Trie completely inplace.
- *  - <a href="http://www.canonware.com/rb/">rbtree</a> - Red-black tree by Jason Evans.
- *  - <a href="http://www.nedprod.com/programs/portable/nedtries/">nedtrie</a> - Binary trie inplace by Niall Douglas.
- *  - <a href="http://attractivechaos.awardspace.com/">khash</a> - Dynamic open addressing hashtable by Attractive Chaos.
- *  - <a href="http://uthash.sourceforge.net/">uthash</a> - Dynamic chaining hashtable by Troy D. Hanson.
- *  - <a href="http://judy.sourceforge.net/">judy</a> - Burst trie (JudyL) by Doug Baskins.
- *  - <a href="http://code.google.com/p/judyarray/">judyarray</a> - Burst trie by Karl Malbrain.
- *  - <a href="http://code.google.com/p/google-sparsehash/">googledensehash</a> - Dynamic open addressing hashtable by Craig Silverstein at Google.
- *  - <a href="http://code.google.com/p/cpp-btree/">googlebtree</a> - Btree by Google.
- *  - <a href="http://panthema.net/2007/stx-btree/">stxbtree</a> - STX Btree by Timo Bingmann.
- *  - <a href="http://www.cplusplus.com/reference/unordered_map/unordered_map/">c++unordered_map</a> - C++ STL unordered_map<> template.
- *  - <a href="http://www.cplusplus.com/reference/map/map/">c++map</a> - C++ STL map<> template.
- *  - <a href="https://sites.google.com/site/binarysearchcube/">tesseract</a> - Binary Search Tesseract by Gregorius van den Hoven.
- *  - <a href="https://code.google.com/p/sparsehash/source/browse/trunk/experimental/libchash.c">googlelibchash</a> - LibCHash by Craig Silverstein at Google.
- *  - <a href="https://github.com/fredrikwidlund/libdynamic">libdynamic</a> - Hash set by Fredrik Widlund.
- *  - <a href="http://concurrencykit.org/">concurrencykit</a> - Non-blocking hash set by Samy Al Bahra.
+ *  - <a href="http://www.canonware.com/rb/">rbtree</a> - Red-black tree by
+ * Jason Evans.
+ *  - <a href="http://www.nedprod.com/programs/portable/nedtries/">nedtrie</a> -
+ * Binary trie inplace by Niall Douglas.
+ *  - <a href="http://attractivechaos.awardspace.com/">khash</a> - Dynamic open
+ * addressing hashtable by Attractive Chaos.
+ *  - <a href="http://uthash.sourceforge.net/">uthash</a> - Dynamic chaining
+ * hashtable by Troy D. Hanson.
+ *  - <a href="http://judy.sourceforge.net/">judy</a> - Burst trie (JudyL) by
+ * Doug Baskins.
+ *  - <a href="http://code.google.com/p/judyarray/">judyarray</a> - Burst trie
+ * by Karl Malbrain.
+ *  - <a href="http://code.google.com/p/google-sparsehash/">googledensehash</a>
+ * - Dynamic open addressing hashtable by Craig Silverstein at Google.
+ *  - <a href="http://code.google.com/p/cpp-btree/">googlebtree</a> - Btree by
+ * Google.
+ *  - <a href="http://panthema.net/2007/stx-btree/">stxbtree</a> - STX Btree by
+ * Timo Bingmann.
+ *  - <a
+ * href="http://www.cplusplus.com/reference/unordered_map/unordered_map/">c++unordered_map</a>
+ * - C++ STL unordered_map<> template.
+ *  - <a href="http://www.cplusplus.com/reference/map/map/">c++map</a> - C++ STL
+ * map<> template.
+ *  - <a href="https://sites.google.com/site/binarysearchcube/">tesseract</a> -
+ * Binary Search Tesseract by Gregorius van den Hoven.
+ *  - <a
+ * href="https://code.google.com/p/sparsehash/source/browse/trunk/experimental/libchash.c">googlelibchash</a>
+ * - LibCHash by Craig Silverstein at Google.
+ *  - <a href="https://github.com/fredrikwidlund/libdynamic">libdynamic</a> -
+ * Hash set by Fredrik Widlund.
+ *  - <a href="http://concurrencykit.org/">concurrencykit</a> - Non-blocking
+ * hash set by Samy Al Bahra.
  *
- * Note that <em>googlelibchash</em> and <em>concurrencykit</em> are not shown in the graphs
+ * Note that <em>googlelibchash</em> and <em>concurrencykit</em> are not shown
+ * in the graphs
  * because they present a lot of spikes. See the \ref notes the end.
  *
  * \section thebenchmark The Benchmark
@@ -206,7 +241,8 @@
  *
  * The test done are:
  *  - <b>Insert</b> Insert all the objects starting with an empty container.
- *  - <b>Change</b> Find and remove one object and reinsert it with a different key, repeated for all the objects.
+ *  - <b>Change</b> Find and remove one object and reinsert it with a different
+ * key, repeated for all the objects.
  *  - <b>Hit</b> Find with success all the objects and dereference them.
  *  - <b>Miss</b> Find with failure all the objects.
  *  - <b>Remove</b> Remove all the objects and dereference them.
@@ -218,11 +254,14 @@
  * The objects are always dereferenced, as we are supposing to use them. This
  * happens even in the remove case, as we are supposing to deallocate them.
  *
- * All the objects are preallocated in the heap, and the allocation and deallocation
+ * All the objects are preallocated in the heap, and the allocation and
+ * deallocation
  * time is not included in the test.
  *
- * The objects contain an integer <i>value</i> field used for consistency checks,
- * an unused <i>payload</i> field of 16 bytes, and any other data required by the
+ * The objects contain an integer <i>value</i> field used for consistency
+ * checks,
+ * an unused <i>payload</i> field of 16 bytes, and any other data required by
+ * the
  * data structure.
  *
  * The objects are identified and stored using integer and unique <i>keys</i>.
@@ -311,29 +350,35 @@
  * </table>
  *
  * \section forward Forward order
- * Here you can see the whole <i>Forward</i> test results in different platforms.
+ * Here you can see the whole <i>Forward</i> test results in different
+ * platforms.
  *
  * In the <i>Forward</i> test, tries are the winners. Hashtables are competitive
  * until the cache limit, then they lose against tries. Trees are the slowest.
  *
- * The best choices are ::tommy_trie and ::tommy_trie_inplace, where ::tommy_trie is
+ * The best choices are ::tommy_trie and ::tommy_trie_inplace, where
+ * ::tommy_trie is
  * a bit faster, and ::tommy_trie_inplace doesn't require a custom allocator.
  *
  * Note that also hashtables are faster in forward order than random. This may
  * seem a bit surprising as the hash function randomizes the access even with
- * consecutive keys. This happens because the objects are allocated in consecutive
+ * consecutive keys. This happens because the objects are allocated in
+ * consecutive
  * memory, and accessing them in order, improves the cache utilization, even if
  * the hashed key is random.
  *
- * Note that you can make hashtables to reach tries performance tweaking the hash
+ * Note that you can make hashtables to reach tries performance tweaking the
+ * hash
  * function to put near keys allocated nearby.
  * This is possible if you know in advance the distribution of keys.
  * For example, in the benchmark you could use something like:
  * \code
  * #define hash(v) tommy_inthash_u32(v & ~0xF) + (v & 0xF)
  * \endcode
- * and make keys that differ only by the lowest bits to have hashes with the same
- * property, resulting in objects stored nearby, and improving cache utilization.
+ * and make keys that differ only by the lowest bits to have hashes with the
+ * same
+ * property, resulting in objects stored nearby, and improving cache
+ * utilization.
  *
  * <table border="0">
  * <tr><td>
@@ -379,7 +424,8 @@
  * // Custom hash function to avoid to use the STL one
  * class custom_hash {
  * public:
- *     unsigned operator()(unsigned key) const { return tommy_inthash_u32(key); }
+ *     unsigned operator()(unsigned key) const { return tommy_inthash_u32(key);
+ * }
  * };
  *
  * // Map collection from "unsigned" to "pointer to object"
@@ -465,7 +511,8 @@
  * \code
  * for(i=0;i<N;++i) {
  *     // Search the element
- *     // All the keys are now shifted by +1 by the "Change" test, and we'll find nothing
+ *     // All the keys are now shifted by +1 by the "Change" test, and we'll
+ * find nothing
  *     unsigned key = SEARCH[i];
  *     bag_t::const_iterator j = bag.find(key);
  *     if (j != bag.end())
@@ -496,18 +543,23 @@
  * \section others Other benchmarks
  * Here some links to other performance comparison:
  *
- * <a href="http://attractivechaos.wordpress.com/2008/08/28/comparison-of-hash-table-libraries/">Comparison of Hash Table Libraries</a>
+ * <a
+ * href="http://attractivechaos.wordpress.com/2008/08/28/comparison-of-hash-table-libraries/">Comparison
+ * of Hash Table Libraries</a>
  *
- * <a href="http://incise.org/hash-table-benchmarks.html">Hash Table Benchmarks</a>
+ * <a href="http://incise.org/hash-table-benchmarks.html">Hash Table
+ * Benchmarks</a>
  *
  * \section notes Notes
  *
  * Here some notes about the data structure tested not part of Tommy.
  *
  * \subsection googlelibchash Google C libchash
- * It's the C implementation located in the <i>experimental/</i> directory of the googlesparsehash archive.
+ * It's the C implementation located in the <i>experimental/</i> directory of
+ * the googlesparsehash archive.
  * It has very bad performances in the <i>Change</i> test for some N values.
- * See this <a href="other/googlelibchash_problem.png">graph</a> with a lot of spikes.
+ * See this <a href="other/googlelibchash_problem.png">graph</a> with a lot of
+ * spikes.
  * The C++ version doesn't suffer of this problem.
  *
  * \subsection googledensehash Google C++ densehash
@@ -517,11 +569,14 @@
  * The resize is executed when the load factor is lower than 20%.
  *
  * \subsection khash khash
- * It doesn't release memory on deletion. This gives an unfair advantage on the <i>Remove</i> test.
+ * It doesn't release memory on deletion. This gives an unfair advantage on the
+ * <i>Remove</i> test.
  *
  * \subsection nedtrie nedtrie
  * I've found a crash bug when inserting keys with the 0 value.
- * The <a href="https://github.com/ned14/nedtries/commit/21039696f27db4ffac70a82f89dc5d00ae74b332">fix</a> of this issue is now in the nedtries github.
+ * The <a
+ * href="https://github.com/ned14/nedtries/commit/21039696f27db4ffac70a82f89dc5d00ae74b332">fix</a>
+ * of this issue is now in the nedtries github.
  * We do not use the C++ implementation as it doesn't compile with gcc 4.4.3.
  *
  * \subsection judy Judy
@@ -529,7 +584,8 @@
  * and for some specific input data size.
  * This makes difficult to predict the performance, as it is usually good until
  * you get one of these cases.
- * See for example this <a href="other/judy_problem.png">graph</a> with a big replicable spike at 50.000 elements.
+ * See for example this <a href="other/judy_problem.png">graph</a> with a big
+ * replicable spike at 50.000 elements.
  *
  * \subsection ck Concurrency Kit
  * It has very bad performances in the <i>Change</i> test for some N values.
@@ -538,7 +594,8 @@
  * \page multiindex Tommy Multi Indexing
  *
  * Tommy provides only partial iterator support with the "foreach" functions.
- * If you need real iterators you have to insert all the objects also in a ::tommy_list,
+ * If you need real iterators you have to insert all the objects also in a
+ * ::tommy_list,
  * and use the list as iterator.
  *
  * This technique allows to keep track of the insertion order with the list,
@@ -582,9 +639,11 @@
  * obj->value_0 = ...;
  * obj->value_1 = ...;
  * // inserts in the first hash table
- * tommy_hashdyn_insert(&hash_0, &obj->hash_node_0, obj, tommy_inthash_u32(obj->value_0));
+ * tommy_hashdyn_insert(&hash_0, &obj->hash_node_0, obj,
+ * tommy_inthash_u32(obj->value_0));
  * // inserts in the second hash table
- * tommy_hashdyn_insert(&hash_1, &obj->hash_node_1, obj, tommy_inthash_u32(obj->value_1));
+ * tommy_hashdyn_insert(&hash_1, &obj->hash_node_1, obj,
+ * tommy_inthash_u32(obj->value_1));
  * // inserts in the list
  * tommy_list_insert_tail(&list, &obj->list_node, obj);
  *
@@ -592,7 +651,8 @@
  *
  * // searches an object by value_1 and deletes it
  * int value_to_find = ...;
- * struct object* obj = tommy_hashdyn_search(&hash_1, search_1, &value_to_find, tommy_inthash_u32(value_to_find));
+ * struct object* obj = tommy_hashdyn_search(&hash_1, search_1, &value_to_find,
+ * tommy_inthash_u32(value_to_find));
  * if (obj) {
  *     // if found removes all the references
  *     tommy_hashdyn_remove_existing(&hash_0, &obj->hash_node_0);
@@ -634,12 +694,15 @@
  *
  * \section testing Testing
  *
- * Extensive and automated tests with the runtime checker <a href="http://valgrind.org/">valgrind</a>
+ * Extensive and automated tests with the runtime checker <a
+ * href="http://valgrind.org/">valgrind</a>
  * and the static analyzer <a href="http://clang-analyzer.llvm.org/">clang</a>
  * are done to ensure the correctness of the library.
  *
- * The test has a <a href="http://www.tommyds.it/cov/tommyds/tommyds">code coverage of 100%</a>,
- * measured with <a href="http://ltp.sourceforge.net/coverage/lcov.php">lcov</a>.
+ * The test has a <a href="http://www.tommyds.it/cov/tommyds/tommyds">code
+ * coverage of 100%</a>,
+ * measured with <a
+ * href="http://ltp.sourceforge.net/coverage/lcov.php">lcov</a>.
  *
  * \section Limitations
  *
@@ -647,8 +710,10 @@
  * locks before calling any Tommy functions.
  *
  * Tommy doesn't provide iterators over the implicit order defined by the data
- * structures. To iterate on elements you must insert them also into a ::tommy_list,
- * and use the list as iterator. See the \ref multiindex example for more details.
+ * structures. To iterate on elements you must insert them also into a
+ * ::tommy_list,
+ * and use the list as iterator. See the \ref multiindex example for more
+ * details.
  * Note that this is a real limitation only for ::tommy_trie, as it's the only
  * data structure defining an useable order.
  *
@@ -669,21 +734,25 @@
  * All the Tommy containers support the insertion of multiple elements with
  * the same key, adding in each node a list of equal elements.
  *
- * They are the equivalent at the C++ associative containers <a href="http://www.cplusplus.com/reference/map/multimap/">multimap\<unsigned,void*\></a>
- * and <a href="http://www.cplusplus.com/reference/unordered_map/unordered_multimap/">unordered_multimap\<unsigned,void*\></a>
+ * They are the equivalent at the C++ associative containers <a
+ * href="http://www.cplusplus.com/reference/map/multimap/">multimap\<unsigned,void*\></a>
+ * and <a
+ * href="http://www.cplusplus.com/reference/unordered_map/unordered_multimap/">unordered_multimap\<unsigned,void*\></a>
  * that allow duplicates of the same key.
  *
  * A more memory conservative approach is to not allow duplicated elements,
  * removing the need of this list.
  *
  * \subsection data_pointer Data pointer
- * The tommy_node::data field is present to allow search and remove functions to return
+ * The tommy_node::data field is present to allow search and remove functions to
+ * return
  * directly a pointer to the element stored in the container.
  *
  * A more memory conservative approach is to require the user to compute
  * the element pointer from the embedded node with a fixed displacement.
  * For an example, see the Linux Kernel declaration of
- * <a href="http://lxr.free-electrons.com/ident?i=container_of">container_of()</a>.
+ * <a
+ * href="http://lxr.free-electrons.com/ident?i=container_of">container_of()</a>.
  *
  * \subsection insertion_order Insertion order
  * The list used for collisions is double linked to allow
@@ -699,8 +768,10 @@
  * iterator terminating in 0. This allows the user to write a simple iteration
  * loop over the list of elements in the same bucket.
  *
- * A more efficient approach is to use a circular list, because operating on nodes
- * in a circular list doesn't requires to manage the special terminating case when
+ * A more efficient approach is to use a circular list, because operating on
+ * nodes
+ * in a circular list doesn't requires to manage the special terminating case
+ * when
  * adding or removing elements.
  *
  * \page license Tommy License
@@ -760,4 +831,3 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
-
