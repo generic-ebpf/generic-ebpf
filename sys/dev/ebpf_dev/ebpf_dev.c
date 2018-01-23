@@ -21,6 +21,12 @@
 #include <sys/ebpf_vm.h>
 #include <sys/ebpf_dev.h>
 
+/*
+ * Don't make functions static for now, because we want to see it by tracing tools
+ * like DTrace.
+ *
+ * TODO Make them static
+ */
 void ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg);
 void ebpf_dev_map_deinit(struct ebpf_map *self, void *arg);
 int ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td);

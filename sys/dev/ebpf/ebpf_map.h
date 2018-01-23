@@ -69,7 +69,7 @@ int ebpf_map_get_next_key(struct ebpf_map *self, void *key, void *next_key);
  * overwritten. ebpf_map_deinit just calls map_object->dtor and its default
  * value is
  * ebpf_map_deinit_default. This is useful for managing external reference count
- * or something.
+ * or locking etc.
  */
 void ebpf_map_deinit(struct ebpf_map *mapp, void *arg);
 void ebpf_map_deinit_default(struct ebpf_map *mapp, void *arg);

@@ -22,11 +22,12 @@ all: lib example
 
 .PHONY:lib
 lib: $(OBJS)
-	ar r lib/libgbpf.a $(OBJS)
+	ar rc lib/libgbpf.a $(OBJS)
 
 .PHONY:example
 example:
 	make -C example
 
 clean:
-	rm -f lib/*.so
+	rm -f lib/*.a */**/*.o
+	make -C example clean

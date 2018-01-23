@@ -39,16 +39,16 @@ struct ebpf_map_def {
   };
 
 enum ebpf_common_functions {
-  EBPF_FUNC_map_update_elem = 0,
+  EBPF_FUNC_map_update_elem = 1,
   EBPF_FUNC_map_lookup_elem,
   EBPF_FUNC_map_delete_elem,
   __EBPF_COMMON_FUNCTIONS_MAX
 };
 
-#define EBPF_FUNC(NAME, ...) \
-  (*NAME)(__VA_ARGS__) __attribute__((__unused__)) = (void *)EBPF_FUNC_##NAME
+#define EBPF_FUNC(RETTYPE, NAME, ...) \
+  RETTYPE (*NAME)(__VA_ARGS__) __attribute__((__unused__)) = (RETTYPE (*)(__VA_ARGS__))EBPF_FUNC_##NAME
 
 // Definitions of common external functions
-static int EBPF_FUNC(map_update_elem, struct ebpf_map_def *map, void *key, void *value, uint64_t flags);
-static void* EBPF_FUNC(map_lookup_elem, struct ebpf_map_def *map, void *key, uint64_t flags);
-static int EBPF_FUNC(map_delete_elem, struct ebpf_map_def *map, void *key);
+static EBPF_FUNC(int, map_update_elem, struct ebpf_map_def *, void *, void *, uint64_t);
+static EBPF_FUNC(void*, map_lookup_elem, struct ebpf_map_def *, void *, uint64_t);
+static EBPF_FUNC(int, map_delete_elem, struct ebpf_map_def *, void *);
