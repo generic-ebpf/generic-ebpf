@@ -3,85 +3,40 @@ platdir = ../../$(platform)/ebpf/user
 gtestobjs = \
 	$(gtestpath)/googletest/make/gtest-all.o \
 	$(gtestpath)/googletest/make/gtest_main.o
-
 libebpf = ../../libebpf.a
+deps = $(gtestobjs) $(libebpf)
 
 CXXFLAGS = \
 	-O0 \
+	-coverage \
 	-I ../../sys \
 	-I $(platdir) \
-	-I $(gtestpath)/googletest/include \
+	-I $(gtestpath)/googletest/include
 
 map_tests = \
-	map_create_test \
-	map_lookup_test \
-	map_update_test \
-	map_delete_test \
-	map_get_next_key_test \
-	array_map_delete_test \
-	array_map_get_next_key_test \
-	array_map_lookup_test \
-	array_map_update_test \
-	tommyhashtbl_map_delete_test \
-	tommyhashtbl_map_get_next_key_test \
-	tommyhashtbl_map_lookup_test \
-	tommyhashtbl_map_update_test
+	map_create_test.o \
+	map_lookup_test.o \
+	map_update_test.o \
+	map_delete_test.o \
+	map_get_next_key_test.o \
+	array_map_delete_test.o \
+	array_map_get_next_key_test.o \
+	array_map_lookup_test.o \
+	array_map_update_test.o \
+	percpu_array_map_delete_test.o \
+	percpu_array_map_get_next_key_test.o \
+	percpu_array_map_lookup_test.o \
+	percpu_array_map_update_test.o \
+	tommyhashtbl_map_delete_test.o \
+	tommyhashtbl_map_get_next_key_test.o \
+	tommyhashtbl_map_lookup_test.o \
+	tommyhashtbl_map_update_test.o
 
-all: $(map_tests)
-
-map_create_test: map_create_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ map_create_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-map_lookup_test: map_lookup_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ map_lookup_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-map_update_test: map_update_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ map_update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-map_delete_test: map_delete_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ map_delete_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-map_get_next_key_test: map_get_next_key_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ map_get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-array_map_delete_test: array_map_delete_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ array_map_delete_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-array_map_get_next_key_test: array_map_get_next_key_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ array_map_get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-array_map_lookup_test: array_map_lookup_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ array_map_lookup_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-array_map_update_test: array_map_update_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ array_map_update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-tommyhashtbl_map_delete_test: tommyhashtbl_map_delete_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_delete_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-tommyhashtbl_map_get_next_key_test: tommyhashtbl_map_get_next_key_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_get_next_key_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-tommyhashtbl_map_lookup_test: tommyhashtbl_map_lookup_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_lookup_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
-
-tommyhashtbl_map_update_test: tommyhashtbl_map_update_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ tommyhashtbl_map_update_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+all_tests: $(map_tests)
+	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(deps) -lpthread
 
 do_test:
-	- ./map_create_test
-	- ./map_lookup_test
-	- ./map_update_test
-	- ./map_delete_test
-	- ./map_get_next_key_test
-	- ./array_map_delete_test
-	- ./array_map_get_next_key_test
-	- ./array_map_lookup_test
-	- ./array_map_update_test
-	- ./tommyhashtbl_map_delete_test
-	- ./tommyhashtbl_map_get_next_key_test
-	- ./tommyhashtbl_map_lookup_test
-	- ./tommyhashtbl_map_update_test
+	- ./all_tests
 
 clean:
-	rm -f $(map_tests) *.gcda *.gcno
+	rm -f all_tests $(map_tests) *.gcda *.gcno *.core

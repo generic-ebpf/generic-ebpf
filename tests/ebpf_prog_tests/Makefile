@@ -3,8 +3,8 @@ platdir = ../../$(platform)/ebpf/user
 gtestobjs = \
 	$(gtestpath)/googletest/make/gtest_main.o \
 	$(gtestpath)/googletest/make/gtest-all.o
-
 libebpf = ../../libebpf.a
+deps = $(gtestobjs) $(libebpf)
 
 CXXFLAGS = \
 	-O0 \
@@ -13,15 +13,13 @@ CXXFLAGS = \
 	-I $(gtestpath)/googletest/include \
 
 prog_tests = \
-	prog_load_test
-	
-all: $(prog_tests)
+	prog_load_test.o
 
-prog_load_test: prog_load_test.cpp
-	$(CXX) $(CXXFLAGS) -o $@ prog_load_test.cpp $(gtestobjs) $(libebpf) -lpthread -coverage
+all_tests: $(prog_tests)
+	$(CXX) $(CXXFLAGS) -o all_tests $(deps) -lpthread
 
 do_test:
-	./prog_load_test
+	- ./all_tests
 
 clean:
-	rm -f $(prog_tests) *.gcda *.gcno
+	rm -f all_tests $(prog_tests) *.gcda *.gcno
