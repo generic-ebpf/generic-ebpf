@@ -9,6 +9,7 @@
 */**/*.gcda
 */**/*.gcno
 */**/*.gcov
+*/**/*.core
 */**/*test
 test/.noseids
 test/test_framework/.noseids
