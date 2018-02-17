@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_FREEBSD_USER_H_
-#define _EBPF_FREEBSD_USER_H_
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -30,5 +29,4 @@
 #include <elf.h>
 #include <assert.h>
 #include <errno.h>
-
-#endif /* _EBPF_FREEBSD_USER_H_ */
+#include <unistd.h>

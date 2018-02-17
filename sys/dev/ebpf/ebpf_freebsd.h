@@ -31,6 +31,7 @@
 #include <sys/fcntl.h>
 #include <sys/refcount.h>
 #include <sys/capsicum.h>
+#include <sys/smp.h>
 #include <sys/stddef.h>
 #include <machine/stdarg.h>
 

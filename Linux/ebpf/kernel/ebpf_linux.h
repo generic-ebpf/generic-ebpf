@@ -15,6 +15,7 @@
 #include <linux/elf.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
+#include <linux/cpumask.h>
 #include <asm/byteorder.h>
 
 #define UINT64_MAX U64_MAX

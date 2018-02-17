@@ -80,3 +80,15 @@ ebpf_assert(bool expr)
 {
     assert(expr);
 }
+
+uint16_t
+ebpf_ncpus(void)
+{
+    return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
+uint16_t
+ebpf_curcpu(void)
+{
+    return 0; // it makes no sense to have this in userspace
+}

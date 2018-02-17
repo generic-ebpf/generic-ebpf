@@ -20,6 +20,7 @@
 #include <linux/miscdevice.h>
 #include <linux/anon_inodes.h>
 #include <linux/uaccess.h>
+#include <linux/cpumask.h>
 #include <asm/byteorder.h>
 
 typedef struct task_struct ebpf_thread_t;

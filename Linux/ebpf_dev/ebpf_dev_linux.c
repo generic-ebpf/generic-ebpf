@@ -83,7 +83,7 @@ ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
 
 ebpf_thread_t*
 ebpf_curthread(void) {
-  return current;
+    return current;
 }
 
 /*

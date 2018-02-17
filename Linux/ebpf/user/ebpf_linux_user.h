@@ -29,5 +29,6 @@
 #include <elf.h>
 #include <assert.h>
 #include <errno.h>
+#include <unistd.h>
 
 #endif /* _EBPF_LINUX_USER_H_ */

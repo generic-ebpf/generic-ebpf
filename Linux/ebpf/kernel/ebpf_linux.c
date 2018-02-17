@@ -68,6 +68,11 @@ ebpf_assert(bool expr)
     BUG_ON(!(expr));
 }
 
+uint16_t
+ebpf_ncpus(void) {
+    return nr_cpu_ids;
+}
+
 static int
 ebpf_init(void)
 {
@@ -96,6 +101,7 @@ EXPORT_SYMBOL(ebpf_exalloc);
 EXPORT_SYMBOL(ebpf_exfree);
 EXPORT_SYMBOL(ebpf_error);
 EXPORT_SYMBOL(ebpf_assert);
+EXPORT_SYMBOL(ebpf_ncpus);
 EXPORT_SYMBOL(ebpf_prog_init);
 EXPORT_SYMBOL(ebpf_prog_deinit_default);
 EXPORT_SYMBOL(ebpf_prog_deinit);

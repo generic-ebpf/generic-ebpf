@@ -77,6 +77,18 @@ ebpf_assert(bool expr)
     KASSERT(expr, "");
 }
 
+uint16_t
+ebpf_ncpus(void)
+{
+  return mp_maxid + 1;
+}
+
+uint16_t
+ebpf_curcpu(void)
+{
+  return curcpu;
+}
+
 /*
  * Kernel module operations
  */
