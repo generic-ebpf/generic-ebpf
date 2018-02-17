@@ -22,28 +22,37 @@ struct ebpf_map_array {
 };
 
 static int
+array_map_init_common(struct ebpf_map_array **array_mapp, uint16_t max_entries)
+{
+    *array_mapp = ebpf_malloc(sizeof(struct ebpf_map_array));
+    if (!*array_mapp) {
+        return ENOMEM;
+    }
+
+    (*array_mapp)->counter = 0;
+    (*array_mapp)->array = ebpf_calloc(max_entries, sizeof(void *));
+    if (!(*array_mapp)->array) {
+        ebpf_free(*array_mapp);
+        return ENOMEM;
+    }
+
+    return 0;
+}
+
+static int
 array_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
                uint16_t max_entries, uint32_t flags)
 {
+    int error;
+
     if (key_size != sizeof(uint32_t)) {
         return EINVAL;
     }
 
-    self->type = EBPF_MAP_TYPE_ARRAY;
-    self->key_size = key_size;
-    self->value_size = value_size;
-    self->max_entries = max_entries;
-    self->map_flags = flags;
-
-    struct ebpf_map_array *new = ebpf_calloc(sizeof(struct ebpf_map_array), 1);
-    if (!new) {
-        return ENOMEM;
-    }
-
-    new->array = ebpf_calloc(sizeof(void *), self->max_entries);
-    if (!new->array) {
-        ebpf_free(new);
-        return ENOMEM;
+    struct ebpf_map_array *new;
+    error = array_map_init_common(&new, max_entries);
+    if (error) {
+        return error;
     }
 
     self->data = new;
@@ -52,10 +61,50 @@ array_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
 }
 
 static int
-array_map_update_elem(struct ebpf_map *self, void *key, void *value,
-                      uint64_t flags)
+array_map_init_percpu(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
+                      uint16_t max_entries, uint32_t flags)
 {
-    struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+    int error;
+    struct ebpf_map_array *cur; // only used in error handling
+
+    if (key_size != sizeof(uint32_t)) {
+        return EINVAL;
+    }
+
+    uint16_t ncpus = ebpf_ncpus();
+    struct ebpf_map_array **new = ebpf_calloc(ncpus, sizeof(struct ebpf_map_array *));
+    if (!new) {
+        return ENOMEM;
+    }
+
+    uint16_t i;
+    for (i = 0; i < ncpus; i++) {
+        error = array_map_init_common(new + i, max_entries);
+        if (error) {
+            goto err;
+        }
+    }
+
+    self->data = new;
+
+    return 0;
+
+err:
+    for (uint16_t j = i; j > 0; j--) {
+        cur = new[j];
+        ebpf_free(cur->array);
+        ebpf_free(cur);
+    }
+    ebpf_free(new);
+    return error;
+}
+
+static int
+array_map_update_elem_common(struct ebpf_map *self, uint16_t idx,
+    void *key, void *value, uint64_t flags)
+{
+    struct ebpf_map_array **maps = (struct ebpf_map_array **)self->data;
+    struct ebpf_map_array *map = maps[idx];
 
     if (map->counter == self->max_entries) {
         return EBUSY;
@@ -83,10 +132,26 @@ array_map_update_elem(struct ebpf_map *self, void *key, void *value,
     return 0;
 }
 
-static void *
-array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
+static int
+array_map_update_elem(struct ebpf_map *self, void *key, void *value,
+                      uint64_t flags)
 {
-    struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+    return array_map_update_elem_common(self, 0, key, value, flags);
+}
+
+static int
+array_map_update_elem_percpu(struct ebpf_map *self, void *key, void *value,
+    uint64_t flags)
+{
+    return array_map_update_elem_common(self, ebpf_curcpu(), key, value, flags);
+}
+
+static void *
+array_map_lookup_elem_common(struct ebpf_map *self, uint16_t idx,
+    void *key, uint64_t flags)
+{
+    struct ebpf_map_array **maps = (struct ebpf_map_array **)self->data;
+    struct ebpf_map_array *map = maps[idx];
 
     if (map->counter == 0) {
         return NULL;
@@ -100,10 +165,23 @@ array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
     return map->array[*k];
 }
 
-static int
-array_map_delete_elem(struct ebpf_map *self, void *key)
+static void *
+array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 {
-    struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
+    return array_map_lookup_elem_common(self, 0, key, flags);
+}
+
+static void *
+array_map_lookup_elem_percpu(struct ebpf_map *self, void *key, uint64_t flags)
+{
+    return array_map_lookup_elem_common(self, ebpf_curcpu(), key, flags);
+}
+
+static int
+array_map_delete_elem_common(struct ebpf_map *self, uint16_t idx, void *key)
+{
+    struct ebpf_map_array **maps = (struct ebpf_map_array **)self->data;
+    struct ebpf_map_array *map = maps[idx];
 
     if (map->counter == 0) {
         return ENOENT;
@@ -123,6 +201,18 @@ array_map_delete_elem(struct ebpf_map *self, void *key)
     map->counter--;
 
     return 0;
+}
+
+static int
+array_map_delete_elem(struct ebpf_map *self, void *key)
+{
+    return array_map_delete_elem_common(self, 0, key);
+}
+
+static int
+array_map_delete_elem_percpu(struct ebpf_map *self, void *key)
+{
+    return array_map_delete_elem_common(self, ebpf_curcpu(), key);
 }
 
 static int
@@ -159,24 +249,46 @@ array_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 }
 
 static void
-array_map_deinit(struct ebpf_map *self, void *arg)
+array_map_deinit_common(struct ebpf_map *self, struct ebpf_map_array *array)
 {
-    struct ebpf_map_array *map = (struct ebpf_map_array *)self->data;
-
     for (int i = 0; i < self->max_entries; i++) {
-        if (map->array[i]) {
-            ebpf_free(map->array[i]);
+        if (array->array[i]) {
+            ebpf_free(array->array[i]);
         }
     }
-
-    ebpf_free(map->array);
-    ebpf_free(self->data);
+    ebpf_free(array);
 }
 
-const struct ebpf_map_ops array_map_ops = {.init = array_map_init,
-                                           .update_elem = array_map_update_elem,
-                                           .lookup_elem = array_map_lookup_elem,
-                                           .delete_elem = array_map_delete_elem,
-                                           .get_next_key =
-                                               array_map_get_next_key,
-                                           .deinit = array_map_deinit};
+static void
+array_map_deinit(struct ebpf_map *self, void *arg)
+{
+    struct ebpf_map_array *array = (struct ebpf_map_array *)self->data;
+    array_map_deinit_common(self, array);
+}
+
+static void
+array_map_deinit_percpu(struct ebpf_map *self, void *arg)
+{
+    struct ebpf_map_array **arrays = (struct ebpf_map_array **)self->data;
+    for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
+        array_map_deinit_common(self, arrays[i]);
+    }
+}
+
+const struct ebpf_map_ops array_map_ops = {
+    .init = array_map_init,
+    .update_elem = array_map_update_elem,
+    .lookup_elem = array_map_lookup_elem,
+    .delete_elem = array_map_delete_elem,
+    .get_next_key = array_map_get_next_key,
+    .deinit = array_map_deinit
+};
+
+const struct ebpf_map_ops percpu_array_map_ops = {
+    .init = array_map_init_percpu,
+    .update_elem = array_map_update_elem_percpu,
+    .lookup_elem = array_map_lookup_elem_percpu,
+    .delete_elem = array_map_delete_elem_percpu,
+    .get_next_key = NULL,
+    .deinit = array_map_deinit_percpu
+};
