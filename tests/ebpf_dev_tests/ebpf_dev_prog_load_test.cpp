@@ -3,7 +3,7 @@
 extern "C" {
 #include <stdint.h>
 #include <errno.h>
-#include <assert.h>
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/ebpf.h>
@@ -22,7 +22,7 @@ class EbpfDevProgLoadTest : public ::testing::Test {
         int error;
 
         ebpf_fd = open("/dev/ebpf", O_RDWR);
-        assert(ebpf_fd > 0);
+        ASSERT_TRUE(ebpf_fd > 0);
     }
 
     virtual void

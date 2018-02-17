@@ -3,7 +3,7 @@
 extern "C" {
 #include <stdint.h>
 #include <errno.h>
-#include <assert.h>
+
 #include <dev/ebpf/ebpf_map.h>
 }
 
@@ -22,10 +22,10 @@ class ArrayMapDeleteTest : public ::testing::Test {
 
         error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
                               sizeof(uint32_t), 100, 0);
-        assert(!error);
+        ASSERT_TRUE(!error);
 
         error = ebpf_map_update_elem(&map, &gkey, &gval, 0);
-        assert(!error);
+        ASSERT_TRUE(!error);
     }
 
     virtual void

@@ -3,7 +3,7 @@
 extern "C" {
 #include <stdint.h>
 #include <errno.h>
-#include <assert.h>
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/ebpf.h>
@@ -30,7 +30,7 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
         value2 = 200;
 
         ebpf_fd = open("/dev/ebpf", O_RDWR);
-        assert(ebpf_fd > 0);
+        ASSERT_TRUE(ebpf_fd > 0);
 
         union ebpf_req req1;
         req1.map_fdp = &map_fd;
@@ -40,7 +40,7 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
         req1.max_entries = 100;
 
         error = ioctl(ebpf_fd, EBPFIOC_MAP_CREATE, &req1);
-        assert(!error);
+        ASSERT_TRUE(!error);
 
         union ebpf_req req2;
         req2.map_fd = map_fd;
@@ -49,7 +49,7 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
         req2.flags = 0;
 
         error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req2);
-        assert(!error);
+        ASSERT_TRUE(!error);
 
         union ebpf_req req3;
         req3.map_fd = map_fd;
@@ -58,7 +58,7 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
         req3.flags = 0;
 
         error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req3);
-        assert(!error);
+        ASSERT_TRUE(!error);
     }
 
     virtual void

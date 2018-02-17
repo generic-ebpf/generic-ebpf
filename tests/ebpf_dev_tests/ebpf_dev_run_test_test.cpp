@@ -4,7 +4,7 @@ extern "C" {
 #include <stdint.h>
 #include <errno.h>
 #include <sys/time.h>
-#include <assert.h>
+
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/ebpf.h>
@@ -24,7 +24,7 @@ class EbpfDevRunTestTest : public ::testing::Test {
         int error;
 
         ebpf_fd = ebpf_init();
-        assert(ebpf_fd > 0);
+        ASSERT_TRUE(ebpf_fd > 0);
     }
 
     virtual void
@@ -43,7 +43,7 @@ TEST_F(EbpfDevRunTestTest, LoadCtxToR0AndReturn)
 
     prog_fd =
         ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts) / 8);
-    assert(prog_fd > 0);
+    ASSERT_TRUE(prog_fd > 0);
 
     uint64_t ctx = 100, result;
 
@@ -59,7 +59,7 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
     int error;
     int map_fd = ebpf_map_create(ebpf_fd, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
                                  sizeof(uint32_t), 100, 0);
-    assert(map_fd > 0);
+    ASSERT_TRUE(map_fd > 0);
 
     struct ebpf_inst insts[] = {
         {EBPF_OP_LDDW, 1, EBPF_PSEUDO_MAP_DESC, 0, map_fd}, // load mapfd
@@ -77,11 +77,11 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
 
     int prog_fd =
         ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts) / 8);
-    assert(prog_fd > 0);
+    ASSERT_TRUE(prog_fd > 0);
 
     uint32_t k = 0, v = 100;
     error = ebpf_map_update_elem(ebpf_fd, map_fd, &k, &v, 0);
-    assert(!error);
+    ASSERT_TRUE(!error);
 
     uint64_t ctx = 1000, result;
     error = ebpf_run_test(ebpf_fd, prog_fd, &ctx, sizeof(uint64_t), 0, &result);
