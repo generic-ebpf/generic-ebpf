@@ -25,8 +25,8 @@
 #include <sys/ebpf_inst.h>
 #include <sys/ebpf_uapi.h>
 
-#include <gbpf/core/ebpf_driver.h>
-#include <gbpf/core/ebpf_elf_walker.h>
+#include <gbpf/core/gbpf_driver.h>
+#include <gbpf/core/gbpf_elf_walker.h>
 
 #ifdef DEBUG
 #define D(_fmt, ...) fprintf(stderr, _fmt "\n", ##__VA_ARGS__)
@@ -48,8 +48,8 @@ struct elf_refs {
     Elf_Data *relocations;
     // information to find program symbol
     int prog_sec_idx;
-    EBPFElfWalker *walker;
-    EBPFDriver *driver;
+    GBPFElfWalker *walker;
+    GBPFDriver *driver;
 };
 
 static inline int
@@ -196,7 +196,7 @@ find_prog_sym(struct elf_refs *refs)
 }
 
 int
-ebpf_walk_elf(EBPFElfWalker *walker, EBPFDriver *driver, char *fname)
+gbpf_walk_elf(GBPFElfWalker *walker, GBPFDriver *driver, char *fname)
 {
     int error;
     struct elf_refs refs;

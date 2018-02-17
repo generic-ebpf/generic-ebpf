@@ -16,11 +16,11 @@
 
 #pragma once
 
-#include <gbpf/core/ebpf_driver.h>
+#include <gbpf/core/gbpf_driver.h>
 
-typedef struct ebpf_null_driver {
-  EBPFDriver base;
-} EBPFNullDriver;
+typedef struct gbpf_null_driver {
+  GBPFDriver base;
+} GBPFNullDriver;
 
-EBPFNullDriver* ebpf_null_driver_create(void);
-void ebpf_null_driver_destroy(EBPFNullDriver *driver);
+GBPFNullDriver* gbpf_null_driver_create(void);
+void gbpf_null_driver_destroy(GBPFNullDriver *driver);

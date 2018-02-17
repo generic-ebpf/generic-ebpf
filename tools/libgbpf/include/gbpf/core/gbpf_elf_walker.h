@@ -16,17 +16,17 @@
 
 #pragma once
 
-#include "ebpf_driver.h"
+#include "gbpf_driver.h"
 
-struct ebpf_elf_walker;
-typedef struct ebpf_elf_walker EBPFElfWalker;
+struct gbpf_elf_walker;
+typedef struct gbpf_elf_walker GBPFElfWalker;
 
-struct ebpf_elf_walker {
-  void (*on_prog)(EBPFElfWalker *walker, const char *name,
+struct gbpf_elf_walker {
+  void (*on_prog)(GBPFElfWalker *walker, const char *name,
       struct ebpf_inst *prog, uint32_t prog_len);
-  void (*on_map)(EBPFElfWalker *walker, const char *name,
+  void (*on_map)(GBPFElfWalker *walker, const char *name,
       int desc, struct ebpf_map_def *map);
   void *data;
 };
 
-int ebpf_walk_elf(EBPFElfWalker *walker, EBPFDriver *driver, char *fname);
+int gbpf_walk_elf(GBPFElfWalker *walker, GBPFDriver *driver, char *fname);

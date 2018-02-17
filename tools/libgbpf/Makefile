@@ -1,6 +1,5 @@
 CFLAGS = \
 	-Ofast \
-	-fPIC \
 	-I ../../sys \
 	-I ./include \
 	-Wall \
@@ -9,12 +8,12 @@ CFLAGS = \
 	-g
 
 CORE = \
-	src/core/ebpf_elf_walker.o \
-	src/core/ebpf_driver.o
+	src/core/gbpf_elf_walker.o \
+	src/core/gbpf_driver.o
 
 DRIVERS = \
-	src/drivers/ebpf_null_driver.o \
-	src/drivers/ebpf_dev_driver.o
+	src/drivers/gbpf_null_driver.o \
+	src/drivers/gbpf_dev_driver.o
 
 OBJS = $(CORE) $(DRIVERS)
 
