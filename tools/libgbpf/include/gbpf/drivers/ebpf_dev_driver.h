@@ -20,8 +20,8 @@
 
 typedef struct gbpf_dev_driver {
   GBPFDriver base;
-  int gbpf_fd;
-} GBPFDevDriver;
+  int ebpf_fd;
+} EBPFDevDriver;
 
-GBPFDevDriver* gbpf_dev_driver_create(void);
-void gbpf_dev_driver_destroy(GBPFDevDriver *driver);
+EBPFDevDriver* gbpf_dev_driver_create(void);
+void ebpf_dev_driver_destroy(EBPFDevDriver *driver);
