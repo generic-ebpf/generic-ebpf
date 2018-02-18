@@ -25,25 +25,25 @@ MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");
 void *
 ebpf_malloc(size_t size)
 {
-    return malloc(size, M_EBPFBUF, M_WAITOK);
+    return malloc(size, M_EBPFBUF, M_NOWAIT);
 }
 
 void *
 ebpf_calloc(size_t number, size_t size)
 {
-    return malloc(number * size, M_EBPFBUF, M_WAITOK | M_ZERO);
+    return malloc(number * size, M_EBPFBUF, M_NOWAIT | M_ZERO);
 }
 
 void *
 ebpf_realloc(void *ptr, size_t size)
 {
-    return realloc(ptr, size, M_EBPFBUF, M_WAITOK);
+    return realloc(ptr, size, M_EBPFBUF, M_NOWAIT);
 }
 
 void *
 ebpf_exalloc(size_t size)
 {
-    return malloc(size, M_EBPFBUF, M_WAITOK);
+    return malloc(size, M_EBPFBUF, M_NOWAIT);
 }
 
 void

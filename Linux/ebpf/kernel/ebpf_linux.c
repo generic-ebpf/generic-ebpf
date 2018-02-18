@@ -15,13 +15,13 @@
 void *
 ebpf_malloc(size_t size)
 {
-    return kmalloc(size, GFP_KERNEL);
+    return kmalloc(size, GFP_NOWAIT);
 }
 
 void *
 ebpf_calloc(size_t number, size_t size)
 {
-    void *ret = kmalloc(number * size, GFP_KERNEL);
+    void *ret = kmalloc(number * size, GFP_NOWAIT);
     if (ret == NULL) {
         return NULL;
     }
@@ -34,7 +34,7 @@ ebpf_calloc(size_t number, size_t size)
 void *
 ebpf_exalloc(size_t size)
 {
-    return __vmalloc(size, GFP_KERNEL, PAGE_KERNEL_EXEC);
+    return __vmalloc(size, GFP_NOWAIT, PAGE_KERNEL_EXEC);
 }
 
 void
