@@ -30,6 +30,9 @@ CFLAGS += \
 	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
+LIBS = \
+	-lpthread
+
 .if defined(COVERAGE) && $(COVERAGE) == 1
 CFLAGS += -coverage
 .endif

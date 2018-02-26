@@ -26,6 +26,9 @@ CFLAGS += \
 	-g \
 	-std=gnu11 -Wno-declaration-after-statement \
 
+LIBS = \
+	-lpthread
+
 ifeq ($(COVERAGE), 1)
 	CFLAGS += -fprofile-arcs -ftest-coverage
 endif

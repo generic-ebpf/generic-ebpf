@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-#ifndef _EBPF_LINUX_USER_H_
-#define _EBPF_LINUX_USER_H_
+#pragma once
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -28,8 +27,9 @@
 #include <sys/types.h>
 #include <assert.h>
 #include <errno.h>
+#include <pthread.h>
 
 #include "elf.h"
 #include "endian.h"
 
-#endif /* _EBPF_LINUX_USER_H_ */
+typedef pthread_rwlock_t ebpf_rwlock_t;

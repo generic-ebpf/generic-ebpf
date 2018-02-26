@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2017 Yutaro Hayakawa
  *
  * This program is free software; you can redistribute it and/or
@@ -20,84 +20,120 @@ extern struct ebpf_map_ops array_map_ops;
 extern struct ebpf_map_ops percpu_array_map_ops;
 extern struct ebpf_map_ops tommyhashtbl_map_ops;
 
-const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] = {
-  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
-  [EBPF_MAP_TYPE_PERCPU_ARRAY] = &percpu_array_map_ops,
-  [EBPF_MAP_TYPE_TOMMYHASHTBL] = &tommyhashtbl_map_ops
-};
+const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] =
+    {[EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
+     [EBPF_MAP_TYPE_PERCPU_ARRAY] = &percpu_array_map_ops,
+     [EBPF_MAP_TYPE_TOMMYHASHTBL] = &tommyhashtbl_map_ops};
 
 void *
 ebpf_malloc(size_t size)
 {
-    return kmalloc(size, GFP_NOWAIT);
+	return kmalloc(size, GFP_NOWAIT);
 }
 
 void *
 ebpf_calloc(size_t number, size_t size)
 {
-    void *ret = kmalloc(number * size, GFP_NOWAIT);
-    if (ret == NULL) {
-        return NULL;
-    }
+	void *ret = kmalloc(number * size, GFP_NOWAIT);
+	if (ret == NULL) {
+		return NULL;
+	}
 
-    memset(ret, 0, number * size);
+	memset(ret, 0, number * size);
 
-    return ret;
+	return ret;
 }
 
 void *
 ebpf_exalloc(size_t size)
 {
-    return __vmalloc(size, GFP_NOWAIT, PAGE_KERNEL_EXEC);
+	return __vmalloc(size, GFP_NOWAIT, PAGE_KERNEL_EXEC);
 }
 
 void
 ebpf_exfree(void *mem, size_t size)
 {
-    vfree(mem);
+	vfree(mem);
 }
 
 void
 ebpf_free(void *mem)
 {
-    kfree(mem);
+	kfree(mem);
 }
 
 int
 ebpf_error(const char *fmt, ...)
 {
-    int ret;
-    va_list ap;
+	int ret;
+	va_list ap;
 
-    va_start(ap, fmt);
-    ret = vprintk(fmt, ap);
-    va_end(ap);
+	va_start(ap, fmt);
+	ret = vprintk(fmt, ap);
+	va_end(ap);
 
-    return ret;
+	return ret;
 }
 
 void
 ebpf_assert(bool expr)
 {
-    BUG_ON(!(expr));
+	BUG_ON(!(expr));
 }
 
 uint16_t
-ebpf_ncpus(void) {
-    return nr_cpu_ids;
+ebpf_ncpus(void)
+{
+	return nr_cpu_ids;
+}
+
+void
+ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
+{
+	init_rwsem(rw);
+}
+
+void
+ebpf_rw_rlock(ebpf_rwlock_t *rw)
+{
+	down_read(rw);
+}
+
+void
+ebpf_rw_runlock(ebpf_rwlock_t *rw)
+{
+	up_read(rw);
+}
+
+void
+ebpf_rw_wlock(ebpf_rwlock_t *rw)
+{
+	down_write(rw);
+}
+
+void
+ebpf_rw_wunlock(ebpf_rwlock_t *rw)
+{
+	up_write(rw);
+}
+
+void
+ebpf_rw_destroy(ebpf_rwlock_t *rw)
+{
+	return;
 }
 
 static int
 ebpf_init(void)
 {
-    printk("ebpf loaded\n");
-    return 0;
+	printk("ebpf loaded\n");
+	return 0;
 }
 
 static void
 ebpf_fini(void)
 {
-    printk("ebpf unloaded\n");
+	printk("ebpf unloaded\n");
 }
 
 EXPORT_SYMBOL(ebpf_create);
@@ -116,6 +152,12 @@ EXPORT_SYMBOL(ebpf_exfree);
 EXPORT_SYMBOL(ebpf_error);
 EXPORT_SYMBOL(ebpf_assert);
 EXPORT_SYMBOL(ebpf_ncpus);
+EXPORT_SYMBOL(ebpf_rw_init);
+EXPORT_SYMBOL(ebpf_rw_rlock);
+EXPORT_SYMBOL(ebpf_rw_runlock);
+EXPORT_SYMBOL(ebpf_rw_wlock);
+EXPORT_SYMBOL(ebpf_rw_wunlock);
+EXPORT_SYMBOL(ebpf_rw_destroy);
 EXPORT_SYMBOL(ebpf_prog_init);
 EXPORT_SYMBOL(ebpf_prog_deinit_default);
 EXPORT_SYMBOL(ebpf_prog_deinit);

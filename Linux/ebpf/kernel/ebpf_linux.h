@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2017 Yutaro Hayakawa
  *
  * This program is free software; you can redistribute it and/or
@@ -16,6 +16,7 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/cpumask.h>
+#include <linux/rwsem.h>
 #include <asm/byteorder.h>
 
 #define UINT64_MAX U64_MAX
@@ -32,3 +33,5 @@
 #define htobe64(x) cpu_to_be64(x)
 
 #define ENOTSUP EOPNOTSUPP
+
+typedef struct rw_semaphore ebpf_rwlock_t;
