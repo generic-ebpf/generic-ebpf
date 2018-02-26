@@ -5,7 +5,7 @@ BraceWrapping: {
 }
 ColumnLimit: 80
 IndentCaseLabels: false
-IndentWidth: 4
+IndentWidth: 8
 MaxEmptyLinesToKeep: 1
 PointerAlignment: Right
 IncludeCategories:
@@ -20,3 +20,4 @@ SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
 SpacesInSquareBrackets: false
 TabWidth: 8
+UseTab: Always

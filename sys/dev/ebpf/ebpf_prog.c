@@ -19,40 +19,40 @@
 
 int
 ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
-               struct ebpf_inst *prog, uint32_t prog_len)
+	       struct ebpf_inst *prog, uint32_t prog_len)
 {
-    if (!prog_obj || type >= __EBPF_PROG_TYPE_MAX || !prog || !prog_len) {
-        return EINVAL;
-    }
+	if (!prog_obj || type >= __EBPF_PROG_TYPE_MAX || !prog || !prog_len) {
+		return EINVAL;
+	}
 
-    struct ebpf_inst *insts = ebpf_malloc(prog_len);
-    if (!insts) {
-        return ENOMEM;
-    }
-    memcpy(insts, prog, prog_len);
+	struct ebpf_inst *insts = ebpf_malloc(prog_len);
+	if (!insts) {
+		return ENOMEM;
+	}
+	memcpy(insts, prog, prog_len);
 
-    prog_obj->type = type;
-    prog_obj->prog_len = prog_len;
-    prog_obj->prog = insts;
-    prog_obj->deinit = ebpf_prog_deinit_default;
+	prog_obj->type = type;
+	prog_obj->prog_len = prog_len;
+	prog_obj->prog = insts;
+	prog_obj->deinit = ebpf_prog_deinit_default;
 
-    return 0;
+	return 0;
 }
 
 void
 ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg)
 {
-    ebpf_free(prog_obj->prog);
+	ebpf_free(prog_obj->prog);
 }
 
 void
 ebpf_prog_deinit(struct ebpf_prog *prog_obj, void *arg)
 {
-    if (!prog_obj) {
-        return;
-    }
+	if (!prog_obj) {
+		return;
+	}
 
-    if (prog_obj->deinit) {
-        prog_obj->deinit(prog_obj, arg);
-    }
+	if (prog_obj->deinit) {
+		prog_obj->deinit(prog_obj, arg);
+	}
 }

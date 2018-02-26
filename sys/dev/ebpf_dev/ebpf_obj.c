@@ -21,68 +21,69 @@
 void *
 ebpf_obj_container_of(struct ebpf_obj *obj)
 {
-    if (!obj) {
-        return NULL;
-    }
+	if (!obj) {
+		return NULL;
+	}
 
-    switch (obj->type) {
-    case EBPF_OBJ_TYPE_PROG:
-        return (uint8_t *)obj - ebpf_offsetof(struct ebpf_obj_prog, obj);
-    case EBPF_OBJ_TYPE_MAP:
-        return (uint8_t *)obj - ebpf_offsetof(struct ebpf_obj_map, obj);
-    default:
-        return NULL;
-    }
+	switch (obj->type) {
+	case EBPF_OBJ_TYPE_PROG:
+		return (uint8_t *)obj -
+		       ebpf_offsetof(struct ebpf_obj_prog, obj);
+	case EBPF_OBJ_TYPE_MAP:
+		return (uint8_t *)obj - ebpf_offsetof(struct ebpf_obj_map, obj);
+	default:
+		return NULL;
+	}
 }
 
 void *
 ebpf_objfile_get_container(ebpf_file_t *fp)
 {
-    if (!fp) {
-        return NULL;
-    }
+	if (!fp) {
+		return NULL;
+	}
 
-    if (!is_ebpf_objfile(fp)) {
-        return NULL;
-    }
+	if (!is_ebpf_objfile(fp)) {
+		return NULL;
+	}
 
-    struct ebpf_obj *obj = EBPF_OBJ(fp);
-    if (!obj) {
-        return NULL;
-    }
+	struct ebpf_obj *obj = EBPF_OBJ(fp);
+	if (!obj) {
+		return NULL;
+	}
 
-    return ebpf_obj_container_of(obj);
+	return ebpf_obj_container_of(obj);
 }
 
 void
 ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread_t *td)
 {
-    if (!obj) {
-        return;
-    }
+	if (!obj) {
+		return;
+	}
 
-    if (obj->type == EBPF_OBJ_TYPE_PROG) {
-        struct ebpf_obj_prog *prog;
-        prog = (struct ebpf_obj_prog *)ebpf_obj_container_of(obj);
-        if (!prog) {
-            return;
-        }
+	if (obj->type == EBPF_OBJ_TYPE_PROG) {
+		struct ebpf_obj_prog *prog;
+		prog = (struct ebpf_obj_prog *)ebpf_obj_container_of(obj);
+		if (!prog) {
+			return;
+		}
 
-        for (int i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
-            if (prog->attached_maps[i]) {
-                ebpf_fdrop(prog->attached_maps[i]->obj.f, td);
-            }
-        }
+		for (int i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
+			if (prog->attached_maps[i]) {
+				ebpf_fdrop(prog->attached_maps[i]->obj.f, td);
+			}
+		}
 
-        ebpf_prog_deinit_default((struct ebpf_prog *)prog, NULL);
-        ebpf_free(prog);
-    } else if (obj->type == EBPF_OBJ_TYPE_MAP) {
-        struct ebpf_map *map;
-        map = (struct ebpf_map *)ebpf_obj_container_of(obj);
-        if (!map) {
-            return;
-        }
-        ebpf_map_deinit_default(map, NULL);
-        ebpf_free(map);
-    }
+		ebpf_prog_deinit_default((struct ebpf_prog *)prog, NULL);
+		ebpf_free(prog);
+	} else if (obj->type == EBPF_OBJ_TYPE_MAP) {
+		struct ebpf_map *map;
+		map = (struct ebpf_map *)ebpf_obj_container_of(obj);
+		if (!map) {
+			return;
+		}
+		ebpf_map_deinit_default(map, NULL);
+		ebpf_free(map);
+	}
 }

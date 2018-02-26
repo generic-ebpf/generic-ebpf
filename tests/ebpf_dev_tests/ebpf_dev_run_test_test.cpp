@@ -10,6 +10,7 @@ extern "C" {
 #include <sys/ebpf.h>
 #include <sys/ebpf_inst.h>
 #include <sys/ebpf_dev.h>
+#include <sys/ebpf_uapi.h>
 #include "util.h"
 }
 
@@ -42,7 +43,7 @@ TEST_F(EbpfDevRunTestTest, LoadCtxToR0AndReturn)
                                 {EBPF_OP_EXIT, 0, 0, 0, 0}};
 
     prog_fd =
-        ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts) / 8);
+        ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts));
     ASSERT_TRUE(prog_fd > 0);
 
     uint64_t ctx = 100, result;
@@ -76,7 +77,7 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
         {EBPF_OP_EXIT, 0, 0, 0, 0}};
 
     int prog_fd =
-        ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts) / 8);
+        ebpf_load_prog(ebpf_fd, EBPF_PROG_TYPE_TEST, insts, sizeof(insts));
     ASSERT_TRUE(prog_fd > 0);
 
     uint32_t k = 0, v = 100;

@@ -39,8 +39,7 @@
 #endif
 
 /*
- * Prototypes of platform dependent functions for both
- * user space platforms and kernel space platforms.
+ * Prototypes of platform dependent functions
  */
 extern void *ebpf_malloc(size_t size);
 extern void *ebpf_calloc(size_t number, size_t size);

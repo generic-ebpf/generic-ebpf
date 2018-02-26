@@ -76,6 +76,7 @@ ebpf_assert(bool expr)
 }
 
 uint16_t
-ebpf_ncpus(void) {
+ebpf_ncpus(void)
+{
     return sysconf(_SC_NPROCESSORS_ONLN);
 }

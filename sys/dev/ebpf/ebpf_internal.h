@@ -27,18 +27,18 @@
 
 struct ebpf_inst;
 typedef uint64_t (*ext_func)(uint64_t arg0, uint64_t arg1, uint64_t arg2,
-                             uint64_t arg3, uint64_t arg4);
+			     uint64_t arg3, uint64_t arg4);
 
 struct ebpf_vm {
-    struct ebpf_inst *insts;
-    uint16_t num_insts;
-    ebpf_jit_fn jitted;
-    size_t jitted_size;
-    ext_func *ext_funcs;
-    const char **ext_func_names;
+	struct ebpf_inst *insts;
+	uint16_t num_insts;
+	ebpf_jit_fn jitted;
+	size_t jitted_size;
+	ext_func *ext_funcs;
+	const char **ext_func_names;
 };
 
 unsigned int ebpf_lookup_registered_function(struct ebpf_vm *vm,
-                                             const char *name);
+					     const char *name);
 bool ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
-                   uint32_t num_insts);
+		   uint32_t num_insts);

@@ -26,7 +26,7 @@ ebpf_init(void)
 
 static void
 ebpf_done(int ebpf_fd) {
-  close(ebpf_fd);
+    close(ebpf_fd);
 }
 
 static int
