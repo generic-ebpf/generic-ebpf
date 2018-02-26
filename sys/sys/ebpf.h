@@ -1,16 +1,26 @@
 #pragma once
 
-enum ebpf_prog_types {
-    EBPF_PROG_TYPE_TEST = 0,
-    __EBPF_PROG_TYPE_MAX
-};
-
-enum ebpf_map_types {
-    EBPF_MAP_TYPE_ARRAY = 0,
-    EBPF_MAP_TYPE_PERCPU_ARRAY,
-    EBPF_MAP_TYPE_TOMMYHASHTBL,
-    __EBPF_MAP_TYPE_MAX
-};
+#if defined(__FreeBSD__)
+  #if defined(_KERNEL)
+    #include "ebpf_freebsd_types.h"
+  #else
+    #include "ebpf_freebsd_user_types.h"
+  #endif
+#elif defined(linux)
+  #if defined(_KERNEL)
+    #include "ebpf_linux_types.h"
+  #else
+    #include "ebpf_linux_user_types.h"
+  #endif
+#elif defined(__Apple__)
+  #if defined(_KERNEL)
+    #error Unsupported platform
+  #else
+    #include "ebpf_darwin_types.h"
+  #endif
+#else
+  #error Unsupported platform
+#endif
 
 #define EBPF_PSEUDO_MAP_DESC 1
 #define EBPF_PROG_MAX_ATTACHED_MAPS 64

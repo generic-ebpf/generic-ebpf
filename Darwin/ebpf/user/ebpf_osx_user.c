@@ -17,6 +17,18 @@
 #include "ebpf_osx_user.h"
 #include <sys/ebpf.h>
 
+/*
+ * Define what kind of maps this platform can use.
+ * Need to sync with enum ebpf_map_types in <platform>_types.h
+ */
+extern struct ebpf_map_ops array_map_ops;
+extern struct ebpf_map_ops tommyhashtbl_map_ops;
+
+const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] = {
+  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
+  [EBPF_MAP_TYPE_TOMMYHASHTBL] = &tommyhashtbl_map_ops
+};
+
 void *
 ebpf_malloc(size_t size)
 {

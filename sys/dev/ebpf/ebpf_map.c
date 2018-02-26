@@ -16,16 +16,7 @@
 
 #include "ebpf_map.h"
 
-extern struct ebpf_map_ops array_map_ops;
-extern struct ebpf_map_ops percpu_array_map_ops;
-extern struct ebpf_map_ops tommyhashtbl_map_ops;
-
-const struct ebpf_map_ops *ebpf_map_ops[] = {[EBPF_MAP_TYPE_ARRAY] =
-						 &array_map_ops,
-					     [EBPF_MAP_TYPE_PERCPU_ARRAY] =
-						 &percpu_array_map_ops,
-					     [EBPF_MAP_TYPE_TOMMYHASHTBL] =
-						 &tommyhashtbl_map_ops};
+extern const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX];
 
 int
 ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size,

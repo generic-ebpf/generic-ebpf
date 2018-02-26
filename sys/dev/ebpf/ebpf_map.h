@@ -19,8 +19,6 @@
 #include "ebpf_platform.h"
 #include <sys/ebpf.h>
 
-extern const struct ebpf_map_ops *ebpf_map_ops[];
-
 struct ebpf_map;
 
 typedef int ebpf_map_init_t(struct ebpf_map *self, uint16_t key_size,
