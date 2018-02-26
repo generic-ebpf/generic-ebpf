@@ -17,6 +17,7 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf.h>
 
+MALLOC_DECLARE(M_EBPFBUF);
 MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");
 
 /*
