@@ -87,6 +87,7 @@ array_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
 				     flags);
 }
 
+/*
 static int
 array_map_init_percpu(struct ebpf_map *self, uint16_t key_size,
 		      uint16_t value_size, uint16_t max_entries, uint32_t flags)
@@ -94,6 +95,7 @@ array_map_init_percpu(struct ebpf_map *self, uint16_t key_size,
 	return array_map_init_common(self, ebpf_ncpus(), key_size, value_size,
 				     max_entries, flags);
 }
+*/
 
 static int
 array_map_update_elem_common(struct ebpf_map *self, uint16_t idx, void *key,
@@ -135,6 +137,7 @@ array_map_update_elem(struct ebpf_map *self, void *key, void *value,
 	return array_map_update_elem_common(self, 0, key, value, flags);
 }
 
+/*
 static int
 array_map_update_elem_percpu(struct ebpf_map *self, void *key, void *value,
 			     uint64_t flags)
@@ -142,6 +145,7 @@ array_map_update_elem_percpu(struct ebpf_map *self, void *key, void *value,
 	return array_map_update_elem_common(self, ebpf_curcpu(), key, value,
 					    flags);
 }
+*/
 
 static void *
 array_map_lookup_elem_common(struct ebpf_map *self, uint16_t idx, void *key,
@@ -168,11 +172,13 @@ array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 	return array_map_lookup_elem_common(self, 0, key, flags);
 }
 
+/*
 static void *
 array_map_lookup_elem_percpu(struct ebpf_map *self, void *key, uint64_t flags)
 {
 	return array_map_lookup_elem_common(self, ebpf_curcpu(), key, flags);
 }
+*/
 
 static int
 array_map_delete_elem_common(struct ebpf_map *self, uint16_t idx, void *key)
@@ -206,11 +212,13 @@ array_map_delete_elem(struct ebpf_map *self, void *key)
 	return array_map_delete_elem_common(self, 0, key);
 }
 
+/*
 static int
 array_map_delete_elem_percpu(struct ebpf_map *self, void *key)
 {
 	return array_map_delete_elem_common(self, ebpf_curcpu(), key);
 }
+*/
 
 static int
 array_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
@@ -269,11 +277,13 @@ array_map_deinit(struct ebpf_map *self, void *arg)
 	array_map_deinit_common(self, 1);
 }
 
+/*
 static void
 array_map_deinit_percpu(struct ebpf_map *self, void *arg)
 {
 	array_map_deinit_common(self, ebpf_ncpus());
 }
+*/
 
 const struct ebpf_map_ops array_map_ops = {.init = array_map_init,
 					   .update_elem = array_map_update_elem,
@@ -283,6 +293,7 @@ const struct ebpf_map_ops array_map_ops = {.init = array_map_init,
 					       array_map_get_next_key,
 					   .deinit = array_map_deinit};
 
+/*
 const struct ebpf_map_ops percpu_array_map_ops = {
     .init = array_map_init_percpu,
     .update_elem = array_map_update_elem_percpu,
@@ -290,3 +301,4 @@ const struct ebpf_map_ops percpu_array_map_ops = {
     .delete_elem = array_map_delete_elem_percpu,
     .get_next_key = NULL,
     .deinit = array_map_deinit_percpu};
+*/
