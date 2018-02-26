@@ -24,7 +24,7 @@ prog_tests = \
 	ebpf_dev_run_test_test.o
 
 all_tests: $(map_tests) $(prog_tests)
-	$(CXX) $(CXXFLAGS) -o all_tests $(deps) -lpthread
+	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(prog_tests) $(deps) -lpthread
 
 do_test:
 	- ./all_tests

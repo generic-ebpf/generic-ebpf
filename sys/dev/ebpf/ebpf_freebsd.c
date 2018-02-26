@@ -80,13 +80,49 @@ ebpf_assert(bool expr)
 uint16_t
 ebpf_ncpus(void)
 {
-  return mp_maxid + 1;
+    return mp_maxid + 1;
 }
 
 uint16_t
 ebpf_curcpu(void)
 {
-  return curcpu;
+    return curcpu;
+}
+
+void
+ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
+{
+    rw_init(rw, name);
+}
+
+void
+ebpf_rw_rlock(ebpf_rwlock_t *rw)
+{
+    rw_rlock(rw);
+}
+
+void
+ebpf_rw_runlock(ebpf_rwlock_t *rw)
+{
+    rw_runlock(rw);
+}
+
+void
+ebpf_rw_wlock(ebpf_rwlock_t *rw)
+{
+    rw_wlock(rw);
+}
+
+void
+ebpf_rw_wunlock(ebpf_rwlock_t *rw)
+{
+    rw_wunlock(rw);
+}
+
+void
+ebpf_rw_destroy(ebpf_rwlock_t *rw)
+{
+    rw_destroy(rw);
 }
 
 /*

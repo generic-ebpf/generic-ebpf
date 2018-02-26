@@ -90,5 +90,47 @@ ebpf_ncpus(void)
 uint16_t
 ebpf_curcpu(void)
 {
-    return 0; // it makes no sense to have this in userspace
+    return 0; // FIXME: Probably it makes no sense to do this in user space.
+}
+
+void
+ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
+{
+    int error = pthread_rwlock_init(rw, NULL);
+    assert(!error);
+}
+
+void
+ebpf_rw_rlock(ebpf_rwlock_t *rw)
+{
+    int error = pthread_rwlock_rdlock(rw);
+    assert(!error);
+}
+
+void
+ebpf_rw_runlock(ebpf_rwlock_t *rw)
+{
+    int error = pthread_rwlock_unlock(rw);
+    assert(!error);
+}
+
+void
+ebpf_rw_wlock(ebpf_rwlock_t *rw)
+{
+    int error = pthread_rwlock_wrlock(rw);
+    assert(!error);
+}
+
+void
+ebpf_rw_wunlock(ebpf_rwlock_t *rw)
+{
+    int error = pthread_rwlock_wrlock(rw);
+    assert(!error);
+}
+
+void
+ebpf_rw_destroy(ebpf_rwlock_t *rw)
+{
+    int error = pthread_rwlock_destroy(rw);
+    assert(!error);
 }

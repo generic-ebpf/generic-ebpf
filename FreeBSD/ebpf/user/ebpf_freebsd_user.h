@@ -30,3 +30,6 @@
 #include <assert.h>
 #include <errno.h>
 #include <unistd.h>
+#include <pthread.h>
+
+typedef pthread_rwlock_t ebpf_rwlock_t;

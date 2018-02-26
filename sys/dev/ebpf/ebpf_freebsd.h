@@ -33,6 +33,8 @@
 #include <sys/capsicum.h>
 #include <sys/smp.h>
 #include <sys/stddef.h>
+#include <sys/lock.h>
+#include <sys/rwlock.h>
 #include <machine/stdarg.h>
 
-MALLOC_DECLARE(M_EBPFBUF);
+typedef struct rwlock ebpf_rwlock_t;
