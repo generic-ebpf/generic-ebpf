@@ -30,7 +30,7 @@ tests:
 	make -C tests
 
 clean_ebpf_user:
-	rm -f libebpf.a
+	rm -f libebpf.so
 	make -C $(platform)/ebpf/user clean
 
 clean_ebpf_kernel:
