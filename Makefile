@@ -15,7 +15,7 @@ Darwin_clean: clean_ebpf_user clean_tests
 
 ebpf_user:
 	make -C $(platform)/ebpf/user
-	cp $(platform)/ebpf/user/libebpf.a .
+	cp $(platform)/ebpf/user/libebpf.so .
 
 ebpf_kernel:
 	make -C $(platform)/ebpf/kernel

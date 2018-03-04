@@ -14,20 +14,9 @@
  * limitations under the License.
  */
 
-#include "ebpf_freebsd_user.h"
+#include <dev/ebpf/ebpf_platform.h>
+#include <dev/ebpf/ebpf_map.h>
 #include <sys/ebpf.h>
-
-/*
- * Define what kind of maps this platform can use.
- * Need to sync with enum ebpf_map_types in <platform>_types.h
- */
-extern struct ebpf_map_ops array_map_ops;
-extern struct ebpf_map_ops tommyhashtbl_map_ops;
-
-const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] = {
-  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
-  [EBPF_MAP_TYPE_TOMMYHASHTBL] = &tommyhashtbl_map_ops
-};
 
 void *
 ebpf_malloc(size_t size)
@@ -145,4 +134,24 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 {
     int error = pthread_rwlock_destroy(rw);
     assert(!error);
+}
+
+void
+ebpf_init_map_types(void)
+{
+  for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+    ebpf_register_map_type(i, &bad_map_ops);
+  }
+
+  ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_TOMMYHASHTBL, &tommyhashtbl_map_ops);
+}
+
+__attribute__((constructor))
+void
+ebpf_init(void)
+{
+  ebpf_init_map_types();
 }

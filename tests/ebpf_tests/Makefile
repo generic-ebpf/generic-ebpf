@@ -1,8 +1,10 @@
+libebpf_path = ../../
+
 test: test.c
-	$(CC) -o $@ -O0 -I ../../sys test.c ../../libebpf.a -lm -lpthread -coverage
+	$(CC) -o $@ -O0 -L $(libebpf_path) -I ../../sys test.c -lm -lpthread -lebpf -coverage
 
 do_test:
-	PYTHONPATH=../../tools nosetests
+	LD_LIBRARY_PATH=$(libebpf_path) PYTHONPATH=../../tools nosetests
 
 clean:
 	rm -f test

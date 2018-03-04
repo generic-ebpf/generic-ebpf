@@ -18,20 +18,6 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
 
-/*
- * Define what kind of maps this platform can use.
- * Need to sync with enum ebpf_map_types in <platform>_types.h
- */
-extern struct ebpf_map_ops array_map_ops;
-extern struct ebpf_map_ops percpu_array_map_ops;
-extern struct ebpf_map_ops tommyhashtbl_map_ops;
-
-const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] = {
-  [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
-  [EBPF_MAP_TYPE_PERCPU_ARRAY] = &percpu_array_map_ops,
-  [EBPF_MAP_TYPE_TOMMYHASHTBL] = &tommyhashtbl_map_ops
-};
-
 MALLOC_DECLARE(M_EBPFBUF);
 MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");
 
@@ -146,6 +132,7 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
  */
 void ebpf_fini(void);
 int ebpf_init(void);
+void ebpf_init_map_types(void);
 
 void
 ebpf_fini(void)
@@ -153,9 +140,22 @@ ebpf_fini(void)
 	printf("ebpf unloaded\n");
 }
 
+void
+ebpf_init_map_types(void) {
+  for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+    ebpf_register_map_type(i, &bad_map_ops);
+  }
+
+  ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_TOMMYHASHTBL, &tommyhashtbl_map_ops);
+}
+
 int
 ebpf_init(void)
 {
+  ebpf_init_map_types();
 	printf("ebpf loaded\n");
 	return 0;
 }

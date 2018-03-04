@@ -3,25 +3,27 @@ TOP_DIR:=../../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf
 TEST_DIR:=../../../tests/ebpf_tests
 
-ebpf-objs += $(SRC_DIR)/ebpf_vm.o
-ebpf-objs += $(SRC_DIR)/ebpf_loader.o
-ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
-ebpf-objs += $(SRC_DIR)/ebpf_prog.o
-ebpf-objs += $(SRC_DIR)/ebpf_map.o
-ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
-ebpf-objs += ./ebpf_freebsd_user.o
-
-ebpf-objs += $(SRC_DIR)/tommyds/tommy.o
-
-ebpf-objs += $(SRC_DIR)/ebpf_map_tommyhashtbl.o
+ebpf-src += ./ebpf_freebsd_user.c
+ebpf-src += $(SRC_DIR)/ebpf_vm.c
+ebpf-src += $(SRC_DIR)/ebpf_loader.c
+ebpf-src += $(SRC_DIR)/ebpf_verifer.c
+ebpf-src += $(SRC_DIR)/ebpf_prog.c
+ebpf-src += $(SRC_DIR)/tommyds/tommy.c
+ebpf-src += $(SRC_DIR)/ebpf_map.c
+ebpf-src += $(SRC_DIR)/ebpf_map_bad.c
+ebpf-src += $(SRC_DIR)/ebpf_map_array.c
+ebpf-src += $(SRC_DIR)/ebpf_map_tommyhashtbl.c
 
 TARGET != uname -m
 .if $(TARGET) == "amd64"
-ebpf-objs += $(TOP_DIR)/amd64/amd64/ebpf_jit_x86_64.o
+ebpf-src += $(TOP_DIR)/amd64/amd64/ebpf_jit_x86_64.c
 .endif
+
+ebpf-objs = $(ebpf-src:%.c=%.o)
 
 CFLAGS += \
 	-Ofast \
+	-fPIC \
 	-I $(SRC_DIR) \
 	-I $(TOP_DIR) \
 	-I $(.CURDIR) \
@@ -37,10 +39,10 @@ LIBS = \
 CFLAGS += -coverage
 .endif
 
-all: libebpf.a
+all: libebpf.so
 
-libebpf.a: $(ebpf-objs)
-	ar rc $@ $(ebpf-objs)
+libebpf.so:
+	$(CC) $(CFLAGS) -shared -o $@ $(ebpf-src)
 
 clean:
-	rm -f libebpf.a $(ebpf-objs)
+	rm -f libebpf.so $(ebpf-objs)

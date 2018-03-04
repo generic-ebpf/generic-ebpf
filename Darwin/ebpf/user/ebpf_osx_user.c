@@ -14,7 +14,8 @@
  * limitations under the License.
  */
 
-#include "ebpf_osx_user.h"
+#include <dev/ebpf/ebpf_platform.h>
+#include <dev/ebpf/ebpf_map.h>
 #include <sys/ebpf.h>
 
 /*

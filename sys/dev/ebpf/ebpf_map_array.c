@@ -285,7 +285,7 @@ array_map_deinit_percpu(struct ebpf_map *self, void *arg)
 }
 */
 
-const struct ebpf_map_ops array_map_ops = {.init = array_map_init,
+struct ebpf_map_ops array_map_ops = {.init = array_map_init,
 					   .update_elem = array_map_update_elem,
 					   .lookup_elem = array_map_lookup_elem,
 					   .delete_elem = array_map_delete_elem,

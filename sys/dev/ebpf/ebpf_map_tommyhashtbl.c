@@ -220,7 +220,7 @@ tommyhashtbl_map_deinit(struct ebpf_map *self, void *arg)
 	ebpf_free(map);
 }
 
-const struct ebpf_map_ops tommyhashtbl_map_ops = {
+struct ebpf_map_ops tommyhashtbl_map_ops = {
     .init = tommyhashtbl_map_init,
     .update_elem = tommyhashtbl_map_update_elem,
     .lookup_elem = tommyhashtbl_map_lookup_elem,

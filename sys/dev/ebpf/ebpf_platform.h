@@ -57,3 +57,11 @@ extern void ebpf_rw_runlock(ebpf_rwlock_t *rw);
 extern void ebpf_rw_wlock(ebpf_rwlock_t *rw);
 extern void ebpf_rw_wunlock(ebpf_rwlock_t *rw);
 extern void ebpf_rw_destroy(ebpf_rwlock_t *rw);
+
+/*
+ * Prototypes of basic map ops
+ */
+extern struct ebpf_map_ops bad_map_ops;
+extern struct ebpf_map_ops array_map_ops;
+// extern struct ebpf_map_ops percpu_array_map_ops;
+extern struct ebpf_map_ops tommyhashtbl_map_ops;

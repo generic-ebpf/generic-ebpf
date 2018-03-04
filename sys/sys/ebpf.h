@@ -1,26 +1,34 @@
+/*
+ * Copyright 2017 Yutaro Hayakawa
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #pragma once
 
-#if defined(__FreeBSD__)
-  #if defined(_KERNEL)
-    #include "ebpf_freebsd_types.h"
-  #else
-    #include "ebpf_freebsd_user_types.h"
-  #endif
-#elif defined(linux)
-  #if defined(_KERNEL)
-    #include "ebpf_linux_types.h"
-  #else
-    #include "ebpf_linux_user_types.h"
-  #endif
-#elif defined(__Apple__)
-  #if defined(_KERNEL)
-    #error Unsupported platform
-  #else
-    #include "ebpf_darwin_types.h"
-  #endif
-#else
-  #error Unsupported platform
-#endif
+#define __EBPF_MAP_TYPE_MAX 256
+#define __EBPF_PROG_TYPE_MAX 256
+
+enum ebpf_basic_map_types {
+  EBPF_MAP_TYPE_BAD = 0,
+  EBPF_MAP_TYPE_ARRAY,
+  EBPF_MAP_TYPE_PERCPU_ARRAY,
+  EBPF_MAP_TYPE_TOMMYHASHTBL
+};
+
+enum ebpf_basic_prog_types {
+  EBPF_PROG_TYPE_TEST
+};
 
 #define EBPF_PSEUDO_MAP_DESC 1
 #define EBPF_PROG_MAX_ATTACHED_MAPS 64
