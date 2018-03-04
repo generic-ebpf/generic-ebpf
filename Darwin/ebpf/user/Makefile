@@ -34,10 +34,10 @@ ifeq ($(COVERAGE), 1)
 	CFLAGS += -coverage
 endif
 
-all: libebpf.so
+all: libebpf.dylib
 
-libebpf.so:
-	$(CC) $(CFLAGS) $(ebpf-src) -lpthread
+libebpf.dylib:
+	$(CC) $(CFLAGS) -shared -o $@ $(ebpf-src) -lpthread
 
 clean:
-	rm -f libebpf.so $(ebpf-objs)
+	rm -f libebpf.dylib $(ebpf-objs)

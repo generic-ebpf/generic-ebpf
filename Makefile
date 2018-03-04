@@ -7,15 +7,19 @@ clean: $(platform)_clean
 
 FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev tests
 Linux_all: ebpf_user ebpf_kernel ebpf_dev tests
-Darwin_all: ebpf_user tests
+Darwin_all: ebpf_user_darwin tests
 
 FreeBSD_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests
 Linux_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests
-Darwin_clean: clean_ebpf_user clean_tests
+Darwin_clean: clean_ebpf_user_darwin clean_tests
 
 ebpf_user:
 	make -C $(platform)/ebpf/user
 	cp $(platform)/ebpf/user/libebpf.so .
+
+ebpf_user_darwin:
+	make -C $(platform)/ebpf/user
+	cp $(platform)/ebpf/user/libebpf.dylib .
 
 ebpf_kernel:
 	make -C $(platform)/ebpf/kernel
@@ -31,6 +35,10 @@ tests:
 
 clean_ebpf_user:
 	rm -f libebpf.so
+	make -C $(platform)/ebpf/user clean
+
+clean_ebpf_user_darwin:
+	rm -f libebpf.dylib
 	make -C $(platform)/ebpf/user clean
 
 clean_ebpf_kernel:
