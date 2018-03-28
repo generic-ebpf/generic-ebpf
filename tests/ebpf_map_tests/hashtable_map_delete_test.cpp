@@ -20,7 +20,7 @@ class TommyHashtblMapDeleteTest : public ::testing::Test {
         uint32_t gkey = 50;
         uint32_t gval = 100;
 
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL,
+        error = ebpf_map_init(&map, EBPF_MAP_TYPE_HASHTABLE,
                               sizeof(uint32_t), sizeof(uint32_t), 100, 0);
         ASSERT_TRUE(!error);
 

@@ -26,10 +26,10 @@ map_tests = \
 	array_map_get_next_key_test.o \
 	array_map_lookup_test.o \
 	array_map_update_test.o \
-	tommyhashtbl_map_delete_test.o \
-	tommyhashtbl_map_get_next_key_test.o \
-	tommyhashtbl_map_lookup_test.o \
-	tommyhashtbl_map_update_test.o
+	hashtable_map_delete_test.o \
+	hashtable_map_get_next_key_test.o \
+	hashtable_map_lookup_test.o \
+	hashtable_map_update_test.o
 
 all_tests: $(map_tests)
 	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(deps) -lpthread -lebpf

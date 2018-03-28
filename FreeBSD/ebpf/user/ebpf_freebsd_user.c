@@ -146,7 +146,7 @@ ebpf_init_map_types(void)
   ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
   ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
   ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_TOMMYHASHTBL, &tommyhashtbl_map_ops);
+  ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
 }
 
 __attribute__((constructor))

@@ -18,7 +18,7 @@ class TommyHashtblMapLookupTest : public ::testing::Test {
         int error;
         uint32_t gkey = 50, gval = 100;
 
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_TOMMYHASHTBL,
+        error = ebpf_map_init(&map, EBPF_MAP_TYPE_HASHTABLE,
                               sizeof(uint32_t), sizeof(uint32_t), 100, 0);
         ASSERT_TRUE(!error);
 

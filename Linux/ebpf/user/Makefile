@@ -9,7 +9,7 @@ ebpf-src += $(SRC_DIR)/ebpf_prog.c
 ebpf-src += $(SRC_DIR)/ebpf_map_bad.c
 ebpf-src += $(SRC_DIR)/ebpf_map_array.c
 ebpf-src += $(SRC_DIR)/tommyds/tommy.c
-ebpf-src += $(SRC_DIR)/ebpf_map_tommyhashtbl.c
+ebpf-src += $(SRC_DIR)/ebpf_map_hashtable.c
 ebpf-src += ./ebpf_linux_user.c
 
 ifeq ($(shell arch), x86_64)

@@ -23,7 +23,7 @@ enum ebpf_basic_map_types {
   EBPF_MAP_TYPE_BAD = 0,
   EBPF_MAP_TYPE_ARRAY,
   EBPF_MAP_TYPE_PERCPU_ARRAY,
-  EBPF_MAP_TYPE_TOMMYHASHTBL
+  EBPF_MAP_TYPE_HASHTABLE
 };
 
 enum ebpf_basic_prog_types {

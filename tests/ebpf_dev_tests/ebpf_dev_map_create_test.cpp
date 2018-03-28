@@ -156,7 +156,7 @@ TEST_F(EbpfDevMapCreateTest, CorrectCreateTommyHashMap)
 
     union ebpf_req req;
     req.map_fdp = &fd;
-    req.map_type = EBPF_MAP_TYPE_TOMMYHASHTBL;
+    req.map_type = EBPF_MAP_TYPE_HASHTABLE;
     req.key_size = sizeof(uint32_t);
     req.value_size = sizeof(uint32_t);
     req.max_entries = 100;
