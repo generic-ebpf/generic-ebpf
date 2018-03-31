@@ -48,8 +48,8 @@ hashtable_map_cmp(const void *a, const void *b)
 }
 
 static int
-hashtable_map_init(struct ebpf_map *self, uint16_t key_size,
-		   uint16_t value_size, uint16_t max_entries, uint32_t flags)
+hashtable_map_init(struct ebpf_map *self, uint32_t key_size,
+		   uint32_t value_size, uint32_t max_entries, uint32_t flags)
 {
 	struct ebpf_map_hashtable *new =
 	    ebpf_calloc(sizeof(struct ebpf_map_hashtable), 1);

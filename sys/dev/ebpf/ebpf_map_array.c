@@ -41,8 +41,8 @@ array_map_alloc(struct ebpf_map_array **array_mapp, uint16_t max_entries)
 
 static int
 array_map_init_common(struct ebpf_map *self, uint16_t num_maps,
-		      uint16_t key_size, uint16_t value_size,
-		      uint16_t max_entries, uint32_t flags)
+		      uint32_t key_size, uint32_t value_size,
+		      uint32_t max_entries, uint32_t flags)
 {
 	int error;
 	struct ebpf_map_array *cur; // only used in error handling
@@ -80,8 +80,8 @@ err:
 }
 
 static int
-array_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
-	       uint16_t max_entries, uint32_t flags)
+array_map_init(struct ebpf_map *self, uint32_t key_size, uint32_t value_size,
+	       uint32_t max_entries, uint32_t flags)
 {
 	return array_map_init_common(self, 1, key_size, value_size, max_entries,
 				     flags);

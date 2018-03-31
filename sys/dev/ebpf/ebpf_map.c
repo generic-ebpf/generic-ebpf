@@ -27,8 +27,8 @@ ebpf_register_map_type(uint16_t id, struct ebpf_map_ops *ops)
 }
 
 int
-ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint16_t key_size,
-	      uint16_t value_size, uint32_t max_entries, uint32_t flags)
+ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
+	      uint32_t value_size, uint32_t max_entries, uint32_t flags)
 {
 	int error;
 
