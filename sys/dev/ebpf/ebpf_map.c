@@ -21,9 +21,9 @@ struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX];
 void
 ebpf_register_map_type(uint16_t id, struct ebpf_map_ops *ops)
 {
-  if (id < __EBPF_MAP_TYPE_MAX && ops) {
-    ebpf_map_ops[id] = ops;
-  }
+	if (id < __EBPF_MAP_TYPE_MAX && ops) {
+		ebpf_map_ops[id] = ops;
+	}
 }
 
 int

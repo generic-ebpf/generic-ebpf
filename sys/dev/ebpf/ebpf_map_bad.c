@@ -18,22 +18,22 @@
 
 static int
 bad_map_init(struct ebpf_map *self, uint16_t key_size, uint16_t value_size,
-         uint16_t max_entries, uint32_t flags)
+	     uint16_t max_entries, uint32_t flags)
 {
-  return EINVAL;
+	return EINVAL;
 }
 
 static int
 bad_map_update_elem(struct ebpf_map *self, void *key, void *value,
-    uint64_t flags)
+		    uint64_t flags)
 {
-  return EINVAL;
+	return EINVAL;
 }
 
 static void *
 bad_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 {
-  return NULL;
+	return NULL;
 }
 
 static int

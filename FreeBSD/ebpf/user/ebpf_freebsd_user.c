@@ -21,137 +21,136 @@
 void *
 ebpf_malloc(size_t size)
 {
-    return malloc(size);
+	return malloc(size);
 }
 
 void *
 ebpf_realloc(void *ptr, size_t size)
 {
-    return realloc(ptr, size);
+	return realloc(ptr, size);
 }
 
 void *
 ebpf_calloc(size_t number, size_t size)
 {
-    return calloc(number, size);
+	return calloc(number, size);
 }
 
 void *
 ebpf_exalloc(size_t size)
 {
-    void *ret = NULL;
+	void *ret = NULL;
 
-    ret = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC,
-               MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-    if (ret == MAP_FAILED) {
-        fprintf(stderr, "mmap in ebpf_exalloc failed\n");
-        return NULL;
-    }
+	ret = mmap(NULL, size, PROT_READ | PROT_WRITE | PROT_EXEC,
+		   MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (ret == MAP_FAILED) {
+		fprintf(stderr, "mmap in ebpf_exalloc failed\n");
+		return NULL;
+	}
 
-    return ret;
+	return ret;
 }
 
 void
 ebpf_exfree(void *mem, size_t size)
 {
-    munmap(mem, size);
+	munmap(mem, size);
 }
 
 void
 ebpf_free(void *mem)
 {
-    free(mem);
+	free(mem);
 }
 
 int
 ebpf_error(const char *fmt, ...)
 {
-    int ret;
-    va_list ap;
+	int ret;
+	va_list ap;
 
-    va_start(ap, fmt);
-    ret = vfprintf(stderr, fmt, ap);
-    va_end(ap);
+	va_start(ap, fmt);
+	ret = vfprintf(stderr, fmt, ap);
+	va_end(ap);
 
-    return ret;
+	return ret;
 }
 
 void
 ebpf_assert(bool expr)
 {
-    assert(expr);
+	assert(expr);
 }
 
 uint16_t
 ebpf_ncpus(void)
 {
-    return sysconf(_SC_NPROCESSORS_ONLN);
+	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
 uint16_t
 ebpf_curcpu(void)
 {
-    return 0; // FIXME: Probably it makes no sense to do this in user space.
+	return 0; // FIXME: Probably it makes no sense to do this in user space.
 }
 
 void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {
-    int error = pthread_rwlock_init(rw, NULL);
-    assert(!error);
+	int error = pthread_rwlock_init(rw, NULL);
+	assert(!error);
 }
 
 void
 ebpf_rw_rlock(ebpf_rwlock_t *rw)
 {
-    int error = pthread_rwlock_rdlock(rw);
-    assert(!error);
+	int error = pthread_rwlock_rdlock(rw);
+	assert(!error);
 }
 
 void
 ebpf_rw_runlock(ebpf_rwlock_t *rw)
 {
-    int error = pthread_rwlock_unlock(rw);
-    assert(!error);
+	int error = pthread_rwlock_unlock(rw);
+	assert(!error);
 }
 
 void
 ebpf_rw_wlock(ebpf_rwlock_t *rw)
 {
-    int error = pthread_rwlock_wrlock(rw);
-    assert(!error);
+	int error = pthread_rwlock_wrlock(rw);
+	assert(!error);
 }
 
 void
 ebpf_rw_wunlock(ebpf_rwlock_t *rw)
 {
-    int error = pthread_rwlock_wrlock(rw);
-    assert(!error);
+	int error = pthread_rwlock_wrlock(rw);
+	assert(!error);
 }
 
 void
 ebpf_rw_destroy(ebpf_rwlock_t *rw)
 {
-    int error = pthread_rwlock_destroy(rw);
-    assert(!error);
+	int error = pthread_rwlock_destroy(rw);
+	assert(!error);
 }
 
 void
 ebpf_init_map_types(void)
 {
-  for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-    ebpf_register_map_type(i, &bad_map_ops);
-  }
+	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+		ebpf_register_map_type(i, &bad_map_ops);
+	}
 
-  ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
 }
 
-__attribute__((constructor))
-void
+__attribute__((constructor)) void
 ebpf_init(void)
 {
-  ebpf_init_map_types();
+	ebpf_init_map_types();
 }

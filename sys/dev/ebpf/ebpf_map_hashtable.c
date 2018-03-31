@@ -49,7 +49,7 @@ hashtable_map_cmp(const void *a, const void *b)
 
 static int
 hashtable_map_init(struct ebpf_map *self, uint16_t key_size,
-		      uint16_t value_size, uint16_t max_entries, uint32_t flags)
+		   uint16_t value_size, uint16_t max_entries, uint32_t flags)
 {
 	struct ebpf_map_hashtable *new =
 	    ebpf_calloc(sizeof(struct ebpf_map_hashtable), 1);
@@ -86,7 +86,7 @@ hashtable_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 
 static int
 hashtable_map_update_elem(struct ebpf_map *self, void *key, void *value,
-			     uint64_t flags)
+			  uint64_t flags)
 {
 	struct ebpf_map_hashtable *map =
 	    (struct ebpf_map_hashtable *)self->data;
@@ -197,8 +197,7 @@ get_first_key:
 		cur = i % table->bucket_max;
 		if (table->bucket[cur]) {
 			struct ebpf_map_hashtable_elem *elem =
-			    (struct ebpf_map_hashtable_elem *)table
-				->bucket[cur]
+			    (struct ebpf_map_hashtable_elem *)table->bucket[cur]
 				->data;
 			memcpy(next_key, elem->key, self->key_size);
 			break;
