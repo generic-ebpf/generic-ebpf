@@ -294,7 +294,7 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 		goto err1;
 	}
 
-	v = ebpf_map_lookup_elem(&map->map, k, req->flags);
+	v = ebpf_map_lookup_elem_from_user(&map->map, k, req->flags);
 	if (!v) {
 		error = ENOENT;
 		goto err1;
@@ -352,7 +352,7 @@ ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
 		goto err2;
 	}
 
-	error = ebpf_map_update_elem(&map->map, k, v, req->flags);
+	error = ebpf_map_update_elem_from_user(&map->map, k, v, req->flags);
 	if (error) {
 		goto err2;
 	}
@@ -404,7 +404,7 @@ ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
 		goto err1;
 	}
 
-	error = ebpf_map_delete_elem(&map->map, k);
+	error = ebpf_map_delete_elem_from_user(&map->map, k);
 
 err1:
 	ebpf_free(k);
@@ -451,7 +451,7 @@ ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 		goto err1;
 	}
 
-	error = ebpf_map_get_next_key(&map->map, k, nk);
+	error = ebpf_map_get_next_key_from_user(&map->map, k, nk);
 	if (error) {
 		goto err2;
 	}
