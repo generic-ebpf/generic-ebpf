@@ -45,20 +45,23 @@ bad_map_delete_elem(struct ebpf_map *self, void *key)
 static int
 bad_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 {
-  return EINVAL;
+	return EINVAL;
 }
 
 static void
 bad_map_deinit(struct ebpf_map *self, void *arg)
 {
-  return;
+	return;
 }
 
-struct ebpf_map_ops bad_map_ops = {
-  .init = bad_map_init,
-  .update_elem = bad_map_update_elem,
-  .lookup_elem = bad_map_lookup_elem,
-  .delete_elem = bad_map_delete_elem,
-  .get_next_key = bad_map_get_next_key,
-  .deinit = bad_map_deinit
-};
+struct ebpf_map_ops bad_map_ops = {.init = bad_map_init,
+				   .update_elem = bad_map_update_elem,
+				   .lookup_elem = bad_map_lookup_elem,
+				   .delete_elem = bad_map_delete_elem,
+				   .get_next_key = bad_map_get_next_key,
+				   .update_elem_from_user = bad_map_update_elem,
+				   .lookup_elem_from_user = bad_map_lookup_elem,
+				   .delete_elem_from_user = bad_map_delete_elem,
+				   .get_next_key_from_user =
+				       bad_map_get_next_key,
+				   .deinit = bad_map_deinit};

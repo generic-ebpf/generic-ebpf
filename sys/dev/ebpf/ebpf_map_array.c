@@ -241,10 +241,14 @@ array_map_deinit(struct ebpf_map *self, void *arg)
 	array_map_deinit_common(self, 1);
 }
 
-struct ebpf_map_ops array_map_ops = {.init = array_map_init,
-					   .update_elem = array_map_update_elem,
-					   .lookup_elem = array_map_lookup_elem,
-					   .delete_elem = array_map_delete_elem,
-					   .get_next_key =
-					       array_map_get_next_key,
-					   .deinit = array_map_deinit};
+struct ebpf_map_ops array_map_ops = {
+    .init = array_map_init,
+    .update_elem = array_map_update_elem,
+    .lookup_elem = array_map_lookup_elem,
+    .delete_elem = array_map_delete_elem,
+    .get_next_key = array_map_get_next_key,
+    .update_elem_from_user = array_map_update_elem,
+    .lookup_elem_from_user = array_map_lookup_elem,
+    .delete_elem_from_user = array_map_delete_elem,
+    .get_next_key_from_user = array_map_get_next_key,
+    .deinit = array_map_deinit};
