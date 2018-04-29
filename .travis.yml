@@ -15,4 +15,4 @@ script:
   - make tests
   - make do_test
 after_success:
-  - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E ".*\.h" -e "tommyds"
+  - coveralls --gcov-options '\-lp' -r $PWD/sys/dev/ebpf -E ".*\.h" -e "tommyds/"
