@@ -62,4 +62,25 @@ TEST_F(ArrayMapUpdateTest, CorrectUpdateOverwrite)
 
     EXPECT_EQ(0, error);
 }
+
+TEST_F(ArrayMapUpdateTest, CreateMoreThenMaxEntries)
+{
+    int error;
+    uint32_t key, value = 100;
+
+    for (int i = 0; i < 100; i++) {
+      key = i;
+      error = ebpf_map_update_elem(&map, &key, &value, 0);
+      ASSERT_TRUE(!error);
+    }
+
+    key++;
+    error = ebpf_map_update_elem(&map, &key, &value, 0);
+
+    /*
+     * In array map, max_entries equals to max key, so
+     * returns EINVAL, not EBUSY
+     */
+    EXPECT_EQ(EINVAL, error);
+}
 }
