@@ -19,26 +19,82 @@
 #include "tommyds/tommyhashtbl.h"
 
 struct ebpf_map_hashtable {
-  ebpf_allocator_t allocator;
-	tommy_hashtable table;
+	ebpf_allocator_t allocator;
+	tommy_hashtable hashtable;
 };
 
+// element = node + key + value
 struct ebpf_map_hashtable_elem {
-	void *key;
-	void *value;
-	struct ebpf_map *map;
 	tommy_hashtable_node node;
+	uint32_t key_size;
+	uint8_t key[0];
 };
+
+#define hashtable_map_elem_get_value(elem) elem->key + elem->key_size
+
+static int
+hashtable_map_init_common(struct ebpf_map_hashtable *self, uint32_t key_size,
+			  uint32_t value_size, uint32_t max_entries,
+			  uint32_t flags)
+{
+	int error;
+
+	tommy_hashtable_init(&self->hashtable, max_entries);
+
+	uint64_t elem_size =
+	    sizeof(struct ebpf_map_hashtable_elem) + key_size + value_size;
+
+	ebpf_allocator_init(&self->allocator, elem_size, 8);
+
+	error = ebpf_allocator_prealloc(&self->allocator, max_entries);
+	if (error) {
+		goto err0;
+	}
+
+	return 0;
+
+err0:
+	ebpf_allocator_deinit(&self->allocator);
+	tommy_hashtable_done(&self->hashtable);
+	return error;
+}
+
+static int
+hashtable_map_init(struct ebpf_map *self, uint32_t key_size,
+		   uint32_t value_size, uint32_t max_entries, uint32_t flags)
+{
+	int error;
+
+	struct ebpf_map_hashtable *map =
+	    ebpf_malloc(sizeof(struct ebpf_map_hashtable));
+	if (!map) {
+		return ENOMEM;
+	}
+
+	error = hashtable_map_init_common(map, key_size, value_size,
+					  max_entries, flags);
+	if (error) {
+		ebpf_free(map);
+		return error;
+	}
+
+	self->data = map;
+
+	return 0;
+}
 
 static void
-hashtable_map_release_elem(void *obj)
+hashtable_map_deinit_common(struct ebpf_map_hashtable *self, void *arg)
 {
-	struct ebpf_map_hashtable_elem *elem =
-	    (struct ebpf_map_hashtable_elem *)obj;
+	ebpf_allocator_deinit(&self->allocator);
+	tommy_hashtable_done(&self->hashtable);
+	ebpf_free(self);
+}
 
-	ebpf_free(elem->key);
-	ebpf_free(elem->value);
-	ebpf_free(elem);
+static void
+hashtable_map_deinit(struct ebpf_map *self, void *arg)
+{
+	hashtable_map_deinit_common(self->data, arg);
 }
 
 static int
@@ -46,90 +102,93 @@ hashtable_map_cmp(const void *a, const void *b)
 {
 	const struct ebpf_map_hashtable_elem *elem =
 	    (const struct ebpf_map_hashtable_elem *)b;
-	return memcmp(a, elem->key, elem->map->key_size);
+	return memcmp(a, elem->key, elem->key_size);
 }
 
-static int
-hashtable_map_init(struct ebpf_map *self, uint32_t key_size,
-		   uint32_t value_size, uint32_t max_entries, uint32_t flags)
+static void *
+hashtable_map_lookup_elem_common(struct ebpf_map *self,
+				 struct ebpf_map_hashtable *hashtable,
+				 uint32_t *key, uint64_t flags)
 {
-	struct ebpf_map_hashtable *new =
-	    ebpf_calloc(sizeof(struct ebpf_map_hashtable), 1);
-	if (!new) {
-		return ENOMEM;
+	if (tommy_hashtable_count(&hashtable->hashtable) == 0) {
+		return NULL;
 	}
 
-	tommy_hashtable_init(&new->table, max_entries);
-	self->data = new;
+	struct ebpf_map_hashtable_elem *elem =
+	    tommy_hashtable_search(&hashtable->hashtable, hashtable_map_cmp,
+				   key, tommy_hash_u64(0, key, self->key_size));
+	if (!elem) {
+		return NULL;
+	}
 
-	return 0;
+	return hashtable_map_elem_get_value(elem);
 }
 
 static void *
 hashtable_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 {
-	struct ebpf_map_hashtable *map =
-	    (struct ebpf_map_hashtable *)self->data;
+	return hashtable_map_lookup_elem_common(self, self->data, key, flags);
+}
 
-	if (tommy_hashtable_count(&map->table) == 0) {
-		return NULL;
+static int
+hashtable_map_update_elem_common(struct ebpf_map *self,
+				 struct ebpf_map_hashtable *hashtable,
+				 void *key, void *value, uint64_t flags)
+{
+	if (tommy_hashtable_count(&hashtable->hashtable) == self->max_entries) {
+		return EBUSY;
 	}
 
 	struct ebpf_map_hashtable_elem *elem =
-	    tommy_hashtable_search(&map->table, hashtable_map_cmp, key,
-				   tommy_hash_u64(0, key, self->key_size));
-
-	if (!elem) {
-		return NULL;
+	    hashtable_map_lookup_elem(self, key, flags);
+	if (elem) {
+		memcpy(elem, value, self->value_size);
+		return 0;
 	}
 
-	return elem->value;
+	elem = ebpf_allocator_alloc(&hashtable->allocator);
+	if (!elem) {
+		return ENOMEM;
+	}
+
+	elem->key_size = self->key_size;
+	memcpy(elem->key, key, self->key_size);
+	memcpy(hashtable_map_elem_get_value(elem), value, self->value_size);
+
+	tommy_hashtable_insert(&hashtable->hashtable, &elem->node, elem,
+			       tommy_hash_u64(0, elem->key, self->key_size));
+
+	return 0;
 }
 
 static int
 hashtable_map_update_elem(struct ebpf_map *self, void *key, void *value,
 			  uint64_t flags)
 {
-	struct ebpf_map_hashtable *map =
-	    (struct ebpf_map_hashtable *)self->data;
+	return hashtable_map_update_elem_common(self, self->data, key, value,
+						flags);
+}
 
-	if (tommy_hashtable_count(&map->table) == self->max_entries) {
-		return EBUSY;
+static int
+hashtable_map_delete_elem_common(struct ebpf_map *self,
+				 struct ebpf_map_hashtable *hashtable,
+				 void *key)
+{
+	if (tommy_hashtable_count(&hashtable->hashtable) == 0) {
+		return ENOENT;
 	}
-
-	void *prev_value = hashtable_map_lookup_elem(self, key, flags);
-	if (prev_value) {
-		memcpy(prev_value, value, self->value_size);
-		return 0;
-	}
-
-	void *k = ebpf_calloc(self->key_size, 1);
-	if (!k) {
-		return ENOMEM;
-	}
-	memcpy(k, key, self->key_size);
-
-	void *v = ebpf_calloc(self->value_size, 1);
-	if (!v) {
-		ebpf_free(k);
-		return ENOMEM;
-	}
-	memcpy(v, value, self->value_size);
 
 	struct ebpf_map_hashtable_elem *elem =
-	    ebpf_calloc(sizeof(struct ebpf_map_hashtable_elem), 1);
-	if (!elem) {
-		ebpf_free(k);
-		ebpf_free(v);
-		return ENOMEM;
+	    tommy_hashtable_remove(&hashtable->hashtable, hashtable_map_cmp,
+				   key, tommy_hash_u64(0, key, self->key_size));
+	if (elem == 0) {
+		return ENOENT;
 	}
 
-	elem->key = k;
-	elem->value = v;
-	elem->map = self;
-
-	tommy_hashtable_insert(&map->table, &elem->node, elem,
-			       tommy_hash_u64(0, k, self->key_size));
+	ebpf_free(elem->key);
+	ebpf_allocator_free(&hashtable->allocator,
+			    hashtable_map_elem_get_value(elem));
+	ebpf_allocator_free(&hashtable->allocator, elem);
 
 	return 0;
 }
@@ -137,34 +196,16 @@ hashtable_map_update_elem(struct ebpf_map *self, void *key, void *value,
 static int
 hashtable_map_delete_elem(struct ebpf_map *self, void *key)
 {
-	struct ebpf_map_hashtable *map =
-	    (struct ebpf_map_hashtable *)self->data;
-
-	if (tommy_hashtable_count(&map->table) == 0) {
-		return ENOENT;
-	}
-
-	struct ebpf_map_hashtable_elem *elem =
-	    tommy_hashtable_remove(&map->table, hashtable_map_cmp, key,
-				   tommy_hash_u64(0, key, self->key_size));
-	if (elem == 0) {
-		return ENOENT;
-	}
-
-	ebpf_free(elem->key);
-	ebpf_free(elem->value);
-	ebpf_free(elem);
-
-	return 0;
+	return hashtable_map_delete_elem_common(self, self->data, key);
 }
 
 static int
-hashtable_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
+hashtable_map_get_next_key_common(struct ebpf_map *self,
+				  struct ebpf_map_hashtable *hashtable,
+				  void *key, void *next_key)
 {
 	int pos = 0, cur;
-	struct ebpf_map_hashtable *map =
-	    (struct ebpf_map_hashtable *)self->data;
-	tommy_hashtable *table = &map->table;
+	tommy_hashtable *table = &hashtable->hashtable;
 
 	if (tommy_hashtable_count(table) == 0 ||
 	    (tommy_hashtable_count(table) == 1 && key != NULL)) {
@@ -176,7 +217,7 @@ hashtable_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 	}
 
 	tommy_hashtable_node *node = tommy_hashtable_bucket(
-	    &map->table, tommy_hash_u64(0, key, self->key_size));
+	    &hashtable->hashtable, tommy_hash_u64(0, key, self->key_size));
 	if (node->next == 0) {
 		pos = node->key & table->bucket_mask;
 		if (pos == table->bucket_max - 1) {
@@ -209,16 +250,11 @@ get_first_key:
 	return 0;
 }
 
-static void
-hashtable_map_deinit(struct ebpf_map *self, void *arg)
+static int
+hashtable_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 {
-	struct ebpf_map_hashtable *map =
-	    (struct ebpf_map_hashtable *)self->data;
-
-	tommy_hashtable_foreach(&map->table, hashtable_map_release_elem);
-
-	tommy_hashtable_done(&map->table);
-	ebpf_free(map);
+	return hashtable_map_get_next_key_common(self, self->data, key,
+						 next_key);
 }
 
 struct ebpf_map_ops hashtable_map_ops = {

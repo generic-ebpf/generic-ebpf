@@ -29,7 +29,7 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 	tommy_allocator_done(&alloc->allocator);
 }
 
-void*
+void *
 ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 {
 	return tommy_allocator_alloc(&alloc->allocator);
