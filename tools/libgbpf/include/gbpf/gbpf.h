@@ -6,4 +6,4 @@
 
 // drivers headers
 #include "drivers/gbpf_null_driver.h"
-#include "drivers/gbpf_dev_driver.h"
+#include "drivers/ebpf_dev_driver.h"
