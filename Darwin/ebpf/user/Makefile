@@ -7,6 +7,7 @@ ebpf-src += $(SRC_DIR)/ebpf_loader.c
 ebpf-src += $(SRC_DIR)/ebpf_verifer.c
 ebpf-src += $(SRC_DIR)/ebpf_map.c
 ebpf-src += $(SRC_DIR)/ebpf_prog.c
+ebpf-src += $(SRC_DIR)/ebpf_allocator.c
 ebpf-src += $(SRC_DIR)/ebpf_map_bad.c
 ebpf-src += $(SRC_DIR)/ebpf_map_array.c
 ebpf-src += $(SRC_DIR)/tommyds/tommy.c

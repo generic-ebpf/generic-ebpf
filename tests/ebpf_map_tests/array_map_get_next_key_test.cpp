@@ -15,19 +15,8 @@ class ArrayMapGetNextKeyTest : public ::testing::Test {
     virtual void
     SetUp()
     {
-        int error;
-        uint32_t gkey1 = 50;
-        uint32_t gval1 = 100;
-        uint32_t gkey2 = 70;
-        uint32_t gval2 = 120;
-
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
-                              sizeof(uint32_t), 100, 0);
-        ASSERT_TRUE(!error);
-
-        error = ebpf_map_update_elem(&map, &gkey1, &gval1, 0);
-        ASSERT_TRUE(!error);
-        error = ebpf_map_update_elem(&map, &gkey2, &gval2, 0);
+        int error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+            sizeof(uint32_t), 100, 0);
         ASSERT_TRUE(!error);
     }
 
@@ -45,7 +34,7 @@ TEST_F(ArrayMapGetNextKeyTest, GetNextKeyWithMaxKey)
 
     error = ebpf_map_get_next_key(&map, &key, &next_key);
 
-    EXPECT_EQ(50, next_key);
+    EXPECT_EQ(0, next_key);
 }
 
 TEST_F(ArrayMapGetNextKeyTest, GetFirstKey)
@@ -55,7 +44,7 @@ TEST_F(ArrayMapGetNextKeyTest, GetFirstKey)
 
     error = ebpf_map_get_next_key(&map, NULL, &next_key);
 
-    EXPECT_EQ(50, next_key);
+    EXPECT_EQ(0, next_key);
 }
 
 TEST_F(ArrayMapGetNextKeyTest, CorrectGetNextKey)
@@ -65,6 +54,6 @@ TEST_F(ArrayMapGetNextKeyTest, CorrectGetNextKey)
 
     error = ebpf_map_get_next_key(&map, &key, &next_key);
 
-    EXPECT_EQ(70, next_key);
+    EXPECT_EQ(51, next_key);
 }
 }

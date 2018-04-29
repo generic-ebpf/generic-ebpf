@@ -15,9 +15,11 @@
  */
 
 #include "ebpf_map.h"
+#include "ebpf_allocator.h"
 #include "tommyds/tommyhashtbl.h"
 
 struct ebpf_map_hashtable {
+  ebpf_allocator_t allocator;
 	tommy_hashtable table;
 };
 

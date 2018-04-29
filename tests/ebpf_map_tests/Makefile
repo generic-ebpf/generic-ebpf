@@ -9,6 +9,7 @@ libebpf_path = ../../
 
 CXXFLAGS = \
 	-O0 \
+	-g \
 	-coverage \
 	-L $(libebpf_path) \
 	-I ../../sys \
