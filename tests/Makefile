@@ -3,9 +3,9 @@ clean: $(platform)_clean
 do_test: $(platform)_do_test
 do_kernel_test: $(platform)_do_kernel_test
 
-FreeBSD_all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests ebpf_dev_tests
-Linux_all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests ebpf_dev_tests
-Darwin_all: gtest ebpf_tests ebpf_prog_tests ebpf_map_tests
+FreeBSD_all: ebpf_tests ebpf_prog_tests ebpf_map_tests ebpf_dev_tests
+Linux_all: ebpf_tests ebpf_prog_tests ebpf_map_tests ebpf_dev_tests
+Darwin_all: ebpf_tests ebpf_prog_tests ebpf_map_tests
 
 FreeBSD_clean: clean_gtest clean_ebpf_tests clean_ebpf_prog_tests clean_ebpf_map_tests clean_ebpf_dev_tests
 Linux_clean: clean_gtest clean_ebpf_tests clean_ebpf_prog_tests clean_ebpf_map_tests clean_ebpf_dev_tests
@@ -23,15 +23,15 @@ ebpf_tests:
 	make -C ebpf_tests
 
 .PHONY: ebpf_prog_tests
-ebpf_prog_tests:
+ebpf_prog_tests: gtest
 	make -C ebpf_prog_tests
 
 .PHONY: ebpf_map_tests
-ebpf_map_tests:
+ebpf_map_tests: gtest
 	make -C ebpf_map_tests
 
 .PHONY: ebpf_dev_tests
-ebpf_dev_tests:
+ebpf_dev_tests: gtest
 	make -C ebpf_dev_tests 
 
 clean_ebpf_tests:
