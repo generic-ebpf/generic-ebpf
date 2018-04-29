@@ -185,9 +185,6 @@ hashtable_map_delete_elem_common(struct ebpf_map *self,
 		return ENOENT;
 	}
 
-	ebpf_free(elem->key);
-	ebpf_allocator_free(&hashtable->allocator,
-			    hashtable_map_elem_get_value(elem));
 	ebpf_allocator_free(&hashtable->allocator, elem);
 
 	return 0;
