@@ -1,6 +1,8 @@
-/*
+/*-
+ * SPDX-License-Identifier: Apache License 2.0
+ *
  * Copyright 2015 Big Switch Networks, Inc
- * Copyright 2017 Yutaro Hayakawa
+ * Copyright 2017-2018 Yutaro Hayakawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
