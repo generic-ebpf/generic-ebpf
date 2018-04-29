@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace {
-class TommyHashtblMapGetNextKeyTest : public ::testing::Test {
+class HashTableMapGetNextKeyTest : public ::testing::Test {
   protected:
     struct ebpf_map map;
 
@@ -38,7 +38,7 @@ class TommyHashtblMapGetNextKeyTest : public ::testing::Test {
     }
 };
 
-TEST_F(TommyHashtblMapGetNextKeyTest, GetFirstKey)
+TEST_F(HashTableMapGetNextKeyTest, GetFirstKey)
 {
     int error;
     uint32_t next_key = 0;
@@ -48,7 +48,7 @@ TEST_F(TommyHashtblMapGetNextKeyTest, GetFirstKey)
     EXPECT_EQ(0, error);
 }
 
-TEST_F(TommyHashtblMapGetNextKeyTest, CorrectGetNextKey)
+TEST_F(HashTableMapGetNextKeyTest, CorrectGetNextKey)
 {
     int error;
     uint32_t key = 50, next_key = 0;

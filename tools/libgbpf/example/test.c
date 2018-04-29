@@ -2,7 +2,7 @@
 #include <sys/ebpf_uapi.h>
 
 DEFINE_MAP(array, ARRAY, sizeof(uint32_t), sizeof(uint32_t), 100, 0);
-DEFINE_MAP(hash, TOMMYHASHTBL, sizeof(uint32_t), sizeof(uint32_t), 100, 0);
+DEFINE_MAP(hash, HASHTABLE, sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 
 uint64_t
 test_prog(void)

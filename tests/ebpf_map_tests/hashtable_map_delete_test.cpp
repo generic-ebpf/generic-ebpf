@@ -9,7 +9,7 @@ extern "C" {
 
 namespace {
 
-class TommyHashtblMapDeleteTest : public ::testing::Test {
+class HashTableMapDeleteTest : public ::testing::Test {
   protected:
     struct ebpf_map map;
 
@@ -35,7 +35,7 @@ class TommyHashtblMapDeleteTest : public ::testing::Test {
     }
 };
 
-TEST_F(TommyHashtblMapDeleteTest, CorrectDelete)
+TEST_F(HashTableMapDeleteTest, CorrectDelete)
 {
     int error;
     uint32_t key = 50;

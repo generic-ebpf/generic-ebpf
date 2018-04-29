@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace {
-class TommyHashtblMapLookupTest : public ::testing::Test {
+class HashTableMapLookupTest : public ::testing::Test {
   protected:
     struct ebpf_map map;
 
@@ -33,7 +33,7 @@ class TommyHashtblMapLookupTest : public ::testing::Test {
     }
 };
 
-TEST_F(TommyHashtblMapLookupTest, LookupUnexistingEntry)
+TEST_F(HashTableMapLookupTest, LookupUnexistingEntry)
 {
     int error;
     uint32_t key = 51;
@@ -44,7 +44,7 @@ TEST_F(TommyHashtblMapLookupTest, LookupUnexistingEntry)
     EXPECT_EQ(NULL, value);
 }
 
-TEST_F(TommyHashtblMapLookupTest, CorrectLookup)
+TEST_F(HashTableMapLookupTest, CorrectLookup)
 {
     int error;
     uint32_t key = 50;

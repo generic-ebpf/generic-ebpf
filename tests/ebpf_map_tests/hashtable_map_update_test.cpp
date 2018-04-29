@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace {
-class TommyHashtblMapUpdateTest : public ::testing::Test {
+class HashTableMapUpdateTest : public ::testing::Test {
   protected:
     struct ebpf_map map;
 
@@ -29,7 +29,7 @@ class TommyHashtblMapUpdateTest : public ::testing::Test {
     }
 };
 
-TEST_F(TommyHashtblMapUpdateTest, CorrectUpdate)
+TEST_F(HashTableMapUpdateTest, CorrectUpdate)
 {
     int error;
     uint32_t key = 50, value = 100;
@@ -39,7 +39,7 @@ TEST_F(TommyHashtblMapUpdateTest, CorrectUpdate)
     EXPECT_EQ(0, error);
 }
 
-TEST_F(TommyHashtblMapUpdateTest, CorrectUpdateMoreThanMaxEntries)
+TEST_F(HashTableMapUpdateTest, CorrectUpdateMoreThanMaxEntries)
 {
     int error;
     uint32_t i;
