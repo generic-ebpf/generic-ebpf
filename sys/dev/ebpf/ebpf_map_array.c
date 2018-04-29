@@ -20,6 +20,7 @@
 #include "ebpf_allocator.h"
 
 struct ebpf_map_array {
+	ebpf_rwlock_t rw;
 	ebpf_allocator_t allocator;
 	uint64_t counter; // entry counter
 	void **array;
@@ -36,6 +37,7 @@ array_map_init_common(struct ebpf_map_array *self, uint32_t key_size,
 		return ENOMEM;
 	}
 
+	ebpf_rw_init(&self->rw, "ebpf_array_map_lock");
 	ebpf_allocator_init(&self->allocator, value_size, 8);
 
 	error = ebpf_allocator_prealloc(&self->allocator, max_entries);
@@ -79,6 +81,7 @@ array_map_init(struct ebpf_map *self, uint32_t key_size, uint32_t value_size,
 static void
 array_map_deinit_common(struct ebpf_map_array *self, void *arg)
 {
+  ebpf_rw_destroy(&self->rw);
 	ebpf_allocator_deinit(&self->allocator);
 	ebpf_free(self->array);
 	ebpf_free(self);
@@ -108,7 +111,14 @@ array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 		return NULL;
 	}
 
-	return array_map_lookup_elem_common(self->data, (uint32_t *)key, flags);
+  void *ret;
+  struct ebpf_map_array *map = self->data;
+
+  ebpf_rw_rlock(&map->rw);
+  ret = array_map_lookup_elem_common(map, (uint32_t *)key, flags);
+  ebpf_rw_runlock(&map->rw);
+
+	return ret;
 }
 
 static int
@@ -143,8 +153,14 @@ array_map_update_elem(struct ebpf_map *self, void *key, void *value,
 		return EINVAL;
 	}
 
-	return array_map_update_elem_common(self, self->data, key, value,
-					    flags);
+  int ret;
+  struct ebpf_map_array *map = self->data;
+
+  ebpf_rw_wlock(&map->rw);
+  ret = array_map_update_elem_common(self, map, key, value, flags);
+  ebpf_rw_wunlock(&map->rw);
+
+  return ret;
 }
 
 static int
@@ -173,7 +189,14 @@ array_map_delete_elem_common(struct ebpf_map *self,
 static int
 array_map_delete_elem(struct ebpf_map *self, void *key)
 {
-	return array_map_delete_elem_common(self, self->data, *(uint32_t *)key);
+  int ret;
+  struct ebpf_map_array *map = self->data;
+
+  ebpf_rw_wlock(&map->rw);
+  ret = array_map_delete_elem_common(self, map, *(uint32_t *)key);
+  ebpf_rw_wunlock(&map->rw);
+
+  return ret;
 }
 
 static int

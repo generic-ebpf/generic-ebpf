@@ -126,7 +126,7 @@ ebpf_rw_wlock(ebpf_rwlock_t *rw)
 void
 ebpf_rw_wunlock(ebpf_rwlock_t *rw)
 {
-	int error = pthread_rwlock_wrlock(rw);
+	int error = pthread_rwlock_unlock(rw);
 	assert(!error);
 }
 
