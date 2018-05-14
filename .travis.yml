@@ -15,4 +15,4 @@ script:
   - make tests
   - make do_test
 after_success:
-  - coveralls --gcov-options '\-lp' -r $PWD/Linux -E ".*\.h" -e "./tommyds"
+  - coveralls --exclude tests --exclude extern --exclude sys/dev/ebpf/tommyds/ --gcov-options '\-lp'
