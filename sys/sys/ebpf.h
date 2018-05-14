@@ -35,5 +35,12 @@ enum ebpf_basic_prog_types {
   __EBPF_BASIC_PROG_TYPE_MAX
 };
 
+enum ebpf_map_update_flags {
+  EBPF_ANY = 0,
+  EBPF_NOEXIST,
+  EBPF_EXIST,
+  __EBPF_MAP_UPDATE_FLAGS_MAX
+};
+
 #define EBPF_PSEUDO_MAP_DESC 1
 #define EBPF_PROG_MAX_ATTACHED_MAPS 64

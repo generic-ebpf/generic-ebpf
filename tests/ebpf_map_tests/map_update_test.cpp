@@ -34,7 +34,7 @@ TEST_F(MapUpdateTest, UpdateWithNULLMap)
     int error;
     uint32_t key = 50, value = 100;
 
-    error = ebpf_map_update_elem(NULL, &key, &value, 0);
+    error = ebpf_map_update_elem(NULL, &key, &value, EBPF_ANY);
 
     EXPECT_EQ(EINVAL, error);
 }
@@ -44,7 +44,7 @@ TEST_F(MapUpdateTest, UpdateWithNULLKey)
     int error;
     uint32_t value = 100;
 
-    error = ebpf_map_update_elem(&map, NULL, &value, 0);
+    error = ebpf_map_update_elem(&map, NULL, &value, EBPF_ANY);
 
     EXPECT_EQ(EINVAL, error);
 }
@@ -54,7 +54,17 @@ TEST_F(MapUpdateTest, UpdateWithNULLValue)
     int error;
     uint32_t key = 100;
 
-    error = ebpf_map_update_elem(&map, &key, NULL, 0);
+    error = ebpf_map_update_elem(&map, &key, NULL, EBPF_ANY);
+
+    EXPECT_EQ(EINVAL, error);
+}
+
+TEST_F(MapUpdateTest, UpdateWithInvalidFlag)
+{
+    int error;
+    uint32_t key = 1, value = 1;
+
+    error = ebpf_map_update_elem(&map, &key, &value, EBPF_EXIST + 1);
 
     EXPECT_EQ(EINVAL, error);
 }

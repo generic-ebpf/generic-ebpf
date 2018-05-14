@@ -154,9 +154,16 @@ hashtable_map_update_elem_common(struct ebpf_map *self,
 	struct ebpf_map_hashtable_elem *elem =
 	    hashtable_map_lookup_elem_common(self, hashtable, key, flags);
 	if (elem) {
+    if (flags & EBPF_NOEXIST) {
+      return EEXIST;
+    }
 		memcpy(elem, value, self->value_size);
 		return 0;
 	}
+
+  if (flags & EBPF_EXIST) {
+    return ENOENT;
+  }
 
 	elem = ebpf_allocator_alloc(&hashtable->allocator);
 	if (!elem) {
