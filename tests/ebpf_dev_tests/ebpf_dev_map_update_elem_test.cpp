@@ -91,38 +91,6 @@ TEST_F(EbpfDevMapUpdateElemTest, UpdateWithNullValue)
     EXPECT_EQ(EINVAL, errno);
 }
 
-TEST_F(EbpfDevMapUpdateElemTest, UpdateWithInvalidSizeKey) {
-  int error;
-  uint16_t k = 0;
-  uint32_t v = 100;
-
-  union ebpf_req req;
-  req.map_fd = map_fd;
-  req.key = &k;
-  req.value = &v;
-  req.flags = 0;
-
-  error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req);
-  EXPECT_EQ(-1, error);
-  EXPECT_EQ(EINVAL, errno);
-}
-
-TEST_F(EbpfDevMapUpdateElemTest, UpdateWithInvalidSizeValue) {
-  int error;
-  uint32_t k = 0;
-  uint8_t v = 100;
-
-  union ebpf_req req;
-  req.map_fd = map_fd;
-  req.key = &k;
-  req.value = &v;
-  req.flags = 0;
-
-  error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req);
-  EXPECT_EQ(-1, error);
-  EXPECT_EQ(EINVAL, errno);
-}
-
 TEST_F(EbpfDevMapUpdateElemTest, CorrectUpdate)
 {
     int error;
