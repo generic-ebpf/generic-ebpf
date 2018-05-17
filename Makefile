@@ -1,17 +1,17 @@
 # will be replaced by configure
-export platform={{platform}}
+export platform=FreeBSD
 export gtestpath=$(PWD)/extern/googletest
 
 all: $(platform)_all
 clean: $(platform)_clean
 
-FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev tests
-Linux_all: ebpf_user ebpf_kernel ebpf_dev tests
-Darwin_all: ebpf_user_darwin tests
+FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev libgbpf tests
+Linux_all: ebpf_user ebpf_kernel ebpf_dev libgbpf tests
+Darwin_all: ebpf_user_darwin libgbpf tests
 
-FreeBSD_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests
-Linux_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests
-Darwin_clean: clean_ebpf_user_darwin clean_tests
+FreeBSD_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests clean_libgbpf
+Linux_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests clean_libgbpf
+Darwin_clean: clean_ebpf_user_darwin clean_tests clean_libgbpf
 
 ebpf_user:
 	make -C $(platform)/ebpf/user
@@ -57,3 +57,9 @@ do_kernel_test:
 
 clean_tests:
 	make -C tests clean
+
+libgbpf:
+	make -C tools/libgbpf
+
+clean_libgbpf:
+	make -C tools/libgbpf clean

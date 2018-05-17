@@ -1,3 +1,7 @@
 #!/bin/sh
 plat=`uname`
 sed -i.bak 's/{{platform}}/'"${plat}"'/g' Makefile
+
+if [ $plat = "FreeBSD" ]; then
+  mkdir sys/modules/ebpf/tommyds
+fi
