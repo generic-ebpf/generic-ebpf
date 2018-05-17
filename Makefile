@@ -1,5 +1,5 @@
 # will be replaced by configure
-export platform=FreeBSD
+export platform={{platform}}
 export gtestpath=$(PWD)/extern/googletest
 
 all: $(platform)_all
