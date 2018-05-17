@@ -28,5 +28,5 @@ example:
 	make -C example
 
 clean:
-	rm -f lib/*.a */**/*.o
-	make -C example clean
+	- rm -f lib/*.a */**/*.o
+	- make -C example clean
