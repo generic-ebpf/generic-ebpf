@@ -10,7 +10,6 @@ extern "C" {
 #include <sys/ebpf.h>
 #include <sys/ebpf_inst.h>
 #include <sys/ebpf_dev.h>
-#include <sys/ebpf_uapi.h>
 #include "util.h"
 }
 
