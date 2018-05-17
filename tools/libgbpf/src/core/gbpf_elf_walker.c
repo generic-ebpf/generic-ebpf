@@ -207,6 +207,8 @@ gbpf_walk_elf(GBPFElfWalker *walker, GBPFDriver *driver, char *fname)
     refs.walker = walker;
     refs.driver = driver;
 
+    walker->driver = driver;
+
     int fd = open(fname, O_RDONLY);
     if (fd < 0) {
         return -1;
