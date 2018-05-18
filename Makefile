@@ -63,3 +63,6 @@ libgbpf:
 
 clean_libgbpf:
 	make -C tools/libgbpf clean
+
+format:
+	clang-format -i */**/*.{c,h,cpp}
