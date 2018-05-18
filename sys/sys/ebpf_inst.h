@@ -20,11 +20,11 @@
 #pragma once
 
 struct ebpf_inst {
-    uint8_t opcode;
-    uint8_t dst : 4;
-    uint8_t src : 4;
-    int16_t offset;
-    int32_t imm;
+	uint8_t opcode;
+	uint8_t dst : 4;
+	uint8_t src : 4;
+	int16_t offset;
+	int32_t imm;
 };
 
 #define EBPF_CLS_MASK 0x07

@@ -63,9 +63,10 @@
  * functions.
  */
 typedef struct tommy_arrayblkof_struct {
-    tommy_array block;         /**< Array of blocks. */
-    tommy_size_t element_size; /**< Size of the stored element in bytes. */
-    tommy_count_t count; /**< Number of initialized elements in the array. */
+	tommy_array block;	 /**< Array of blocks. */
+	tommy_size_t element_size; /**< Size of the stored element in bytes. */
+	tommy_count_t
+	    count; /**< Number of initialized elements in the array. */
 } tommy_arrayblkof;
 
 /**
@@ -93,15 +94,15 @@ void tommy_arrayblkof_grow(tommy_arrayblkof *array, tommy_count_t size);
 tommy_inline void *
 tommy_arrayblkof_ref(tommy_arrayblkof *array, tommy_count_t pos)
 {
-    unsigned char *base;
+	unsigned char *base;
 
-    assert(pos < array->count);
+	assert(pos < array->count);
 
-    base =
-        tommy_cast(unsigned char *,
-                   tommy_array_get(&array->block, pos / TOMMY_ARRAYBLKOF_SIZE));
+	base = tommy_cast(
+	    unsigned char *,
+	    tommy_array_get(&array->block, pos / TOMMY_ARRAYBLKOF_SIZE));
 
-    return base + (pos % TOMMY_ARRAYBLKOF_SIZE) * array->element_size;
+	return base + (pos % TOMMY_ARRAYBLKOF_SIZE) * array->element_size;
 }
 
 /**
@@ -110,7 +111,7 @@ tommy_arrayblkof_ref(tommy_arrayblkof *array, tommy_count_t pos)
 tommy_inline tommy_count_t
 tommy_arrayblkof_size(tommy_arrayblkof *array)
 {
-    return array->count;
+	return array->count;
 }
 
 /**

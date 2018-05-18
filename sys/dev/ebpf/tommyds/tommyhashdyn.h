@@ -177,12 +177,12 @@ typedef tommy_node tommy_hashdyn_node;
  * functions.
  */
 typedef struct tommy_hashdyn_struct {
-    tommy_hashdyn_node *
-        *bucket; /**< Hash buckets. One list for each hash modulus. */
-    tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
-    tommy_count_t bucket_max;  /**< Number of buckets. */
-    tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
-    tommy_count_t count;       /**< Number of elements. */
+	tommy_hashdyn_node *
+	    *bucket; /**< Hash buckets. One list for each hash modulus. */
+	tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
+	tommy_count_t bucket_max;  /**< Number of buckets. */
+	tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
+	tommy_count_t count;       /**< Number of elements. */
 } tommy_hashdyn;
 
 /**
@@ -202,7 +202,7 @@ void tommy_hashdyn_done(tommy_hashdyn *hashdyn);
  * Inserts an element in the hashtable.
  */
 void tommy_hashdyn_insert(tommy_hashdyn *hashdyn, tommy_hashdyn_node *node,
-                          void *data, tommy_hash_t hash);
+			  void *data, tommy_hash_t hash);
 
 /**
  * Searches and removes an element from the hashtable.
@@ -220,7 +220,7 @@ void tommy_hashdyn_insert(tommy_hashdyn *hashdyn, tommy_hashdyn_node *node,
  * \return The removed element, or 0 if not found.
  */
 void *tommy_hashdyn_remove(tommy_hashdyn *hashdyn, tommy_search_func *cmp,
-                           const void *cmp_arg, tommy_hash_t hash);
+			   const void *cmp_arg, tommy_hash_t hash);
 
 /**
  * Gets the bucket of the specified hash.
@@ -233,7 +233,7 @@ void *tommy_hashdyn_remove(tommy_hashdyn *hashdyn, tommy_search_func *cmp,
 tommy_inline tommy_hashdyn_node *
 tommy_hashdyn_bucket(tommy_hashdyn *hashdyn, tommy_hash_t hash)
 {
-    return hashdyn->bucket[hash & hashdyn->bucket_mask];
+	return hashdyn->bucket[hash & hashdyn->bucket_mask];
 }
 
 /**
@@ -252,18 +252,19 @@ tommy_hashdyn_bucket(tommy_hashdyn *hashdyn, tommy_hash_t hash)
  */
 tommy_inline void *
 tommy_hashdyn_search(tommy_hashdyn *hashdyn, tommy_search_func *cmp,
-                     const void *cmp_arg, tommy_hash_t hash)
+		     const void *cmp_arg, tommy_hash_t hash)
 {
-    tommy_hashdyn_node *i = tommy_hashdyn_bucket(hashdyn, hash);
+	tommy_hashdyn_node *i = tommy_hashdyn_bucket(hashdyn, hash);
 
-    while (i) {
-        /* we first check if the hash matches, as in the same bucket we may have
-         * multiples hash values */
-        if (i->key == hash && cmp(cmp_arg, i->data) == 0)
-            return i->data;
-        i = i->next;
-    }
-    return 0;
+	while (i) {
+		/* we first check if the hash matches, as in the same bucket we
+		 * may have
+		 * multiples hash values */
+		if (i->key == hash && cmp(cmp_arg, i->data) == 0)
+			return i->data;
+		i = i->next;
+	}
+	return 0;
 }
 
 /**
@@ -272,7 +273,7 @@ tommy_hashdyn_search(tommy_hashdyn *hashdyn, tommy_search_func *cmp,
  * \return The tommy_node::data field of the node removed.
  */
 void *tommy_hashdyn_remove_existing(tommy_hashdyn *hashdyn,
-                                    tommy_hashdyn_node *node);
+				    tommy_hashdyn_node *node);
 
 /**
  * Calls the specified function for each element in the hashtable.
@@ -313,7 +314,7 @@ void tommy_hashdyn_foreach(tommy_hashdyn *hashdyn, tommy_foreach_func *func);
  * hashtable.
  */
 void tommy_hashdyn_foreach_arg(tommy_hashdyn *hashdyn,
-                               tommy_foreach_arg_func *func, void *arg);
+			       tommy_foreach_arg_func *func, void *arg);
 
 /**
  * Gets the number of elements.
@@ -321,7 +322,7 @@ void tommy_hashdyn_foreach_arg(tommy_hashdyn *hashdyn,
 tommy_inline tommy_count_t
 tommy_hashdyn_count(tommy_hashdyn *hashdyn)
 {
-    return hashdyn->count;
+	return hashdyn->count;
 }
 
 /**

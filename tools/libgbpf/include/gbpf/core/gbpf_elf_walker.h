@@ -24,12 +24,12 @@ struct gbpf_elf_walker;
 typedef struct gbpf_elf_walker GBPFElfWalker;
 
 struct gbpf_elf_walker {
-  GBPFDriver *driver;
-  void (*on_prog)(GBPFElfWalker *walker, const char *name,
-      struct ebpf_inst *prog, uint32_t prog_len);
-  void (*on_map)(GBPFElfWalker *walker, const char *name,
-      int desc, struct ebpf_map_def *map);
-  void *data;
+	GBPFDriver *driver;
+	void (*on_prog)(GBPFElfWalker *walker, const char *name,
+			struct ebpf_inst *prog, uint32_t prog_len);
+	void (*on_map)(GBPFElfWalker *walker, const char *name, int desc,
+		       struct ebpf_map_def *map);
+	void *data;
 };
 
 int gbpf_walk_elf(GBPFElfWalker *walker, GBPFDriver *driver, char *fname);

@@ -159,11 +159,11 @@ typedef tommy_node tommy_hashtable_node;
  * functions.
  */
 typedef struct tommy_hashtable_struct {
-    tommy_hashtable_node *
-        *bucket; /**< Hash buckets. One list for each hash modulus. */
-    tommy_count_t bucket_max;  /**< Number of buckets. */
-    tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
-    tommy_count_t count;       /**< Number of elements. */
+	tommy_hashtable_node *
+	    *bucket; /**< Hash buckets. One list for each hash modulus. */
+	tommy_count_t bucket_max;  /**< Number of buckets. */
+	tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
+	tommy_count_t count;       /**< Number of elements. */
 } tommy_hashtable;
 
 /**
@@ -185,8 +185,8 @@ void tommy_hashtable_done(tommy_hashtable *hashtable);
  * Inserts an element in the hashtable.
  */
 void tommy_hashtable_insert(tommy_hashtable *hashtable,
-                            tommy_hashtable_node *node, void *data,
-                            tommy_hash_t hash);
+			    tommy_hashtable_node *node, void *data,
+			    tommy_hash_t hash);
 
 /**
  * Searches and removes an element from the hashtable.
@@ -204,7 +204,7 @@ void tommy_hashtable_insert(tommy_hashtable *hashtable,
  * \return The removed element, or 0 if not found.
  */
 void *tommy_hashtable_remove(tommy_hashtable *hashtable, tommy_search_func *cmp,
-                             const void *cmp_arg, tommy_hash_t hash);
+			     const void *cmp_arg, tommy_hash_t hash);
 
 /**
  * Gets the bucket of the specified hash.
@@ -217,7 +217,7 @@ void *tommy_hashtable_remove(tommy_hashtable *hashtable, tommy_search_func *cmp,
 tommy_inline tommy_hashtable_node *
 tommy_hashtable_bucket(tommy_hashtable *hashtable, tommy_hash_t hash)
 {
-    return hashtable->bucket[hash & hashtable->bucket_mask];
+	return hashtable->bucket[hash & hashtable->bucket_mask];
 }
 
 /**
@@ -236,18 +236,19 @@ tommy_hashtable_bucket(tommy_hashtable *hashtable, tommy_hash_t hash)
  */
 tommy_inline void *
 tommy_hashtable_search(tommy_hashtable *hashtable, tommy_search_func *cmp,
-                       const void *cmp_arg, tommy_hash_t hash)
+		       const void *cmp_arg, tommy_hash_t hash)
 {
-    tommy_hashtable_node *i = tommy_hashtable_bucket(hashtable, hash);
+	tommy_hashtable_node *i = tommy_hashtable_bucket(hashtable, hash);
 
-    while (i) {
-        /* we first check if the hash matches, as in the same bucket we may have
-         * multiples hash values */
-        if (i->key == hash && cmp(cmp_arg, i->data) == 0)
-            return i->data;
-        i = i->next;
-    }
-    return 0;
+	while (i) {
+		/* we first check if the hash matches, as in the same bucket we
+		 * may have
+		 * multiples hash values */
+		if (i->key == hash && cmp(cmp_arg, i->data) == 0)
+			return i->data;
+		i = i->next;
+	}
+	return 0;
 }
 
 /**
@@ -256,7 +257,7 @@ tommy_hashtable_search(tommy_hashtable *hashtable, tommy_search_func *cmp,
  * \return The tommy_node::data field of the node removed.
  */
 void *tommy_hashtable_remove_existing(tommy_hashtable *hashtable,
-                                      tommy_hashtable_node *node);
+				      tommy_hashtable_node *node);
 
 /**
  * Calls the specified function for each element in the hashtable.
@@ -291,14 +292,14 @@ void *tommy_hashtable_remove_existing(tommy_hashtable *hashtable,
  * \endcode
  */
 void tommy_hashtable_foreach(tommy_hashtable *hashtable,
-                             tommy_foreach_func *func);
+			     tommy_foreach_func *func);
 
 /**
  * Calls the specified function with an argument for each element in the
  * hashtable.
  */
 void tommy_hashtable_foreach_arg(tommy_hashtable *hashtable,
-                                 tommy_foreach_arg_func *func, void *arg);
+				 tommy_foreach_arg_func *func, void *arg);
 
 /**
  * Gets the number of elements.
@@ -306,7 +307,7 @@ void tommy_hashtable_foreach_arg(tommy_hashtable *hashtable,
 tommy_inline tommy_count_t
 tommy_hashtable_count(tommy_hashtable *hashtable)
 {
-    return hashtable->count;
+	return hashtable->count;
 }
 
 /**

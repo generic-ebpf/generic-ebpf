@@ -7,18 +7,18 @@ EBPF_DEFINE_MAP(hash, HASHTABLE, sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 uint64_t
 test_prog(void)
 {
-  int error;
-  uint32_t key = 1, *value;
+	int error;
+	uint32_t key = 1, *value;
 
-  value = ebpf_map_lookup_elem(&array, &key, 0);
-  if (!value) {
-    return UINT64_MAX;
-  }
+	value = ebpf_map_lookup_elem(&array, &key, 0);
+	if (!value) {
+		return UINT64_MAX;
+	}
 
-  error = ebpf_map_update_elem(&hash, &key, value, 0);
-  if (error) {
-    return UINT64_MAX;
-  }
+	error = ebpf_map_update_elem(&hash, &key, value, 0);
+	if (error) {
+		return UINT64_MAX;
+	}
 
-  return 0;
+	return 0;
 }

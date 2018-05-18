@@ -80,8 +80,7 @@ int
 ebpf_map_update_elem(struct ebpf_map *self, void *key, void *value,
 		     uint64_t flags)
 {
-	if (!self || !key || !value ||
-      flags > EBPF_EXIST) {
+	if (!self || !key || !value || flags > EBPF_EXIST) {
 		return EINVAL;
 	}
 

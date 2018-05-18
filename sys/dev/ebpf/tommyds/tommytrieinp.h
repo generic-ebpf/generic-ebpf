@@ -147,8 +147,8 @@
  * Number of bits of the first level.
  */
 #define TOMMY_TRIE_INPLACE_BUCKET_BIT                                          \
-    ((TOMMY_KEY_BIT % TOMMY_TRIE_INPLACE_TREE_BIT) +                           \
-     3 * TOMMY_TRIE_INPLACE_TREE_BIT)
+	((TOMMY_KEY_BIT % TOMMY_TRIE_INPLACE_TREE_BIT) +                       \
+	 3 * TOMMY_TRIE_INPLACE_TREE_BIT)
 
 /** \internal
  * Number of branches of the first level.
@@ -161,14 +161,14 @@
  * This is the node that you have to include inside your objects.
  */
 typedef struct tommy_trie_inplace_node_struct {
-    struct tommy_trie_inplace_node_struct
-        *next; /**< Next element. 0 if it's the last. */
-    struct tommy_trie_inplace_node_struct
-        *prev;       /**< Circular previous element. */
-    void *data;      /**< Pointer to the data. */
-    tommy_key_t key; /**< Used to store the key or the hash. */
-    struct tommy_trie_inplace_node_struct
-        *map[TOMMY_TRIE_INPLACE_TREE_MAX]; /** Branches of the node. */
+	struct tommy_trie_inplace_node_struct
+	    *next; /**< Next element. 0 if it's the last. */
+	struct tommy_trie_inplace_node_struct
+	    *prev;       /**< Circular previous element. */
+	void *data;      /**< Pointer to the data. */
+	tommy_key_t key; /**< Used to store the key or the hash. */
+	struct tommy_trie_inplace_node_struct
+	    *map[TOMMY_TRIE_INPLACE_TREE_MAX]; /** Branches of the node. */
 } tommy_trie_inplace_node;
 
 /**
@@ -177,9 +177,9 @@ typedef struct tommy_trie_inplace_node_struct {
  * functions.
  */
 typedef struct tommy_trie_inplace_struct {
-    tommy_trie_inplace_node
-        *bucket[TOMMY_TRIE_INPLACE_BUCKET_MAX]; /**< First tree level. */
-    tommy_count_t count;                        /**< Number of elements. */
+	tommy_trie_inplace_node
+	    *bucket[TOMMY_TRIE_INPLACE_BUCKET_MAX]; /**< First tree level. */
+	tommy_count_t count;			    /**< Number of elements. */
 } tommy_trie_inplace;
 
 /**
@@ -193,8 +193,8 @@ void tommy_trie_inplace_init(tommy_trie_inplace *trie_inplace);
  * Inserts an element in the trie.
  */
 void tommy_trie_inplace_insert(tommy_trie_inplace *trie_inplace,
-                               tommy_trie_inplace_node *node, void *data,
-                               tommy_key_t key);
+			       tommy_trie_inplace_node *node, void *data,
+			       tommy_key_t key);
 
 /**
  * Searches and removes the first element with the specified key.
@@ -206,7 +206,7 @@ void tommy_trie_inplace_insert(tommy_trie_inplace *trie_inplace,
  * \return The removed element, or 0 if not found.
  */
 void *tommy_trie_inplace_remove(tommy_trie_inplace *trie_inplace,
-                                tommy_key_t key);
+				tommy_key_t key);
 
 /**
  * Gets the bucket of the specified key.
@@ -229,12 +229,13 @@ tommy_trie_inplace_bucket(tommy_trie_inplace *trie_inplace, tommy_key_t key);
 tommy_inline void *
 tommy_trie_inplace_search(tommy_trie_inplace *trie_inplace, tommy_key_t key)
 {
-    tommy_trie_inplace_node *i = tommy_trie_inplace_bucket(trie_inplace, key);
+	tommy_trie_inplace_node *i =
+	    tommy_trie_inplace_bucket(trie_inplace, key);
 
-    if (!i)
-        return 0;
+	if (!i)
+		return 0;
 
-    return i->data;
+	return i->data;
 }
 
 /**
@@ -243,7 +244,7 @@ tommy_trie_inplace_search(tommy_trie_inplace *trie_inplace, tommy_key_t key)
  * \return The tommy_node::data field of the node removed.
  */
 void *tommy_trie_inplace_remove_existing(tommy_trie_inplace *trie_inplace,
-                                         tommy_trie_inplace_node *node);
+					 tommy_trie_inplace_node *node);
 
 /**
  * Gets the number of elements.
@@ -251,7 +252,7 @@ void *tommy_trie_inplace_remove_existing(tommy_trie_inplace *trie_inplace,
 tommy_inline tommy_count_t
 tommy_trie_inplace_count(tommy_trie_inplace *trie_inplace)
 {
-    return trie_inplace->count;
+	return trie_inplace->count;
 }
 
 /**

@@ -66,11 +66,12 @@
  * functions.
  */
 typedef struct tommy_arrayof_struct {
-    void *bucket[TOMMY_ARRAYOF_BIT_MAX]; /**< Dynamic array of buckets. */
-    tommy_size_t element_size; /**< Size of the stored element in bytes. */
-    tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
-    tommy_count_t bucket_max;  /**< Number of buckets. */
-    tommy_count_t count; /**< Number of initialized elements in the array. */
+	void *bucket[TOMMY_ARRAYOF_BIT_MAX]; /**< Dynamic array of buckets. */
+	tommy_size_t element_size; /**< Size of the stored element in bytes. */
+	tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
+	tommy_count_t bucket_max;  /**< Number of buckets. */
+	tommy_count_t
+	    count; /**< Number of initialized elements in the array. */
 } tommy_arrayof;
 
 /**
@@ -98,17 +99,17 @@ void tommy_arrayof_grow(tommy_arrayof *array, tommy_count_t size);
 tommy_inline void *
 tommy_arrayof_ref(tommy_arrayof *array, tommy_count_t pos)
 {
-    unsigned char *ptr;
-    tommy_uint_t bsr;
+	unsigned char *ptr;
+	tommy_uint_t bsr;
 
-    assert(pos < array->count);
+	assert(pos < array->count);
 
-    /* get the highest bit set, in case of all 0, return 0 */
-    bsr = tommy_ilog2_u32(pos | 1);
+	/* get the highest bit set, in case of all 0, return 0 */
+	bsr = tommy_ilog2_u32(pos | 1);
 
-    ptr = tommy_cast(unsigned char *, array->bucket[bsr]);
+	ptr = tommy_cast(unsigned char *, array->bucket[bsr]);
 
-    return ptr + pos * array->element_size;
+	return ptr + pos * array->element_size;
 }
 
 /**
@@ -117,7 +118,7 @@ tommy_arrayof_ref(tommy_arrayof *array, tommy_count_t pos)
 tommy_inline tommy_count_t
 tommy_arrayof_size(tommy_arrayof *array)
 {
-    return array->count;
+	return array->count;
 }
 
 /**

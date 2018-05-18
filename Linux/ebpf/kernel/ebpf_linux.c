@@ -113,14 +113,14 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 void
 ebpf_init_map_types(void)
 {
-  for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-    ebpf_register_map_type(i, &bad_map_ops);
-  }
+	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+		ebpf_register_map_type(i, &bad_map_ops);
+	}
 
-  ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
-  ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
 }
 
 static int

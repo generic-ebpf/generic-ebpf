@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2018 Yutaro Hayakawa
  *
  * This program is free software; you can redistribute it and/or
@@ -16,74 +16,75 @@
 static int
 ebpf_objfile_release(struct inode *inode, struct file *filp)
 {
-    struct ebpf_obj *obj = filp->private_data;
+	struct ebpf_obj *obj = filp->private_data;
 
-    if (!atomic_read(&inode->i_count)) {
-        ebpf_obj_delete(obj, current);
-    }
+	if (!atomic_read(&inode->i_count)) {
+		ebpf_obj_delete(obj, current);
+	}
 
-    return 0;
+	return 0;
 }
 
 static const struct file_operations ebpf_objf_ops = {.release =
-                                                         ebpf_objfile_release};
+							 ebpf_objfile_release};
 
 bool
 is_ebpf_objfile(ebpf_file_t *fp)
 {
-    if (!fp) {
-        return false;
-    }
-    return fp->f_op == &ebpf_objf_ops;
+	if (!fp) {
+		return false;
+	}
+	return fp->f_op == &ebpf_objf_ops;
 }
 
 int
 ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
 {
-    *fd = anon_inode_getfd("ebpf-map", &ebpf_objf_ops, data, O_RDWR);
+	*fd = anon_inode_getfd("ebpf-map", &ebpf_objf_ops, data, O_RDWR);
 
-    *fp = fget(*fd);
-    if (!fp) {
-        return EBUSY;
-    }
+	*fp = fget(*fd);
+	if (!fp) {
+		return EBUSY;
+	}
 
-    fput(*fp);
+	fput(*fp);
 
-    return 0;
+	return 0;
 }
 
 int
 ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
 {
-    *f = fget(fd);
-    if (!f) {
-        return EBUSY;
-    }
-    return 0;
+	*f = fget(fd);
+	if (!f) {
+		return EBUSY;
+	}
+	return 0;
 }
 
 int
 ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td)
 {
-    fput(f);
-    return 0;
+	fput(f);
+	return 0;
 }
 
 int
 ebpf_copyin(const void *uaddr, void *kaddr, size_t len)
 {
-    return copy_from_user(kaddr, uaddr, len);
+	return copy_from_user(kaddr, uaddr, len);
 }
 
 int
 ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
 {
-    return copy_to_user(uaddr, kaddr, len);
+	return copy_to_user(uaddr, kaddr, len);
 }
 
-ebpf_thread_t*
-ebpf_curthread(void) {
-    return current;
+ebpf_thread_t *
+ebpf_curthread(void)
+{
+	return current;
 }
 
 /*
@@ -92,43 +93,44 @@ ebpf_curthread(void) {
 int
 ebpf_open(struct inode *inode, struct file *filp)
 {
-    return 0;
+	return 0;
 }
 
 int
 ebpf_close(struct inode *inode, struct file *filp)
 {
-    return 0;
+	return 0;
 }
 
 long
 linux_ebpf_ioctl(struct file *filp, unsigned int cmd, unsigned long data)
 {
-    int error;
-    union ebpf_req req;
+	int error;
+	union ebpf_req req;
 
-    error = copy_from_user(&req, (void *)data, sizeof(union ebpf_req));
-    if (error) {
-        return -error;
-    }
+	error = copy_from_user(&req, (void *)data, sizeof(union ebpf_req));
+	if (error) {
+		return -error;
+	}
 
-    error = ebpf_ioctl(cmd, &req, current);
-    if (error) {
-        return -error;
-    }
+	error = ebpf_ioctl(cmd, &req, current);
+	if (error) {
+		return -error;
+	}
 
-    if ((void *)data) {
-        error = copy_to_user((void *)data, &req, sizeof(union ebpf_req));
-    }
+	if ((void *)data) {
+		error =
+		    copy_to_user((void *)data, &req, sizeof(union ebpf_req));
+	}
 
-    return -error;
+	return -error;
 }
 
 static struct file_operations ebpf_dev_fops = {.owner = THIS_MODULE,
-                                               .open = ebpf_open,
-                                               .unlocked_ioctl =
-                                                   linux_ebpf_ioctl,
-                                               .release = ebpf_close};
+					       .open = ebpf_open,
+					       .unlocked_ioctl =
+						   linux_ebpf_ioctl,
+					       .release = ebpf_close};
 
 struct miscdevice ebpf_dev_cdev = {MISC_DYNAMIC_MINOR, "ebpf", &ebpf_dev_fops};
 
@@ -138,16 +140,16 @@ struct miscdevice ebpf_dev_cdev = {MISC_DYNAMIC_MINOR, "ebpf", &ebpf_dev_fops};
 static __exit void
 ebpf_dev_fini(void)
 {
-    misc_deregister(&ebpf_dev_cdev);
-    printk("ebpf-dev unloaded\n");
+	misc_deregister(&ebpf_dev_cdev);
+	printk("ebpf-dev unloaded\n");
 }
 
 static __init int
 ebpf_dev_init(void)
 {
-    misc_register(&ebpf_dev_cdev);
-    printk(KERN_INFO "ebpf-dev loaded\n");
-    return 0;
+	misc_register(&ebpf_dev_cdev);
+	printk(KERN_INFO "ebpf-dev loaded\n");
+	return 0;
 }
 
 EXPORT_SYMBOL(ebpf_fopen);

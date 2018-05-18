@@ -33,56 +33,57 @@
 void
 tommy_arrayblk_init(tommy_arrayblk *array)
 {
-    tommy_array_init(&array->block);
+	tommy_array_init(&array->block);
 
-    array->count = 0;
+	array->count = 0;
 }
 
 void
 tommy_arrayblk_done(tommy_arrayblk *array)
 {
-    tommy_count_t i;
+	tommy_count_t i;
 
-    for (i = 0; i < tommy_array_size(&array->block); ++i)
-        tommy_free(tommy_array_get(&array->block, i));
+	for (i = 0; i < tommy_array_size(&array->block); ++i)
+		tommy_free(tommy_array_get(&array->block, i));
 
-    tommy_array_done(&array->block);
+	tommy_array_done(&array->block);
 }
 
 void
 tommy_arrayblk_grow(tommy_arrayblk *array, tommy_count_t count)
 {
-    tommy_count_t block_max;
-    tommy_count_t block_mac;
+	tommy_count_t block_max;
+	tommy_count_t block_mac;
 
-    if (array->count >= count)
-        return;
-    array->count = count;
+	if (array->count >= count)
+		return;
+	array->count = count;
 
-    block_max = (count + TOMMY_ARRAYBLK_SIZE - 1) / TOMMY_ARRAYBLK_SIZE;
-    block_mac = tommy_array_size(&array->block);
+	block_max = (count + TOMMY_ARRAYBLK_SIZE - 1) / TOMMY_ARRAYBLK_SIZE;
+	block_mac = tommy_array_size(&array->block);
 
-    if (block_mac < block_max) {
-        /* grow the block array */
-        tommy_array_grow(&array->block, block_max);
+	if (block_mac < block_max) {
+		/* grow the block array */
+		tommy_array_grow(&array->block, block_max);
 
-        /* allocate new blocks */
-        while (block_mac < block_max) {
-            void **ptr = tommy_cast(
-                void **, tommy_calloc(TOMMY_ARRAYBLK_SIZE, sizeof(void *)));
+		/* allocate new blocks */
+		while (block_mac < block_max) {
+			void **ptr = tommy_cast(
+			    void **,
+			    tommy_calloc(TOMMY_ARRAYBLK_SIZE, sizeof(void *)));
 
-            /* set the new block */
-            tommy_array_set(&array->block, block_mac, ptr);
+			/* set the new block */
+			tommy_array_set(&array->block, block_mac, ptr);
 
-            ++block_mac;
-        }
-    }
+			++block_mac;
+		}
+	}
 }
 
 tommy_size_t
 tommy_arrayblk_memory_usage(tommy_arrayblk *array)
 {
-    return tommy_array_memory_usage(&array->block) +
-           tommy_array_size(&array->block) * TOMMY_ARRAYBLK_SIZE *
-               sizeof(void *);
+	return tommy_array_memory_usage(&array->block) +
+	       tommy_array_size(&array->block) * TOMMY_ARRAYBLK_SIZE *
+		   sizeof(void *);
 }

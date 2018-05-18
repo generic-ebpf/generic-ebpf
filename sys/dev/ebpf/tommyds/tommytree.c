@@ -35,18 +35,18 @@
 void
 tommy_tree_init(tommy_tree *tree, tommy_compare_func *cmp)
 {
-    tree->root = 0;
-    tree->count = 0;
-    tree->cmp = cmp;
+	tree->root = 0;
+	tree->count = 0;
+	tree->cmp = cmp;
 }
 
 static int
 tommy_tree_delta(tommy_tree_node *root)
 {
-    int left_height = root->prev ? root->prev->key : 0;
-    int right_height = root->next ? root->next->key : 0;
+	int left_height = root->prev ? root->prev->key : 0;
+	int right_height = root->next ? root->next->key : 0;
 
-    return left_height - right_height;
+	return left_height - right_height;
 }
 
 /* AVL tree operations */
@@ -55,262 +55,264 @@ static tommy_tree_node *tommy_tree_balance(tommy_tree_node *);
 static tommy_tree_node *
 tommy_tree_rotate_left(tommy_tree_node *root)
 {
-    tommy_tree_node *next = root->next;
+	tommy_tree_node *next = root->next;
 
-    root->next = next->prev;
+	root->next = next->prev;
 
-    next->prev = tommy_tree_balance(root);
+	next->prev = tommy_tree_balance(root);
 
-    return tommy_tree_balance(next);
+	return tommy_tree_balance(next);
 }
 
 static tommy_tree_node *
 tommy_tree_rotate_right(tommy_tree_node *root)
 {
-    tommy_tree_node *prev = root->prev;
+	tommy_tree_node *prev = root->prev;
 
-    root->prev = prev->next;
+	root->prev = prev->next;
 
-    prev->next = tommy_tree_balance(root);
+	prev->next = tommy_tree_balance(root);
 
-    return tommy_tree_balance(prev);
+	return tommy_tree_balance(prev);
 }
 
 static tommy_tree_node *
 tommy_tree_move_right(tommy_tree_node *root, tommy_tree_node *node)
 {
-    if (!root)
-        return node;
+	if (!root)
+		return node;
 
-    root->next = tommy_tree_move_right(root->next, node);
+	root->next = tommy_tree_move_right(root->next, node);
 
-    return tommy_tree_balance(root);
+	return tommy_tree_balance(root);
 }
 
 static tommy_tree_node *
 tommy_tree_balance(tommy_tree_node *root)
 {
-    int delta = tommy_tree_delta(root);
+	int delta = tommy_tree_delta(root);
 
-    if (delta < -1) {
-        if (tommy_tree_delta(root->next) > 0)
-            root->next = tommy_tree_rotate_right(root->next);
-        return tommy_tree_rotate_left(root);
-    }
+	if (delta < -1) {
+		if (tommy_tree_delta(root->next) > 0)
+			root->next = tommy_tree_rotate_right(root->next);
+		return tommy_tree_rotate_left(root);
+	}
 
-    if (delta > 1) {
-        if (tommy_tree_delta(root->prev) < 0)
-            root->prev = tommy_tree_rotate_left(root->prev);
-        return tommy_tree_rotate_right(root);
-    }
+	if (delta > 1) {
+		if (tommy_tree_delta(root->prev) < 0)
+			root->prev = tommy_tree_rotate_left(root->prev);
+		return tommy_tree_rotate_right(root);
+	}
 
-    /* recompute key */
-    root->key = 0;
+	/* recompute key */
+	root->key = 0;
 
-    if (root->prev && root->prev->key > root->key)
-        root->key = root->prev->key;
+	if (root->prev && root->prev->key > root->key)
+		root->key = root->prev->key;
 
-    if (root->next && root->next->key > root->key)
-        root->key = root->next->key;
+	if (root->next && root->next->key > root->key)
+		root->key = root->next->key;
 
-    /* count itself */
-    root->key += 1;
+	/* count itself */
+	root->key += 1;
 
-    return root;
+	return root;
 }
 
 static tommy_tree_node *
 tommy_tree_insert_node(tommy_compare_func *cmp, tommy_tree_node *root,
-                       tommy_tree_node **let)
+		       tommy_tree_node **let)
 {
-    int c;
+	int c;
 
-    if (!root)
-        return *let;
+	if (!root)
+		return *let;
 
-    c = cmp((*let)->data, root->data);
+	c = cmp((*let)->data, root->data);
 
-    if (c < 0) {
-        root->prev = tommy_tree_insert_node(cmp, root->prev, let);
-        return tommy_tree_balance(root);
-    }
+	if (c < 0) {
+		root->prev = tommy_tree_insert_node(cmp, root->prev, let);
+		return tommy_tree_balance(root);
+	}
 
-    if (c > 0) {
-        root->next = tommy_tree_insert_node(cmp, root->next, let);
-        return tommy_tree_balance(root);
-    }
+	if (c > 0) {
+		root->next = tommy_tree_insert_node(cmp, root->next, let);
+		return tommy_tree_balance(root);
+	}
 
-    /* already present, set the return pointer */
-    *let = root;
+	/* already present, set the return pointer */
+	*let = root;
 
-    return root;
+	return root;
 }
 
 void *
 tommy_tree_insert(tommy_tree *tree, tommy_tree_node *node, void *data)
 {
-    tommy_tree_node *insert = node;
+	tommy_tree_node *insert = node;
 
-    insert->data = data;
-    insert->prev = 0;
-    insert->next = 0;
-    insert->key = 0;
+	insert->data = data;
+	insert->prev = 0;
+	insert->next = 0;
+	insert->key = 0;
 
-    tree->root = tommy_tree_insert_node(tree->cmp, tree->root, &insert);
+	tree->root = tommy_tree_insert_node(tree->cmp, tree->root, &insert);
 
-    if (insert == node)
-        ++tree->count;
+	if (insert == node)
+		++tree->count;
 
-    return insert->data;
+	return insert->data;
 }
 
 static tommy_tree_node *
 tommy_tree_remove_node(tommy_compare_func *cmp, tommy_tree_node *root,
-                       void *data, tommy_tree_node **let)
+		       void *data, tommy_tree_node **let)
 {
-    int c;
+	int c;
 
-    if (!root)
-        return 0;
+	if (!root)
+		return 0;
 
-    c = cmp(data, root->data);
+	c = cmp(data, root->data);
 
-    if (c < 0) {
-        root->prev = tommy_tree_remove_node(cmp, root->prev, data, let);
-        return tommy_tree_balance(root);
-    }
+	if (c < 0) {
+		root->prev = tommy_tree_remove_node(cmp, root->prev, data, let);
+		return tommy_tree_balance(root);
+	}
 
-    if (c > 0) {
-        root->next = tommy_tree_remove_node(cmp, root->next, data, let);
-        return tommy_tree_balance(root);
-    }
+	if (c > 0) {
+		root->next = tommy_tree_remove_node(cmp, root->next, data, let);
+		return tommy_tree_balance(root);
+	}
 
-    /* found */
-    *let = root;
+	/* found */
+	*let = root;
 
-    return tommy_tree_move_right(root->prev, root->next);
+	return tommy_tree_move_right(root->prev, root->next);
 }
 
 void *
 tommy_tree_remove(tommy_tree *tree, void *data)
 {
-    tommy_tree_node *node = 0;
+	tommy_tree_node *node = 0;
 
-    tree->root = tommy_tree_remove_node(tree->cmp, tree->root, data, &node);
+	tree->root = tommy_tree_remove_node(tree->cmp, tree->root, data, &node);
 
-    if (!node)
-        return 0;
+	if (!node)
+		return 0;
 
-    --tree->count;
+	--tree->count;
 
-    return node->data;
+	return node->data;
 }
 
 static tommy_tree_node *
 tommy_tree_search_node(tommy_compare_func *cmp, tommy_tree_node *root,
-                       void *data)
+		       void *data)
 {
-    int c;
+	int c;
 
-    if (!root)
-        return 0;
+	if (!root)
+		return 0;
 
-    c = cmp(data, root->data);
+	c = cmp(data, root->data);
 
-    if (c < 0)
-        return tommy_tree_search_node(cmp, root->prev, data);
+	if (c < 0)
+		return tommy_tree_search_node(cmp, root->prev, data);
 
-    if (c > 0)
-        return tommy_tree_search_node(cmp, root->next, data);
+	if (c > 0)
+		return tommy_tree_search_node(cmp, root->next, data);
 
-    return root;
+	return root;
 }
 
 void *
 tommy_tree_search(tommy_tree *tree, void *data)
 {
-    tommy_tree_node *node = tommy_tree_search_node(tree->cmp, tree->root, data);
+	tommy_tree_node *node =
+	    tommy_tree_search_node(tree->cmp, tree->root, data);
 
-    if (!node)
-        return 0;
+	if (!node)
+		return 0;
 
-    return node->data;
+	return node->data;
 }
 
 void *
 tommy_tree_search_compare(tommy_tree *tree, tommy_compare_func *cmp,
-                          void *cmp_arg)
+			  void *cmp_arg)
 {
-    tommy_tree_node *node = tommy_tree_search_node(cmp, tree->root, cmp_arg);
+	tommy_tree_node *node =
+	    tommy_tree_search_node(cmp, tree->root, cmp_arg);
 
-    if (!node)
-        return 0;
+	if (!node)
+		return 0;
 
-    return node->data;
+	return node->data;
 }
 
 void *
 tommy_tree_remove_existing(tommy_tree *tree, tommy_tree_node *node)
 {
-    void *data = tommy_tree_remove(tree, node->data);
+	void *data = tommy_tree_remove(tree, node->data);
 
-    assert(data != 0);
+	assert(data != 0);
 
-    return data;
+	return data;
 }
 
 static void
 tommy_tree_foreach_node(tommy_tree_node *root, tommy_foreach_func *func)
 {
-    tommy_tree_node *next;
+	tommy_tree_node *next;
 
-    if (!root)
-        return;
+	if (!root)
+		return;
 
-    tommy_tree_foreach_node(root->prev, func);
+	tommy_tree_foreach_node(root->prev, func);
 
-    /* make a copy in case func is free() */
-    next = root->next;
+	/* make a copy in case func is free() */
+	next = root->next;
 
-    func(root->data);
+	func(root->data);
 
-    tommy_tree_foreach_node(next, func);
+	tommy_tree_foreach_node(next, func);
 }
 
 void
 tommy_tree_foreach(tommy_tree *tree, tommy_foreach_func *func)
 {
-    tommy_tree_foreach_node(tree->root, func);
+	tommy_tree_foreach_node(tree->root, func);
 }
 
 static void
 tommy_tree_foreach_arg_node(tommy_tree_node *root, tommy_foreach_arg_func *func,
-                            void *arg)
+			    void *arg)
 {
-    tommy_tree_node *next;
+	tommy_tree_node *next;
 
-    if (!root)
-        return;
+	if (!root)
+		return;
 
-    tommy_tree_foreach_arg_node(root->prev, func, arg);
+	tommy_tree_foreach_arg_node(root->prev, func, arg);
 
-    /* make a copy in case func is free() */
-    next = root->next;
+	/* make a copy in case func is free() */
+	next = root->next;
 
-    func(arg, root->data);
+	func(arg, root->data);
 
-    tommy_tree_foreach_arg_node(next, func, arg);
+	tommy_tree_foreach_arg_node(next, func, arg);
 }
 
 void
 tommy_tree_foreach_arg(tommy_tree *tree, tommy_foreach_arg_func *func,
-                       void *arg)
+		       void *arg)
 {
-    tommy_tree_foreach_arg_node(tree->root, func, arg);
+	tommy_tree_foreach_arg_node(tree->root, func, arg);
 }
 
 tommy_size_t
 tommy_tree_memory_usage(tommy_tree *tree)
 {
-    return tommy_tree_count(tree) * sizeof(tommy_tree_node);
+	return tommy_tree_count(tree) * sizeof(tommy_tree_node);
 }

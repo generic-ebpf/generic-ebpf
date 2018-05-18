@@ -41,8 +41,8 @@
  * Allocator entry.
  */
 struct tommy_allocator_entry_struct {
-    struct tommy_allocator_entry_struct
-        *next; /**< Pointer to the next entry. 0 for last. */
+	struct tommy_allocator_entry_struct
+	    *next; /**< Pointer to the next entry. 0 for last. */
 };
 typedef struct tommy_allocator_entry_struct tommy_allocator_entry;
 
@@ -50,13 +50,13 @@ typedef struct tommy_allocator_entry_struct tommy_allocator_entry;
  * Allocator of fixed size blocks.
  */
 typedef struct tommy_allocator_struct {
-    struct tommy_allocator_entry_struct
-        *free_block; /**< List of free blocks. */
-    struct tommy_allocator_entry_struct
-        *used_segment;       /**< List of allocated segments. */
-    tommy_size_t block_size; /**< Block size. */
-    tommy_size_t align_size; /**< Alignment size. */
-    tommy_count_t count;     /**< Number of allocated elements. */
+	struct tommy_allocator_entry_struct
+	    *free_block; /**< List of free blocks. */
+	struct tommy_allocator_entry_struct
+	    *used_segment;       /**< List of allocated segments. */
+	tommy_size_t block_size; /**< Block size. */
+	tommy_size_t align_size; /**< Alignment size. */
+	tommy_count_t count;     /**< Number of allocated elements. */
 } tommy_allocator;
 
 /**
@@ -66,7 +66,7 @@ typedef struct tommy_allocator_struct {
  * \param align_size Minimum alignment requirement. No less than sizeof(void*).
  */
 void tommy_allocator_init(tommy_allocator *alloc, tommy_size_t block_size,
-                          tommy_size_t align_size);
+			  tommy_size_t align_size);
 
 /**
  * Deinitialize the allocator.

@@ -21,9 +21,9 @@
 #include <gbpf/core/gbpf_driver.h>
 
 typedef struct ebpf_dev_driver {
-  GBPFDriver base;
-  int ebpf_fd;
+	GBPFDriver base;
+	int ebpf_fd;
 } EBPFDevDriver;
 
-EBPFDevDriver* ebpf_dev_driver_create(void);
+EBPFDevDriver *ebpf_dev_driver_create(void);
 void ebpf_dev_driver_destroy(EBPFDevDriver *driver);

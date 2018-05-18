@@ -118,7 +118,7 @@ typedef tommy_node *tommy_list;
 tommy_inline void
 tommy_list_init(tommy_list *list)
 {
-    *list = 0;
+	*list = 0;
 }
 
 /**
@@ -128,7 +128,7 @@ tommy_list_init(tommy_list *list)
 tommy_inline tommy_node *
 tommy_list_head(tommy_list *list)
 {
-    return *list;
+	return *list;
 }
 
 /**
@@ -138,12 +138,12 @@ tommy_list_head(tommy_list *list)
 tommy_inline tommy_node *
 tommy_list_tail(tommy_list *list)
 {
-    tommy_node *head = tommy_list_head(list);
+	tommy_node *head = tommy_list_head(list);
 
-    if (!head)
-        return 0;
+	if (!head)
+		return 0;
 
-    return head->prev;
+	return head->prev;
 }
 
 /** \internal
@@ -154,13 +154,13 @@ tommy_list_tail(tommy_list *list)
 tommy_inline void
 tommy_list_insert_first(tommy_list *list, tommy_node *node)
 {
-    /* one element "circular" prev list */
-    node->prev = node;
+	/* one element "circular" prev list */
+	node->prev = node;
 
-    /* one element "0 terminated" next list */
-    node->next = 0;
+	/* one element "0 terminated" next list */
+	node->next = 0;
 
-    *list = node;
+	*list = node;
 }
 
 /** \internal
@@ -172,16 +172,16 @@ tommy_list_insert_first(tommy_list *list, tommy_node *node)
 tommy_inline void
 tommy_list_insert_head_not_empty(tommy_list *list, tommy_node *node)
 {
-    tommy_node *head = tommy_list_head(list);
+	tommy_node *head = tommy_list_head(list);
 
-    /* insert in the "circular" prev list */
-    node->prev = head->prev;
-    head->prev = node;
+	/* insert in the "circular" prev list */
+	node->prev = head->prev;
+	head->prev = node;
 
-    /* insert in the "0 terminated" next list */
-    node->next = head;
+	/* insert in the "0 terminated" next list */
+	node->next = head;
 
-    *list = node;
+	*list = node;
 }
 
 /** \internal
@@ -193,13 +193,13 @@ tommy_list_insert_head_not_empty(tommy_list *list, tommy_node *node)
 tommy_inline void
 tommy_list_insert_tail_not_empty(tommy_node *head, tommy_node *node)
 {
-    /* insert in the "circular" prev list */
-    node->prev = head->prev;
-    head->prev = node;
+	/* insert in the "circular" prev list */
+	node->prev = head->prev;
+	head->prev = node;
 
-    /* insert in the "0 terminated" next list */
-    node->next = 0;
-    node->prev->next = node;
+	/* insert in the "0 terminated" next list */
+	node->next = 0;
+	node->prev->next = node;
 }
 
 /**
@@ -211,14 +211,14 @@ tommy_list_insert_tail_not_empty(tommy_node *head, tommy_node *node)
 tommy_inline void
 tommy_list_insert_head(tommy_list *list, tommy_node *node, void *data)
 {
-    tommy_node *head = tommy_list_head(list);
+	tommy_node *head = tommy_list_head(list);
 
-    if (head)
-        tommy_list_insert_head_not_empty(list, node);
-    else
-        tommy_list_insert_first(list, node);
+	if (head)
+		tommy_list_insert_head_not_empty(list, node);
+	else
+		tommy_list_insert_first(list, node);
 
-    node->data = data;
+	node->data = data;
 }
 
 /**
@@ -230,14 +230,14 @@ tommy_list_insert_head(tommy_list *list, tommy_node *node, void *data)
 tommy_inline void
 tommy_list_insert_tail(tommy_list *list, tommy_node *node, void *data)
 {
-    tommy_node *head = tommy_list_head(list);
+	tommy_node *head = tommy_list_head(list);
 
-    if (head)
-        tommy_list_insert_tail_not_empty(head, node);
-    else
-        tommy_list_insert_first(list, node);
+	if (head)
+		tommy_list_insert_tail_not_empty(head, node);
+	else
+		tommy_list_insert_first(list, node);
 
-    node->data = data;
+	node->data = data;
 }
 
 /** \internal
@@ -248,15 +248,15 @@ tommy_list_insert_tail(tommy_list *list, tommy_node *node, void *data)
 tommy_inline tommy_node *
 tommy_list_remove_head_not_empty(tommy_list *list)
 {
-    tommy_node *head = tommy_list_head(list);
+	tommy_node *head = tommy_list_head(list);
 
-    /* remove from the "circular" prev list */
-    head->next->prev = head->prev;
+	/* remove from the "circular" prev list */
+	head->next->prev = head->prev;
 
-    /* remove from the "0 terminated" next list */
-    *list = head->next; /* the new head, in case 0 */
+	/* remove from the "0 terminated" next list */
+	*list = head->next; /* the new head, in case 0 */
 
-    return head;
+	return head;
 }
 
 /**
@@ -270,21 +270,21 @@ tommy_list_remove_head_not_empty(tommy_list *list)
 tommy_inline void *
 tommy_list_remove_existing(tommy_list *list, tommy_node *node)
 {
-    tommy_node *head = tommy_list_head(list);
+	tommy_node *head = tommy_list_head(list);
 
-    /* remove from the "circular" prev list */
-    if (node->next)
-        node->next->prev = node->prev;
-    else
-        head->prev = node->prev; /* the last */
+	/* remove from the "circular" prev list */
+	if (node->next)
+		node->next->prev = node->prev;
+	else
+		head->prev = node->prev; /* the last */
 
-    /* remove from the "0 terminated" next list */
-    if (head == node)
-        *list = node->next; /* the new head, in case 0 */
-    else
-        node->prev->next = node->next;
+	/* remove from the "0 terminated" next list */
+	if (head == node)
+		*list = node->next; /* the new head, in case 0 */
+	else
+		node->prev->next = node->next;
 
-    return node->data;
+	return node->data;
 }
 
 /**
@@ -297,31 +297,31 @@ tommy_list_remove_existing(tommy_list *list, tommy_node *node)
 tommy_inline void
 tommy_list_concat(tommy_list *first, tommy_list *second)
 {
-    tommy_node *first_head;
-    tommy_node *first_tail;
-    tommy_node *second_head;
+	tommy_node *first_head;
+	tommy_node *first_tail;
+	tommy_node *second_head;
 
-    /* if the second is empty, nothing to do */
-    second_head = tommy_list_head(second);
-    if (second_head == 0)
-        return;
+	/* if the second is empty, nothing to do */
+	second_head = tommy_list_head(second);
+	if (second_head == 0)
+		return;
 
-    /* if the first is empty, copy the second */
-    first_head = tommy_list_head(first);
-    if (first_head == 0) {
-        *first = *second;
-        return;
-    }
+	/* if the first is empty, copy the second */
+	first_head = tommy_list_head(first);
+	if (first_head == 0) {
+		*first = *second;
+		return;
+	}
 
-    /* tail of the first list */
-    first_tail = first_head->prev;
+	/* tail of the first list */
+	first_tail = first_head->prev;
 
-    /* set the "circular" prev list */
-    first_head->prev = second_head->prev;
-    second_head->prev = first_tail;
+	/* set the "circular" prev list */
+	first_head->prev = second_head->prev;
+	second_head->prev = first_tail;
 
-    /* set the "0 terminated" next list */
-    first_tail->next = second_head;
+	/* set the "0 terminated" next list */
+	first_tail->next = second_head;
 }
 
 /**
@@ -341,7 +341,7 @@ void tommy_list_sort(tommy_list *list, tommy_compare_func *cmp);
 tommy_inline tommy_bool_t
 tommy_list_empty(tommy_list *list)
 {
-    return tommy_list_head(list) == 0;
+	return tommy_list_head(list) == 0;
 }
 
 /**
@@ -351,15 +351,15 @@ tommy_list_empty(tommy_list *list)
 tommy_inline tommy_count_t
 tommy_list_count(tommy_list *list)
 {
-    tommy_count_t count = 0;
-    tommy_node *i = tommy_list_head(list);
+	tommy_count_t count = 0;
+	tommy_node *i = tommy_list_head(list);
 
-    while (i) {
-        ++count;
-        i = i->next;
-    }
+	while (i) {
+		++count;
+		i = i->next;
+	}
 
-    return count;
+	return count;
 }
 
 /**
@@ -393,13 +393,13 @@ tommy_list_count(tommy_list *list)
 tommy_inline void
 tommy_list_foreach(tommy_list *list, tommy_foreach_func *func)
 {
-    tommy_node *node = tommy_list_head(list);
+	tommy_node *node = tommy_list_head(list);
 
-    while (node) {
-        void *data = node->data;
-        node = node->next;
-        func(data);
-    }
+	while (node) {
+		void *data = node->data;
+		node = node->next;
+		func(data);
+	}
 }
 
 /**
@@ -407,15 +407,15 @@ tommy_list_foreach(tommy_list *list, tommy_foreach_func *func)
  */
 tommy_inline void
 tommy_list_foreach_arg(tommy_list *list, tommy_foreach_arg_func *func,
-                       void *arg)
+		       void *arg)
 {
-    tommy_node *node = tommy_list_head(list);
+	tommy_node *node = tommy_list_head(list);
 
-    while (node) {
-        void *data = node->data;
-        node = node->next;
-        func(arg, data);
-    }
+	while (node) {
+		void *data = node->data;
+		node = node->next;
+		func(arg, data);
+	}
 }
 
 #endif

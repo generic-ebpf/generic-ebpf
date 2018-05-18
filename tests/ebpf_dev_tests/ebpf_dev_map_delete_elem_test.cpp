@@ -15,73 +15,73 @@ static uint32_t value = 100;
 
 namespace {
 class EbpfDevMapDeleteElemTest : public ::testing::Test {
-  protected:
-    int ebpf_fd;
-    int map_fd;
+      protected:
+	int ebpf_fd;
+	int map_fd;
 
-    virtual void
-    SetUp()
-    {
-        int error;
+	virtual void
+	SetUp()
+	{
+		int error;
 
-        ebpf_fd = open("/dev/ebpf", O_RDWR);
-        ASSERT_TRUE(ebpf_fd > 0);
+		ebpf_fd = open("/dev/ebpf", O_RDWR);
+		ASSERT_TRUE(ebpf_fd > 0);
 
-        union ebpf_req req1;
-        req1.map_fdp = &map_fd;
-        req1.map_type = EBPF_MAP_TYPE_ARRAY;
-        req1.key_size = sizeof(uint32_t);
-        req1.value_size = sizeof(uint32_t);
-        req1.max_entries = 100;
+		union ebpf_req req1;
+		req1.map_fdp = &map_fd;
+		req1.map_type = EBPF_MAP_TYPE_ARRAY;
+		req1.key_size = sizeof(uint32_t);
+		req1.value_size = sizeof(uint32_t);
+		req1.max_entries = 100;
 
-        error = ioctl(ebpf_fd, EBPFIOC_MAP_CREATE, &req1);
-        ASSERT_TRUE(!error);
+		error = ioctl(ebpf_fd, EBPFIOC_MAP_CREATE, &req1);
+		ASSERT_TRUE(!error);
 
-        union ebpf_req req2;
-        req2.map_fd = map_fd;
-        req2.key = &key;
-        req2.value = &value;
-        req2.flags = 0;
+		union ebpf_req req2;
+		req2.map_fd = map_fd;
+		req2.key = &key;
+		req2.value = &value;
+		req2.flags = 0;
 
-        error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req2);
-        ASSERT_TRUE(!error);
-    }
+		error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req2);
+		ASSERT_TRUE(!error);
+	}
 
-    virtual void
-    TearDown()
-    {
-        close(ebpf_fd);
-        close(map_fd);
-    }
+	virtual void
+	TearDown()
+	{
+		close(ebpf_fd);
+		close(map_fd);
+	}
 };
 
 TEST_F(EbpfDevMapDeleteElemTest, DeleteWithInvalidMapFd)
 {
-    int error;
-    uint32_t k = key;
+	int error;
+	uint32_t k = key;
 
-    union ebpf_req req;
-    req.map_fd = 0;
-    req.key = &k;
-    req.flags = 0;
+	union ebpf_req req;
+	req.map_fd = 0;
+	req.key = &k;
+	req.flags = 0;
 
-    error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
-    EXPECT_EQ(-1, error);
-    EXPECT_EQ(EINVAL, errno);
+	error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
+	EXPECT_EQ(-1, error);
+	EXPECT_EQ(EINVAL, errno);
 }
 
 TEST_F(EbpfDevMapDeleteElemTest, DeleteWithNullKey)
 {
-    int error;
+	int error;
 
-    union ebpf_req req;
-    req.map_fd = map_fd;
-    req.key = NULL;
-    req.flags = 0;
+	union ebpf_req req;
+	req.map_fd = map_fd;
+	req.key = NULL;
+	req.flags = 0;
 
-    error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
-    EXPECT_EQ(-1, error);
-    EXPECT_EQ(EINVAL, errno);
+	error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
+	EXPECT_EQ(-1, error);
+	EXPECT_EQ(EINVAL, errno);
 }
 
 /*
@@ -104,15 +104,15 @@ TEST_F(EbpfDevMapDeleteElemTest, DeleteWithInvalidSizeKey) {
 
 TEST_F(EbpfDevMapDeleteElemTest, CorrectDelete)
 {
-    int error;
-    uint32_t k = key;
+	int error;
+	uint32_t k = key;
 
-    union ebpf_req req;
-    req.map_fd = map_fd;
-    req.key = &k;
-    req.flags = 0;
+	union ebpf_req req;
+	req.map_fd = map_fd;
+	req.key = &k;
+	req.flags = 0;
 
-    error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
-    EXPECT_EQ(0, error);
+	error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
+	EXPECT_EQ(0, error);
 }
 }

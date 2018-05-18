@@ -132,14 +132,14 @@ hashtable_map_lookup_elem_common(struct ebpf_map *self,
 static void *
 hashtable_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 {
-  void *ret;
-  struct ebpf_map_hashtable *map = self->data;
+	void *ret;
+	struct ebpf_map_hashtable *map = self->data;
 
-  ebpf_rw_rlock(&map->rw);
+	ebpf_rw_rlock(&map->rw);
 	ret = hashtable_map_lookup_elem_common(self, map, key, flags);
-  ebpf_rw_runlock(&map->rw);
+	ebpf_rw_runlock(&map->rw);
 
-  return ret;
+	return ret;
 }
 
 static int
@@ -154,16 +154,16 @@ hashtable_map_update_elem_common(struct ebpf_map *self,
 	struct ebpf_map_hashtable_elem *elem =
 	    hashtable_map_lookup_elem_common(self, hashtable, key, flags);
 	if (elem) {
-    if (flags & EBPF_NOEXIST) {
-      return EEXIST;
-    }
+		if (flags & EBPF_NOEXIST) {
+			return EEXIST;
+		}
 		memcpy(elem, value, self->value_size);
 		return 0;
 	}
 
-  if (flags & EBPF_EXIST) {
-    return ENOENT;
-  }
+	if (flags & EBPF_EXIST) {
+		return ENOENT;
+	}
 
 	elem = ebpf_allocator_alloc(&hashtable->allocator);
 	if (!elem) {
@@ -184,14 +184,14 @@ static int
 hashtable_map_update_elem(struct ebpf_map *self, void *key, void *value,
 			  uint64_t flags)
 {
-  int ret;
-  struct ebpf_map_hashtable *map = self->data;
+	int ret;
+	struct ebpf_map_hashtable *map = self->data;
 
-  ebpf_rw_wlock(&map->rw);
+	ebpf_rw_wlock(&map->rw);
 	ret = hashtable_map_update_elem_common(self, map, key, value, flags);
-  ebpf_rw_wunlock(&map->rw);
+	ebpf_rw_wunlock(&map->rw);
 
-  return ret;
+	return ret;
 }
 
 static int
@@ -218,14 +218,14 @@ hashtable_map_delete_elem_common(struct ebpf_map *self,
 static int
 hashtable_map_delete_elem(struct ebpf_map *self, void *key)
 {
-  int ret;
-  struct ebpf_map_hashtable *map = self->data;
+	int ret;
+	struct ebpf_map_hashtable *map = self->data;
 
-  ebpf_rw_wlock(&map->rw);
+	ebpf_rw_wlock(&map->rw);
 	ret = hashtable_map_delete_elem_common(self, map, key);
-  ebpf_rw_wunlock(&map->rw);
+	ebpf_rw_wunlock(&map->rw);
 
-  return ret;
+	return ret;
 }
 
 static int
@@ -282,14 +282,14 @@ get_first_key:
 static int
 hashtable_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 {
-  int ret;
-  struct ebpf_map_hashtable *map = self->data;
+	int ret;
+	struct ebpf_map_hashtable *map = self->data;
 
-  ebpf_rw_rlock(&map->rw);
+	ebpf_rw_rlock(&map->rw);
 	ret = hashtable_map_get_next_key_common(self, map, key, next_key);
-  ebpf_rw_runlock(&map->rw);
+	ebpf_rw_runlock(&map->rw);
 
-  return ret;
+	return ret;
 }
 
 struct ebpf_map_ops hashtable_map_ops = {

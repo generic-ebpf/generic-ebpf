@@ -36,251 +36,254 @@ tommy_le_uint32_read(const void *ptr)
 /* allow unaligned read on Intel x86 and x86_64 platforms */
 #if defined(__i386__) || defined(_M_IX86) || defined(_X86_) ||                 \
     defined(__x86_64__) || defined(_M_X64)
-    /* defines from http://predef.sourceforge.net/ */
-    return *(const tommy_uint32_t *)ptr;
+	/* defines from http://predef.sourceforge.net/ */
+	return *(const tommy_uint32_t *)ptr;
 #else
-    const unsigned char *ptr8 = tommy_cast(const unsigned char *, ptr);
-    return ptr8[0] + ((tommy_uint32_t)ptr8[1] << 8) +
-           ((tommy_uint32_t)ptr8[2] << 16) + ((tommy_uint32_t)ptr8[3] << 24);
+	const unsigned char *ptr8 = tommy_cast(const unsigned char *, ptr);
+	return ptr8[0] + ((tommy_uint32_t)ptr8[1] << 8) +
+	       ((tommy_uint32_t)ptr8[2] << 16) +
+	       ((tommy_uint32_t)ptr8[3] << 24);
 #endif
 }
 
 #define tommy_rot(x, k) (((x) << (k)) | ((x) >> (32 - (k))))
 
 #define tommy_mix(a, b, c)                                                     \
-    do {                                                                       \
-        a -= c;                                                                \
-        a ^= tommy_rot(c, 4);                                                  \
-        c += b;                                                                \
-        b -= a;                                                                \
-        b ^= tommy_rot(a, 6);                                                  \
-        a += c;                                                                \
-        c -= b;                                                                \
-        c ^= tommy_rot(b, 8);                                                  \
-        b += a;                                                                \
-        a -= c;                                                                \
-        a ^= tommy_rot(c, 16);                                                 \
-        c += b;                                                                \
-        b -= a;                                                                \
-        b ^= tommy_rot(a, 19);                                                 \
-        a += c;                                                                \
-        c -= b;                                                                \
-        c ^= tommy_rot(b, 4);                                                  \
-        b += a;                                                                \
-    } while (0)
+	do {                                                                   \
+		a -= c;                                                        \
+		a ^= tommy_rot(c, 4);                                          \
+		c += b;                                                        \
+		b -= a;                                                        \
+		b ^= tommy_rot(a, 6);                                          \
+		a += c;                                                        \
+		c -= b;                                                        \
+		c ^= tommy_rot(b, 8);                                          \
+		b += a;                                                        \
+		a -= c;                                                        \
+		a ^= tommy_rot(c, 16);                                         \
+		c += b;                                                        \
+		b -= a;                                                        \
+		b ^= tommy_rot(a, 19);                                         \
+		a += c;                                                        \
+		c -= b;                                                        \
+		c ^= tommy_rot(b, 4);                                          \
+		b += a;                                                        \
+	} while (0)
 
 #define tommy_final(a, b, c)                                                   \
-    do {                                                                       \
-        c ^= b;                                                                \
-        c -= tommy_rot(b, 14);                                                 \
-        a ^= c;                                                                \
-        a -= tommy_rot(c, 11);                                                 \
-        b ^= a;                                                                \
-        b -= tommy_rot(a, 25);                                                 \
-        c ^= b;                                                                \
-        c -= tommy_rot(b, 16);                                                 \
-        a ^= c;                                                                \
-        a -= tommy_rot(c, 4);                                                  \
-        b ^= a;                                                                \
-        b -= tommy_rot(a, 14);                                                 \
-        c ^= b;                                                                \
-        c -= tommy_rot(b, 24);                                                 \
-    } while (0)
+	do {                                                                   \
+		c ^= b;                                                        \
+		c -= tommy_rot(b, 14);                                         \
+		a ^= c;                                                        \
+		a -= tommy_rot(c, 11);                                         \
+		b ^= a;                                                        \
+		b -= tommy_rot(a, 25);                                         \
+		c ^= b;                                                        \
+		c -= tommy_rot(b, 16);                                         \
+		a ^= c;                                                        \
+		a -= tommy_rot(c, 4);                                          \
+		b ^= a;                                                        \
+		b -= tommy_rot(a, 14);                                         \
+		c ^= b;                                                        \
+		c -= tommy_rot(b, 24);                                         \
+	} while (0)
 
 tommy_uint32_t
 tommy_hash_u32(tommy_uint32_t init_val, const void *void_key,
-               tommy_size_t key_len)
+	       tommy_size_t key_len)
 {
-    const unsigned char *key = tommy_cast(const unsigned char *, void_key);
-    tommy_uint32_t a, b, c;
+	const unsigned char *key = tommy_cast(const unsigned char *, void_key);
+	tommy_uint32_t a, b, c;
 
-    a = b = c = 0xdeadbeef + ((tommy_uint32_t)key_len) + init_val;
+	a = b = c = 0xdeadbeef + ((tommy_uint32_t)key_len) + init_val;
 
-    while (key_len > 12) {
-        a += tommy_le_uint32_read(key + 0);
-        b += tommy_le_uint32_read(key + 4);
-        c += tommy_le_uint32_read(key + 8);
+	while (key_len > 12) {
+		a += tommy_le_uint32_read(key + 0);
+		b += tommy_le_uint32_read(key + 4);
+		c += tommy_le_uint32_read(key + 8);
 
-        tommy_mix(a, b, c);
+		tommy_mix(a, b, c);
 
-        key_len -= 12;
-        key += 12;
-    }
+		key_len -= 12;
+		key += 12;
+	}
 
-    switch (key_len) {
-    case 0:
-        return c; /* used only when called with a zero length */
-    case 12:
-        c += tommy_le_uint32_read(key + 8);
-        b += tommy_le_uint32_read(key + 4);
-        a += tommy_le_uint32_read(key + 0);
-        break;
-    case 11:
-        c += ((tommy_uint32_t)key[10]) << 16;
-    case 10:
-        c += ((tommy_uint32_t)key[9]) << 8;
-    case 9:
-        c += key[8];
-    case 8:
-        b += tommy_le_uint32_read(key + 4);
-        a += tommy_le_uint32_read(key + 0);
-        break;
-    case 7:
-        b += ((tommy_uint32_t)key[6]) << 16;
-    case 6:
-        b += ((tommy_uint32_t)key[5]) << 8;
-    case 5:
-        b += key[4];
-    case 4:
-        a += tommy_le_uint32_read(key + 0);
-        break;
-    case 3:
-        a += ((tommy_uint32_t)key[2]) << 16;
-    case 2:
-        a += ((tommy_uint32_t)key[1]) << 8;
-    case 1:
-        a += key[0];
-    }
+	switch (key_len) {
+	case 0:
+		return c; /* used only when called with a zero length */
+	case 12:
+		c += tommy_le_uint32_read(key + 8);
+		b += tommy_le_uint32_read(key + 4);
+		a += tommy_le_uint32_read(key + 0);
+		break;
+	case 11:
+		c += ((tommy_uint32_t)key[10]) << 16;
+	case 10:
+		c += ((tommy_uint32_t)key[9]) << 8;
+	case 9:
+		c += key[8];
+	case 8:
+		b += tommy_le_uint32_read(key + 4);
+		a += tommy_le_uint32_read(key + 0);
+		break;
+	case 7:
+		b += ((tommy_uint32_t)key[6]) << 16;
+	case 6:
+		b += ((tommy_uint32_t)key[5]) << 8;
+	case 5:
+		b += key[4];
+	case 4:
+		a += tommy_le_uint32_read(key + 0);
+		break;
+	case 3:
+		a += ((tommy_uint32_t)key[2]) << 16;
+	case 2:
+		a += ((tommy_uint32_t)key[1]) << 8;
+	case 1:
+		a += key[0];
+	}
 
-    tommy_final(a, b, c);
+	tommy_final(a, b, c);
 
-    return c;
+	return c;
 }
 
 tommy_uint64_t
 tommy_hash_u64(tommy_uint64_t init_val, const void *void_key,
-               tommy_size_t key_len)
+	       tommy_size_t key_len)
 {
-    const unsigned char *key = tommy_cast(const unsigned char *, void_key);
-    tommy_uint32_t a, b, c;
+	const unsigned char *key = tommy_cast(const unsigned char *, void_key);
+	tommy_uint32_t a, b, c;
 
-    a = b = c =
-        0xdeadbeef + ((tommy_uint32_t)key_len) + (init_val & 0xffffffff);
-    c += init_val >> 32;
+	a = b = c =
+	    0xdeadbeef + ((tommy_uint32_t)key_len) + (init_val & 0xffffffff);
+	c += init_val >> 32;
 
-    while (key_len > 12) {
-        a += tommy_le_uint32_read(key + 0);
-        b += tommy_le_uint32_read(key + 4);
-        c += tommy_le_uint32_read(key + 8);
+	while (key_len > 12) {
+		a += tommy_le_uint32_read(key + 0);
+		b += tommy_le_uint32_read(key + 4);
+		c += tommy_le_uint32_read(key + 8);
 
-        tommy_mix(a, b, c);
+		tommy_mix(a, b, c);
 
-        key_len -= 12;
-        key += 12;
-    }
+		key_len -= 12;
+		key += 12;
+	}
 
-    switch (key_len) {
-    case 0:
-        return c + ((tommy_uint64_t)b
-                    << 32); /* used only when called with a zero length */
-    case 12:
-        c += tommy_le_uint32_read(key + 8);
-        b += tommy_le_uint32_read(key + 4);
-        a += tommy_le_uint32_read(key + 0);
-        break;
-    case 11:
-        c += ((tommy_uint32_t)key[10]) << 16;
-    case 10:
-        c += ((tommy_uint32_t)key[9]) << 8;
-    case 9:
-        c += key[8];
-    case 8:
-        b += tommy_le_uint32_read(key + 4);
-        a += tommy_le_uint32_read(key + 0);
-        break;
-    case 7:
-        b += ((tommy_uint32_t)key[6]) << 16;
-    case 6:
-        b += ((tommy_uint32_t)key[5]) << 8;
-    case 5:
-        b += key[4];
-    case 4:
-        a += tommy_le_uint32_read(key + 0);
-        break;
-    case 3:
-        a += ((tommy_uint32_t)key[2]) << 16;
-    case 2:
-        a += ((tommy_uint32_t)key[1]) << 8;
-    case 1:
-        a += key[0];
-    }
+	switch (key_len) {
+	case 0:
+		return c +
+		       ((tommy_uint64_t)b
+			<< 32); /* used only when called with a zero length */
+	case 12:
+		c += tommy_le_uint32_read(key + 8);
+		b += tommy_le_uint32_read(key + 4);
+		a += tommy_le_uint32_read(key + 0);
+		break;
+	case 11:
+		c += ((tommy_uint32_t)key[10]) << 16;
+	case 10:
+		c += ((tommy_uint32_t)key[9]) << 8;
+	case 9:
+		c += key[8];
+	case 8:
+		b += tommy_le_uint32_read(key + 4);
+		a += tommy_le_uint32_read(key + 0);
+		break;
+	case 7:
+		b += ((tommy_uint32_t)key[6]) << 16;
+	case 6:
+		b += ((tommy_uint32_t)key[5]) << 8;
+	case 5:
+		b += key[4];
+	case 4:
+		a += tommy_le_uint32_read(key + 0);
+		break;
+	case 3:
+		a += ((tommy_uint32_t)key[2]) << 16;
+	case 2:
+		a += ((tommy_uint32_t)key[1]) << 8;
+	case 1:
+		a += key[0];
+	}
 
-    tommy_final(a, b, c);
+	tommy_final(a, b, c);
 
-    return c + ((tommy_uint64_t)b << 32);
+	return c + ((tommy_uint64_t)b << 32);
 }
 
 tommy_uint32_t
 tommy_strhash_u32(tommy_uint64_t init_val, const void *void_key)
 {
-    const unsigned char *key = tommy_cast(const unsigned char *, void_key);
-    tommy_uint32_t a, b, c;
-    tommy_uint32_t m[3] = {0xff, 0xff00, 0xff0000};
+	const unsigned char *key = tommy_cast(const unsigned char *, void_key);
+	tommy_uint32_t a, b, c;
+	tommy_uint32_t m[3] = {0xff, 0xff00, 0xff0000};
 
-    a = b = c = 0xdeadbeef + init_val;
-    /* this is different than original lookup3 and the result won't match */
+	a = b = c = 0xdeadbeef + init_val;
+	/* this is different than original lookup3 and the result won't match */
 
-    while (1) {
-        tommy_uint32_t v = tommy_le_uint32_read(key);
+	while (1) {
+		tommy_uint32_t v = tommy_le_uint32_read(key);
 
-        if (tommy_haszero_u32(v)) {
-            if (v & m[0]) {
-                a += v & m[0];
-                if (v & m[1]) {
-                    a += v & m[1];
-                    if (v & m[2])
-                        a += v & m[2];
-                }
-            }
+		if (tommy_haszero_u32(v)) {
+			if (v & m[0]) {
+				a += v & m[0];
+				if (v & m[1]) {
+					a += v & m[1];
+					if (v & m[2])
+						a += v & m[2];
+				}
+			}
 
-            break;
-        }
+			break;
+		}
 
-        a += v;
+		a += v;
 
-        v = tommy_le_uint32_read(key + 4);
+		v = tommy_le_uint32_read(key + 4);
 
-        if (tommy_haszero_u32(v)) {
-            if (v & m[0]) {
-                b += v & m[0];
-                if (v & m[1]) {
-                    b += v & m[1];
-                    if (v & m[2])
-                        b += v & m[2];
-                }
-            }
+		if (tommy_haszero_u32(v)) {
+			if (v & m[0]) {
+				b += v & m[0];
+				if (v & m[1]) {
+					b += v & m[1];
+					if (v & m[2])
+						b += v & m[2];
+				}
+			}
 
-            break;
-        }
+			break;
+		}
 
-        b += v;
+		b += v;
 
-        v = tommy_le_uint32_read(key + 8);
+		v = tommy_le_uint32_read(key + 8);
 
-        if (tommy_haszero_u32(v)) {
-            if (v & m[0]) {
-                c += v & m[0];
-                if (v & m[1]) {
-                    c += v & m[1];
-                    if (v & m[2])
-                        c += v & m[2];
-                }
-            }
+		if (tommy_haszero_u32(v)) {
+			if (v & m[0]) {
+				c += v & m[0];
+				if (v & m[1]) {
+					c += v & m[1];
+					if (v & m[2])
+						c += v & m[2];
+				}
+			}
 
-            break;
-        }
+			break;
+		}
 
-        c += v;
+		c += v;
 
-        tommy_mix(a, b, c);
+		tommy_mix(a, b, c);
 
-        key += 12;
-    }
+		key += 12;
+	}
 
-    /* for lengths that are multiplers of 12 we already have called mix */
-    /* this is different than the original lookup3 and the result won't match */
+	/* for lengths that are multiplers of 12 we already have called mix */
+	/* this is different than the original lookup3 and the result won't
+	 * match */
 
-    tommy_final(a, b, c);
+	tommy_final(a, b, c);
 
-    return c;
+	return c;
 }

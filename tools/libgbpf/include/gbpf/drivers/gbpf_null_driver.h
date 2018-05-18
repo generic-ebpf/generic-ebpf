@@ -21,8 +21,8 @@
 #include <gbpf/core/gbpf_driver.h>
 
 typedef struct gbpf_null_driver {
-  GBPFDriver base;
+	GBPFDriver base;
 } GBPFNullDriver;
 
-GBPFNullDriver* gbpf_null_driver_create(void);
+GBPFNullDriver *gbpf_null_driver_create(void);
 void gbpf_null_driver_destroy(GBPFNullDriver *driver);

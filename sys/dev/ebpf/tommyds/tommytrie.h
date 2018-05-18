@@ -159,7 +159,7 @@
  * Number of bits of the first level.
  */
 #define TOMMY_TRIE_BUCKET_BIT                                                  \
-    ((TOMMY_KEY_BIT % TOMMY_TRIE_TREE_BIT) + TOMMY_TRIE_TREE_BIT)
+	((TOMMY_KEY_BIT % TOMMY_TRIE_TREE_BIT) + TOMMY_TRIE_TREE_BIT)
 
 /** \internal
  * Number of branches of the first level.
@@ -179,10 +179,11 @@ typedef tommy_node tommy_trie_node;
  * functions.
  */
 typedef struct tommy_trie_struct {
-    tommy_trie_node *bucket[TOMMY_TRIE_BUCKET_MAX]; /**< First tree level. */
-    tommy_count_t count;                            /**< Number of elements. */
-    tommy_count_t node_count;                       /**< Number of nodes. */
-    tommy_allocator *alloc; /**< Allocator for internal nodes. */
+	tommy_trie_node
+	    *bucket[TOMMY_TRIE_BUCKET_MAX]; /**< First tree level. */
+	tommy_count_t count;		    /**< Number of elements. */
+	tommy_count_t node_count;	   /**< Number of nodes. */
+	tommy_allocator *alloc; /**< Allocator for internal nodes. */
 } tommy_trie;
 
 /**
@@ -207,7 +208,7 @@ void tommy_trie_init(tommy_trie *trie, tommy_allocator *alloc);
  * \param key Key to use to insert the object.
  */
 void tommy_trie_insert(tommy_trie *trie, tommy_trie_node *node, void *data,
-                       tommy_key_t key);
+		       tommy_key_t key);
 
 /**
  * Searches and removes the first element with the specified key.
@@ -240,12 +241,12 @@ tommy_trie_node *tommy_trie_bucket(tommy_trie *trie, tommy_key_t key);
 tommy_inline void *
 tommy_trie_search(tommy_trie *trie, tommy_key_t key)
 {
-    tommy_trie_node *i = tommy_trie_bucket(trie, key);
+	tommy_trie_node *i = tommy_trie_bucket(trie, key);
 
-    if (!i)
-        return 0;
+	if (!i)
+		return 0;
 
-    return i->data;
+	return i->data;
 }
 
 /**
@@ -261,7 +262,7 @@ void *tommy_trie_remove_existing(tommy_trie *trie, tommy_trie_node *node);
 tommy_inline tommy_count_t
 tommy_trie_count(tommy_trie *trie)
 {
-    return trie->count;
+	return trie->count;
 }
 
 /**

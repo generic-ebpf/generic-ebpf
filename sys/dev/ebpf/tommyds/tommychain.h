@@ -50,8 +50,8 @@
  * - All the other inner prev and next fields are correctly set.
  */
 typedef struct tommy_chain_struct {
-    tommy_node *head; /**< Pointer to the head of the chain. */
-    tommy_node *tail; /**< Pointer to the tail of the chain. */
+	tommy_node *head; /**< Pointer to the head of the chain. */
+	tommy_node *tail; /**< Pointer to the tail of the chain. */
 } tommy_chain;
 
 /**
@@ -59,15 +59,15 @@ typedef struct tommy_chain_struct {
  */
 tommy_inline void
 tommy_chain_splice(tommy_node *first_before, tommy_node *first_after,
-                   tommy_node *second_head, tommy_node *second_tail)
+		   tommy_node *second_head, tommy_node *second_tail)
 {
-    /* set the prev list */
-    first_after->prev = second_tail;
-    second_head->prev = first_before;
+	/* set the prev list */
+	first_after->prev = second_tail;
+	second_head->prev = first_before;
 
-    /* set the next list */
-    first_before->next = second_head;
-    second_tail->next = first_after;
+	/* set the next list */
+	first_before->next = second_head;
+	second_tail->next = first_after;
 }
 
 /**
@@ -76,11 +76,11 @@ tommy_chain_splice(tommy_node *first_before, tommy_node *first_after,
 tommy_inline void
 tommy_chain_concat(tommy_node *first_tail, tommy_node *second_head)
 {
-    /* set the prev list */
-    second_head->prev = first_tail;
+	/* set the prev list */
+	second_head->prev = first_tail;
 
-    /* set the next list */
-    first_tail->next = second_head;
+	/* set the next list */
+	first_tail->next = second_head;
 }
 
 /**
@@ -88,33 +88,34 @@ tommy_chain_concat(tommy_node *first_tail, tommy_node *second_head)
  */
 tommy_inline void
 tommy_chain_merge(tommy_chain *first, tommy_chain *second,
-                  tommy_compare_func *cmp)
+		  tommy_compare_func *cmp)
 {
-    tommy_node *first_i = first->head;
-    tommy_node *second_i = second->head;
+	tommy_node *first_i = first->head;
+	tommy_node *second_i = second->head;
 
-    /* merge */
-    while (1) {
-        if (cmp(first_i->data, second_i->data) > 0) {
-            tommy_node *next = second_i->next;
-            if (first_i == first->head) {
-                tommy_chain_concat(second_i, first_i);
-                first->head = second_i;
-            } else {
-                tommy_chain_splice(first_i->prev, first_i, second_i, second_i);
-            }
-            if (second_i == second->tail)
-                break;
-            second_i = next;
-        } else {
-            if (first_i == first->tail) {
-                tommy_chain_concat(first_i, second_i);
-                first->tail = second->tail;
-                break;
-            }
-            first_i = first_i->next;
-        }
-    }
+	/* merge */
+	while (1) {
+		if (cmp(first_i->data, second_i->data) > 0) {
+			tommy_node *next = second_i->next;
+			if (first_i == first->head) {
+				tommy_chain_concat(second_i, first_i);
+				first->head = second_i;
+			} else {
+				tommy_chain_splice(first_i->prev, first_i,
+						   second_i, second_i);
+			}
+			if (second_i == second->tail)
+				break;
+			second_i = next;
+		} else {
+			if (first_i == first->tail) {
+				tommy_chain_concat(first_i, second_i);
+				first->tail = second->tail;
+				break;
+			}
+			first_i = first_i->next;
+		}
+	}
 }
 
 /**
@@ -124,24 +125,24 @@ tommy_chain_merge(tommy_chain *first, tommy_chain *second,
  */
 tommy_inline void
 tommy_chain_merge_degenerated(tommy_chain *first, tommy_chain *second,
-                              tommy_compare_func *cmp)
+			      tommy_compare_func *cmp)
 {
-    /* identify the condition first <= second */
-    if (cmp(first->tail->data, second->head->data) <= 0) {
-        tommy_chain_concat(first->tail, second->head);
-        first->tail = second->tail;
-        return;
-    }
+	/* identify the condition first <= second */
+	if (cmp(first->tail->data, second->head->data) <= 0) {
+		tommy_chain_concat(first->tail, second->head);
+		first->tail = second->tail;
+		return;
+	}
 
-    /* identify the condition second < first */
-    /* here we must be strict on comparison to keep the sort stable */
-    if (cmp(second->tail->data, first->head->data) < 0) {
-        tommy_chain_concat(second->tail, first->head);
-        first->head = second->head;
-        return;
-    }
+	/* identify the condition second < first */
+	/* here we must be strict on comparison to keep the sort stable */
+	if (cmp(second->tail->data, first->head->data) < 0) {
+		tommy_chain_concat(second->tail, first->head);
+		first->head = second->head;
+		return;
+	}
 
-    tommy_chain_merge(first, second, cmp);
+	tommy_chain_merge(first, second, cmp);
 }
 
 /**
@@ -165,71 +166,73 @@ tommy_chain_merge_degenerated(tommy_chain *first, tommy_chain *second,
 tommy_inline void
 tommy_chain_mergesort(tommy_chain *chain, tommy_compare_func *cmp)
 {
-    /*
-     * Bit buckets of chains.
-     * Each bucket contains 2^i nodes or it's empty.
-     * The chain at address TOMMY_CHAIN_BIT_MAX is an independet variable
-     * operating as "carry".
-     * We keep it in the same "bit" vector to avoid reports from the valgrind
-     * tool sgcheck.
-     */
-    tommy_chain bit[TOMMY_CHAIN_BIT_MAX + 1];
+	/*
+	 * Bit buckets of chains.
+	 * Each bucket contains 2^i nodes or it's empty.
+	 * The chain at address TOMMY_CHAIN_BIT_MAX is an independet variable
+	 * operating as "carry".
+	 * We keep it in the same "bit" vector to avoid reports from the
+	 * valgrind
+	 * tool sgcheck.
+	 */
+	tommy_chain bit[TOMMY_CHAIN_BIT_MAX + 1];
 
-    /**
-     * Value stored inside the bit bucket.
-     * It's used to know which bucket is empty of full.
-     */
-    tommy_count_t counter;
-    tommy_node *node = chain->head;
-    tommy_node *tail = chain->tail;
-    tommy_count_t mask;
-    tommy_count_t i;
+	/**
+	 * Value stored inside the bit bucket.
+	 * It's used to know which bucket is empty of full.
+	 */
+	tommy_count_t counter;
+	tommy_node *node = chain->head;
+	tommy_node *tail = chain->tail;
+	tommy_count_t mask;
+	tommy_count_t i;
 
-    counter = 0;
-    while (1) {
-        tommy_node *next;
-        tommy_chain *last;
+	counter = 0;
+	while (1) {
+		tommy_node *next;
+		tommy_chain *last;
 
-        /* carry bit to add */
-        last = &bit[TOMMY_CHAIN_BIT_MAX];
-        bit[TOMMY_CHAIN_BIT_MAX].head = node;
-        bit[TOMMY_CHAIN_BIT_MAX].tail = node;
-        next = node->next;
+		/* carry bit to add */
+		last = &bit[TOMMY_CHAIN_BIT_MAX];
+		bit[TOMMY_CHAIN_BIT_MAX].head = node;
+		bit[TOMMY_CHAIN_BIT_MAX].tail = node;
+		next = node->next;
 
-        /* add the bit, propagating the carry */
-        i = 0;
-        mask = counter;
-        while ((mask & 1) != 0) {
-            tommy_chain_merge_degenerated(&bit[i], last, cmp);
-            mask >>= 1;
-            last = &bit[i];
-            ++i;
-        }
+		/* add the bit, propagating the carry */
+		i = 0;
+		mask = counter;
+		while ((mask & 1) != 0) {
+			tommy_chain_merge_degenerated(&bit[i], last, cmp);
+			mask >>= 1;
+			last = &bit[i];
+			++i;
+		}
 
-        /* copy the carry in the first empty bit */
-        bit[i] = *last;
+		/* copy the carry in the first empty bit */
+		bit[i] = *last;
 
-        /* add the carry in the counter */
-        ++counter;
+		/* add the carry in the counter */
+		++counter;
 
-        if (node == tail)
-            break;
-        node = next;
-    }
+		if (node == tail)
+			break;
+		node = next;
+	}
 
-    /* merge the buckets */
-    i = tommy_ctz_u32(counter);
-    mask = counter >> i;
-    while (mask != 1) {
-        mask >>= 1;
-        if (mask & 1)
-            tommy_chain_merge_degenerated(&bit[i + 1], &bit[i], cmp);
-        else
-            bit[i + 1] = bit[i];
-        ++i;
-    }
+	/* merge the buckets */
+	i = tommy_ctz_u32(counter);
+	mask = counter >> i;
+	while (mask != 1) {
+		mask >>= 1;
+		if (mask & 1)
+			tommy_chain_merge_degenerated(&bit[i + 1], &bit[i],
+						      cmp);
+		else
+			bit[i + 1] = bit[i];
+		++i;
+	}
 
-    *chain = bit[i];
+	*chain = bit[i];
 }
 
 #endif

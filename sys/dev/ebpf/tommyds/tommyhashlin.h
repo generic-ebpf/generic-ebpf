@@ -182,18 +182,19 @@ typedef tommy_node tommy_hashlin_node;
  * functions.
  */
 typedef struct tommy_hashlin_struct {
-    tommy_hashlin_node **bucket[TOMMY_HASHLIN_BIT_MAX]; /**< Dynamic array of
-                                                           hash buckets. One
-                                                           list for each hash
-                                                           modulus. */
-    tommy_uint_t bucket_bit;   /**< Bits used in the bit mask. */
-    tommy_count_t bucket_max;  /**< Number of buckets. */
-    tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
-    tommy_count_t low_max;     /**< Low order max value. */
-    tommy_count_t low_mask;    /**< Low order mask value. */
-    tommy_count_t split;       /**< Split position. */
-    tommy_count_t count;       /**< Number of elements. */
-    tommy_uint_t state;        /**< Reallocation state. */
+	tommy_hashlin_node *
+	    *bucket[TOMMY_HASHLIN_BIT_MAX]; /**< Dynamic array of
+					       hash buckets. One
+					       list for each hash
+					       modulus. */
+	tommy_uint_t bucket_bit;	    /**< Bits used in the bit mask. */
+	tommy_count_t bucket_max;	   /**< Number of buckets. */
+	tommy_count_t bucket_mask; /**< Bit mask to access the buckets. */
+	tommy_count_t low_max;     /**< Low order max value. */
+	tommy_count_t low_mask;    /**< Low order mask value. */
+	tommy_count_t split;       /**< Split position. */
+	tommy_count_t count;       /**< Number of elements. */
+	tommy_uint_t state;	/**< Reallocation state. */
 } tommy_hashlin;
 
 /**
@@ -213,7 +214,7 @@ void tommy_hashlin_done(tommy_hashlin *hashlin);
  * Inserts an element in the hashtable.
  */
 void tommy_hashlin_insert(tommy_hashlin *hashlin, tommy_hashlin_node *node,
-                          void *data, tommy_hash_t hash);
+			  void *data, tommy_hash_t hash);
 
 /**
  * Searches and removes an element from the hashtable.
@@ -231,7 +232,7 @@ void tommy_hashlin_insert(tommy_hashlin *hashlin, tommy_hashlin_node *node,
  * \return The removed element, or 0 if not found.
  */
 void *tommy_hashlin_remove(tommy_hashlin *hashlin, tommy_search_func *cmp,
-                           const void *cmp_arg, tommy_hash_t hash);
+			   const void *cmp_arg, tommy_hash_t hash);
 
 /** \internal
  * Returns the bucket at the specified position.
@@ -239,12 +240,12 @@ void *tommy_hashlin_remove(tommy_hashlin *hashlin, tommy_search_func *cmp,
 tommy_inline tommy_hashlin_node **
 tommy_hashlin_pos(tommy_hashlin *hashlin, tommy_hash_t pos)
 {
-    tommy_uint_t bsr;
+	tommy_uint_t bsr;
 
-    /* get the highest bit set, in case of all 0, return 0 */
-    bsr = tommy_ilog2_u32(pos | 1);
+	/* get the highest bit set, in case of all 0, return 0 */
+	bsr = tommy_ilog2_u32(pos | 1);
 
-    return &hashlin->bucket[bsr][pos];
+	return &hashlin->bucket[bsr][pos];
 }
 
 /** \internal
@@ -253,28 +254,29 @@ tommy_hashlin_pos(tommy_hashlin *hashlin, tommy_hash_t pos)
 tommy_inline tommy_hashlin_node **
 tommy_hashlin_bucket_ref(tommy_hashlin *hashlin, tommy_hash_t hash)
 {
-    tommy_count_t pos;
-    tommy_count_t high_pos;
+	tommy_count_t pos;
+	tommy_count_t high_pos;
 
-    pos = hash & hashlin->low_mask;
-    high_pos = hash & hashlin->bucket_mask;
+	pos = hash & hashlin->low_mask;
+	high_pos = hash & hashlin->bucket_mask;
 
-    /* if this position is already allocated in the high half */
-    if (pos < hashlin->split) {
-        /* The following assigment is expected to be implemented */
-        /* with a conditional move instruction */
-        /* that results in a little better and constant performance */
-        /* regardless of the split position. */
-        /* This affects mostly the worst case, when the split value */
-        /* is near at its half, resulting in a totally unpredictable */
-        /* condition by the CPU. */
-        /* In such case the use of the conditional move is generally faster. */
+	/* if this position is already allocated in the high half */
+	if (pos < hashlin->split) {
+		/* The following assigment is expected to be implemented */
+		/* with a conditional move instruction */
+		/* that results in a little better and constant performance */
+		/* regardless of the split position. */
+		/* This affects mostly the worst case, when the split value */
+		/* is near at its half, resulting in a totally unpredictable */
+		/* condition by the CPU. */
+		/* In such case the use of the conditional move is generally
+		 * faster. */
 
-        /* use also the high bit */
-        pos = high_pos;
-    }
+		/* use also the high bit */
+		pos = high_pos;
+	}
 
-    return tommy_hashlin_pos(hashlin, pos);
+	return tommy_hashlin_pos(hashlin, pos);
 }
 
 /**
@@ -288,7 +290,7 @@ tommy_hashlin_bucket_ref(tommy_hashlin *hashlin, tommy_hash_t hash)
 tommy_inline tommy_hashlin_node *
 tommy_hashlin_bucket(tommy_hashlin *hashlin, tommy_hash_t hash)
 {
-    return *tommy_hashlin_bucket_ref(hashlin, hash);
+	return *tommy_hashlin_bucket_ref(hashlin, hash);
 }
 
 /**
@@ -307,18 +309,19 @@ tommy_hashlin_bucket(tommy_hashlin *hashlin, tommy_hash_t hash)
  */
 tommy_inline void *
 tommy_hashlin_search(tommy_hashlin *hashlin, tommy_search_func *cmp,
-                     const void *cmp_arg, tommy_hash_t hash)
+		     const void *cmp_arg, tommy_hash_t hash)
 {
-    tommy_hashlin_node *i = tommy_hashlin_bucket(hashlin, hash);
+	tommy_hashlin_node *i = tommy_hashlin_bucket(hashlin, hash);
 
-    while (i) {
-        /* we first check if the hash matches, as in the same bucket we may have
-         * multiples hash values */
-        if (i->key == hash && cmp(cmp_arg, i->data) == 0)
-            return i->data;
-        i = i->next;
-    }
-    return 0;
+	while (i) {
+		/* we first check if the hash matches, as in the same bucket we
+		 * may have
+		 * multiples hash values */
+		if (i->key == hash && cmp(cmp_arg, i->data) == 0)
+			return i->data;
+		i = i->next;
+	}
+	return 0;
 }
 
 /**
@@ -327,7 +330,7 @@ tommy_hashlin_search(tommy_hashlin *hashlin, tommy_search_func *cmp,
  * \return The tommy_node::data field of the node removed.
  */
 void *tommy_hashlin_remove_existing(tommy_hashlin *hashlin,
-                                    tommy_hashlin_node *node);
+				    tommy_hashlin_node *node);
 
 /**
  * Calls the specified function for each element in the hashtable.
@@ -368,7 +371,7 @@ void tommy_hashlin_foreach(tommy_hashlin *hashlin, tommy_foreach_func *func);
  * hashtable.
  */
 void tommy_hashlin_foreach_arg(tommy_hashlin *hashlin,
-                               tommy_foreach_arg_func *func, void *arg);
+			       tommy_foreach_arg_func *func, void *arg);
 
 /**
  * Gets the number of elements.
@@ -376,7 +379,7 @@ void tommy_hashlin_foreach_arg(tommy_hashlin *hashlin,
 tommy_inline tommy_count_t
 tommy_hashlin_count(tommy_hashlin *hashlin)
 {
-    return hashlin->count;
+	return hashlin->count;
 }
 
 /**

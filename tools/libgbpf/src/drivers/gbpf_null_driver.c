@@ -21,80 +21,81 @@
 
 static int
 gbpf_null_load_prog(GBPFDriver *self, uint16_t prog_type, void *prog,
-                    uint32_t prog_len)
+		    uint32_t prog_len)
 {
-    return 0;
+	return 0;
 }
 
 static int
 gbpf_null_map_create(GBPFDriver *self, uint16_t type, uint32_t key_size,
-                     uint32_t value_size, uint32_t max_entries,
-                     uint32_t map_flags)
+		     uint32_t value_size, uint32_t max_entries,
+		     uint32_t map_flags)
 {
-    return 0;
+	return 0;
 }
 
 static int
 gbpf_null_map_update_elem(GBPFDriver *self, int map_desc, void *key,
-                          void *value, uint64_t flags)
+			  void *value, uint64_t flags)
 {
-    return 0;
+	return 0;
 }
 
 static int
 gbpf_null_map_lookup_elem(GBPFDriver *self, int map_desc, void *key,
-                          void *value, uint64_t flags)
+			  void *value, uint64_t flags)
 {
-    return 0;
+	return 0;
 }
 
 static int
 gbpf_null_map_delete_elem(GBPFDriver *self, int map_desc, void *key)
 {
-    return 0;
+	return 0;
 }
 
 static int
 gbpf_null_map_get_next_key(GBPFDriver *self, int map_desc, void *key,
-                           void *next_key)
+			   void *next_key)
 {
-    return 0;
+	return 0;
 }
 
 static void
 gbpf_null_close_prog_desc(GBPFDriver *self, int prog_desc)
 {
-    return;
+	return;
 }
 
 static void
 gbpf_null_close_map_desc(GBPFDriver *self, int map_desc)
 {
-    return;
+	return;
 }
 
 GBPFNullDriver *
 gbpf_null_driver_create(void)
 {
-    struct gbpf_null_driver *driver = malloc(sizeof(struct gbpf_null_driver));
-    if (!driver) {
-        return NULL;
-    }
+	struct gbpf_null_driver *driver =
+	    malloc(sizeof(struct gbpf_null_driver));
+	if (!driver) {
+		return NULL;
+	}
 
-    driver->base.load_prog = gbpf_null_load_prog;
-    driver->base.map_create = gbpf_null_map_create;
-    driver->base.map_update_elem = gbpf_null_map_update_elem;
-    driver->base.map_lookup_elem = gbpf_null_map_lookup_elem;
-    driver->base.map_delete_elem = gbpf_null_map_delete_elem;
-    driver->base.map_get_next_key = gbpf_null_map_get_next_key;
-    driver->base.close_prog_desc = gbpf_null_close_prog_desc;
-    driver->base.close_map_desc = gbpf_null_close_map_desc;
+	driver->base.load_prog = gbpf_null_load_prog;
+	driver->base.map_create = gbpf_null_map_create;
+	driver->base.map_update_elem = gbpf_null_map_update_elem;
+	driver->base.map_lookup_elem = gbpf_null_map_lookup_elem;
+	driver->base.map_delete_elem = gbpf_null_map_delete_elem;
+	driver->base.map_get_next_key = gbpf_null_map_get_next_key;
+	driver->base.close_prog_desc = gbpf_null_close_prog_desc;
+	driver->base.close_map_desc = gbpf_null_close_map_desc;
 
-    return driver;
+	return driver;
 }
 
 void
 gbpf_null_driver_destroy(GBPFNullDriver *driver)
 {
-    free(driver);
+	free(driver);
 }

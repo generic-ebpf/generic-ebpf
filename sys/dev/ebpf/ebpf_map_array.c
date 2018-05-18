@@ -81,7 +81,7 @@ array_map_init(struct ebpf_map *self, uint32_t key_size, uint32_t value_size,
 static void
 array_map_deinit_common(struct ebpf_map_array *self, void *arg)
 {
-  ebpf_rw_destroy(&self->rw);
+	ebpf_rw_destroy(&self->rw);
 	ebpf_allocator_deinit(&self->allocator);
 	ebpf_free(self->array);
 	ebpf_free(self);
@@ -111,12 +111,12 @@ array_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
 		return NULL;
 	}
 
-  void *ret;
-  struct ebpf_map_array *map = self->data;
+	void *ret;
+	struct ebpf_map_array *map = self->data;
 
-  ebpf_rw_rlock(&map->rw);
-  ret = array_map_lookup_elem_common(map, (uint32_t *)key, flags);
-  ebpf_rw_runlock(&map->rw);
+	ebpf_rw_rlock(&map->rw);
+	ret = array_map_lookup_elem_common(map, (uint32_t *)key, flags);
+	ebpf_rw_runlock(&map->rw);
 
 	return ret;
 }
@@ -128,17 +128,17 @@ array_map_update_elem_common(struct ebpf_map *self,
 {
 	void *elem = array_map_lookup_elem_common(array, key, 0);
 	if (elem) {
-    if (flags & EBPF_NOEXIST) {
-      return EEXIST;
-    } else {
-      memcpy(elem, value, self->value_size);
-      goto end;
-    }
+		if (flags & EBPF_NOEXIST) {
+			return EEXIST;
+		} else {
+			memcpy(elem, value, self->value_size);
+			goto end;
+		}
 	}
 
-  if (flags & EBPF_EXIST) {
-    return ENOENT;
-  }
+	if (flags & EBPF_EXIST) {
+		return ENOENT;
+	}
 
 	elem = ebpf_allocator_alloc(&array->allocator);
 	if (!elem) {
@@ -157,18 +157,18 @@ static int
 array_map_update_elem(struct ebpf_map *self, void *key, void *value,
 		      uint64_t flags)
 {
-  int ret;
-  struct ebpf_map_array *map = self->data;
+	int ret;
+	struct ebpf_map_array *map = self->data;
 
-  if (*(uint32_t *)key >= self->max_entries) {
-    return EINVAL;
-  }
+	if (*(uint32_t *)key >= self->max_entries) {
+		return EINVAL;
+	}
 
-  ebpf_rw_wlock(&map->rw);
-  ret = array_map_update_elem_common(self, map, key, value, flags);
-  ebpf_rw_wunlock(&map->rw);
+	ebpf_rw_wlock(&map->rw);
+	ret = array_map_update_elem_common(self, map, key, value, flags);
+	ebpf_rw_wunlock(&map->rw);
 
-  return ret;
+	return ret;
 }
 
 static int
@@ -197,14 +197,14 @@ array_map_delete_elem_common(struct ebpf_map *self,
 static int
 array_map_delete_elem(struct ebpf_map *self, void *key)
 {
-  int ret;
-  struct ebpf_map_array *map = self->data;
+	int ret;
+	struct ebpf_map_array *map = self->data;
 
-  ebpf_rw_wlock(&map->rw);
-  ret = array_map_delete_elem_common(self, map, *(uint32_t *)key);
-  ebpf_rw_wunlock(&map->rw);
+	ebpf_rw_wlock(&map->rw);
+	ret = array_map_delete_elem_common(self, map, *(uint32_t *)key);
+	ebpf_rw_wunlock(&map->rw);
 
-  return ret;
+	return ret;
 }
 
 static int

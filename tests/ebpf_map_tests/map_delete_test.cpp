@@ -9,42 +9,43 @@ extern "C" {
 
 namespace {
 class MapDeleteTest : public ::testing::Test {
-  protected:
-    struct ebpf_map map;
+      protected:
+	struct ebpf_map map;
 
-    virtual void
-    SetUp()
-    {
-        int error;
+	virtual void
+	SetUp()
+	{
+		int error;
 
-        error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
-                              sizeof(uint32_t), 100, 0);
-        ASSERT_TRUE(!error);
-    }
+		error =
+		    ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
+				  sizeof(uint32_t), 100, 0);
+		ASSERT_TRUE(!error);
+	}
 
-    virtual void
-    TearDown()
-    {
-        ebpf_map_deinit(&map, NULL);
-    }
+	virtual void
+	TearDown()
+	{
+		ebpf_map_deinit(&map, NULL);
+	}
 };
 
 TEST_F(MapDeleteTest, DeleteWithNULLMap)
 {
-    int error;
-    uint32_t key = 100;
+	int error;
+	uint32_t key = 100;
 
-    error = ebpf_map_delete_elem(NULL, &key);
+	error = ebpf_map_delete_elem(NULL, &key);
 
-    EXPECT_EQ(EINVAL, error);
+	EXPECT_EQ(EINVAL, error);
 }
 
 TEST_F(MapDeleteTest, DeleteWithNULLKey)
 {
-    int error;
+	int error;
 
-    error = ebpf_map_delete_elem(&map, NULL);
+	error = ebpf_map_delete_elem(&map, NULL);
 
-    EXPECT_EQ(EINVAL, error);
+	EXPECT_EQ(EINVAL, error);
 }
 }

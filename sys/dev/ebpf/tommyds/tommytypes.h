@@ -42,9 +42,9 @@
 #endif
 
 #if defined(_MSC_VER)
-typedef unsigned tommy_uint32_t;        /**< Generic uint32_t type. */
+typedef unsigned tommy_uint32_t;	/**< Generic uint32_t type. */
 typedef unsigned _int64 tommy_uint64_t; /**< Generic uint64_t type. */
-typedef size_t tommy_uintptr_t;         /**< Generic uintptr_t type. */
+typedef size_t tommy_uintptr_t;		/**< Generic uintptr_t type. */
 #else
 typedef uint32_t tommy_uint32_t;   /**< Generic uint32_t type. */
 typedef uint64_t tommy_uint64_t;   /**< Generic uint64_t type. */
@@ -52,7 +52,7 @@ typedef uintptr_t tommy_uintptr_t; /**< Generic uintptr_t type. */
 #endif
 typedef size_t tommy_size_t;       /**< Generic size_t type. */
 typedef ptrdiff_t tommy_ptrdiff_t; /**< Generic ptrdiff_t type. */
-typedef int tommy_bool_t;          /**< Generic boolean type. */
+typedef int tommy_bool_t;	  /**< Generic boolean type. */
 
 /**
  * Generic unsigned integer type.
@@ -193,30 +193,30 @@ typedef tommy_uint32_t tommy_key_t;
  * \endcode
  */
 typedef struct tommy_node_struct {
-    /**
-     * Next node.
-     * The tail node has it at 0, like a 0 terminated list.
-     */
-    struct tommy_node_struct *next;
+	/**
+	 * Next node.
+	 * The tail node has it at 0, like a 0 terminated list.
+	 */
+	struct tommy_node_struct *next;
 
-    /**
-     * Previous node.
-     * The head node points to the tail node, like a circular list.
-     */
-    struct tommy_node_struct *prev;
+	/**
+	 * Previous node.
+	 * The head node points to the tail node, like a circular list.
+	 */
+	struct tommy_node_struct *prev;
 
-    /**
-     * Pointer to the object containing the node.
-     * This field is initialized when inserting nodes into a data structure.
-     */
-    void *data;
+	/**
+	 * Pointer to the object containing the node.
+	 * This field is initialized when inserting nodes into a data structure.
+	 */
+	void *data;
 
-    /**
-     * Key used to store the node.
-     * With hashtables this field is used to store the hash value.
-     * With lists this field is not used.
-     */
-    tommy_key_t key;
+	/**
+	 * Key used to store the node.
+	 * With hashtables this field is used to store the hash value.
+	 * With lists this field is not used.
+	 */
+	tommy_key_t key;
 } tommy_node;
 
 /******************************************************************************/
@@ -327,20 +327,21 @@ typedef void tommy_foreach_arg_func(void *arg, void *obj);
  * You can use it only for exact power of 2 up to 256.
  */
 #define TOMMY_ILOG2(value)                                                     \
-    ((value) == 256                                                            \
-         ? 8                                                                   \
-         : (value) == 128                                                      \
-               ? 7                                                             \
-               : (value) == 64 ? 6 : (value) == 32                             \
-                                         ? 5                                   \
-                                         : (value) == 16                       \
-                                               ? 4                             \
-                                               : (value) == 8                  \
-                                                     ? 3                       \
-                                                     : (value) == 4            \
-                                                           ? 2                 \
-                                                           : (value) == 2 ? 1  \
-                                                                          : 0)
+	((value) == 256 ? 8 : (value) == 128                                   \
+				  ? 7                                          \
+				  : (value) == 64                              \
+					? 6                                    \
+					: (value) == 32                        \
+					      ? 5                              \
+					      : (value) == 16                  \
+						    ? 4                        \
+						    : (value) == 8             \
+							  ? 3                  \
+							  : (value) == 4       \
+								? 2            \
+								: (value) == 2 \
+								      ? 1      \
+								      : 0)
 
 /**
  * Bit scan reverse or integer log2.
@@ -364,37 +365,39 @@ tommy_inline tommy_uint_t
 tommy_ilog2_u32(tommy_uint32_t value)
 {
 #if defined(_MSC_VER)
-    unsigned long count;
-    _BitScanReverse(&count, value);
-    return count;
+	unsigned long count;
+	_BitScanReverse(&count, value);
+	return count;
 #elif defined(__GNUC__)
-                                   /*
-                                    * GCC implements __builtin_clz(x) as "__builtin_clz(x) = bsr(x) ^ 31"
-                                    *
-                                    * Where "x ^ 31 = 31 - x", but gcc does not optimize "31 -
-                                    * __builtin_clz(x)" to bsr(x),
-                                    * but generates 31 - (bsr(x) xor 31).
-                                    *
-                                    * So we write "__builtin_clz(x) ^ 31" instead of "31 - __builtin_clz(x)",
-                                    * to allow the double xor to be optimized out.
-                                    */
-    return __builtin_clz(value) ^ 31;
+				   /*
+				    * GCC implements __builtin_clz(x) as "__builtin_clz(x) = bsr(x) ^ 31"
+				    *
+				    * Where "x ^ 31 = 31 - x", but gcc does not optimize "31 -
+				    * __builtin_clz(x)" to bsr(x),
+				    * but generates 31 - (bsr(x) xor 31).
+				    *
+				    * So we write "__builtin_clz(x) ^ 31" instead of "31 -
+				    * __builtin_clz(x)",
+				    * to allow the double xor to be optimized out.
+				    */
+	return __builtin_clz(value) ^ 31;
 #else
-    /* Find the log base 2 of an N-bit integer in O(lg(N)) operations with
-     * multiply and lookup */
-    /* from http://graphics.stanford.edu/~seander/bithacks.html */
-    static unsigned char TOMMY_DE_BRUIJN_INDEX_ILOG2[32] = {
-        0, 9,  1,  10, 13, 21, 2,  29, 11, 14, 16, 18, 22, 25, 3, 30,
-        8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31};
+	/* Find the log base 2 of an N-bit integer in O(lg(N)) operations with
+	 * multiply and lookup */
+	/* from http://graphics.stanford.edu/~seander/bithacks.html */
+	static unsigned char TOMMY_DE_BRUIJN_INDEX_ILOG2[32] = {
+	    0, 9,  1,  10, 13, 21, 2,  29, 11, 14, 16, 18, 22, 25, 3, 30,
+	    8, 12, 20, 28, 15, 17, 24, 7,  19, 27, 23, 6,  26, 5,  4, 31};
 
-    value |= value >> 1;
-    value |= value >> 2;
-    value |= value >> 4;
-    value |= value >> 8;
-    value |= value >> 16;
+	value |= value >> 1;
+	value |= value >> 2;
+	value |= value >> 4;
+	value |= value >> 8;
+	value |= value >> 16;
 
-    return TOMMY_DE_BRUIJN_INDEX_ILOG2[(tommy_uint32_t)(value * 0x07C4ACDDU) >>
-                                       27];
+	return TOMMY_DE_BRUIJN_INDEX_ILOG2[(tommy_uint32_t)(value *
+							    0x07C4ACDDU) >>
+					   27];
 #endif
 }
 
@@ -410,22 +413,23 @@ tommy_inline tommy_uint_t
 tommy_ctz_u32(tommy_uint32_t value)
 {
 #if defined(_MSC_VER)
-    unsigned long count;
-    _BitScanForward(&count, value);
-    return count;
+	unsigned long count;
+	_BitScanForward(&count, value);
+	return count;
 #elif defined(__GNUC__)
-    return __builtin_ctz(value);
+	return __builtin_ctz(value);
 #else
-    /* Count the consecutive zero bits (trailing) on the right with multiply and
-     * lookup */
-    /* from http://graphics.stanford.edu/~seander/bithacks.html */
-    static const unsigned char TOMMY_DE_BRUIJN_INDEX_CTZ[32] = {
-        0,  1,  28, 2,  29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4,  8,
-        31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6,  11, 5,  10, 9};
+	/* Count the consecutive zero bits (trailing) on the right with multiply
+	 * and
+	 * lookup */
+	/* from http://graphics.stanford.edu/~seander/bithacks.html */
+	static const unsigned char TOMMY_DE_BRUIJN_INDEX_CTZ[32] = {
+	    0,  1,  28, 2,  29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4,  8,
+	    31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6,  11, 5,  10, 9};
 
-    return TOMMY_DE_BRUIJN_INDEX_CTZ[(tommy_uint32_t)(
-                                         ((value & -value) * 0x077CB531U)) >>
-                                     27];
+	return TOMMY_DE_BRUIJN_INDEX_CTZ[(tommy_uint32_t)(((value & -value) *
+							   0x077CB531U)) >>
+					 27];
 #endif
 }
 
@@ -437,18 +441,18 @@ tommy_ctz_u32(tommy_uint32_t value)
 tommy_inline tommy_uint32_t
 tommy_roundup_pow2_u32(tommy_uint32_t value)
 {
-    /* Round up to the next highest power of 2 */
-    /* from http://graphics.stanford.edu/~seander/bithacks.html */
+	/* Round up to the next highest power of 2 */
+	/* from http://graphics.stanford.edu/~seander/bithacks.html */
 
-    --value;
-    value |= value >> 1;
-    value |= value >> 2;
-    value |= value >> 4;
-    value |= value >> 8;
-    value |= value >> 16;
-    ++value;
+	--value;
+	value |= value >> 1;
+	value |= value >> 2;
+	value |= value >> 4;
+	value |= value >> 8;
+	value |= value >> 16;
+	++value;
 
-    return value;
+	return value;
 }
 
 /**
@@ -458,6 +462,6 @@ tommy_roundup_pow2_u32(tommy_uint32_t value)
 tommy_inline int
 tommy_haszero_u32(tommy_uint32_t value)
 {
-    return ((value - 0x01010101) & ~value & 0x80808080) != 0;
+	return ((value - 0x01010101) & ~value & 0x80808080) != 0;
 }
 #endif
