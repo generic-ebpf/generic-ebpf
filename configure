@@ -2,6 +2,6 @@
 plat=`uname`
 sed -i.bak 's/{{platform}}/'"${plat}"'/g' Makefile
 
-if [ $plat = "FreeBSD" ]; then
+if [ $plat = "FreeBSD" -a ! -d ./sys/modules/ebpf/tommyds ]; then
   mkdir sys/modules/ebpf/tommyds
 fi
