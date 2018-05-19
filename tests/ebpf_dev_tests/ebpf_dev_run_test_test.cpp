@@ -72,7 +72,7 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
 	    {EBPF_OP_MOV64_REG, 2, 10, 0, 0},
 	    {EBPF_OP_ADD64_IMM, 2, 0, 0, -4}, // get stack address
 	    {EBPF_OP_MOV64_IMM, 3, 0, 0, 0},  // flags = 0
-	    {EBPF_OP_CALL, 0, 0, 0, 1},
+	    {EBPF_OP_CALL, 0, 0, 0, 2},
 	    {EBPF_OP_MOV64_REG, 1, 0, 0, 0},
 	    {EBPF_OP_LDXW, 0, 1, 0, 0},
 	    {EBPF_OP_EXIT, 0, 0, 0, 0}};
