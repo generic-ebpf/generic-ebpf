@@ -27,7 +27,7 @@ CFLAGS += \
 	-I $(CURDIR) \
 	-Wall \
 	-Wno-declaration-after-statement \
-	-std=c99
+	-std=gnu99
 
 LIBS = \
 	-lpthread
