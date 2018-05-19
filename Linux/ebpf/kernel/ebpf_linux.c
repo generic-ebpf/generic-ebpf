@@ -126,6 +126,7 @@ ebpf_init_map_types(void)
 static int
 ebpf_init(void)
 {
+  ebpf_init_map_types();
 	printk("ebpf loaded\n");
 	return 0;
 }
@@ -165,6 +166,10 @@ EXPORT_SYMBOL(ebpf_map_delete_elem);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
 EXPORT_SYMBOL(ebpf_map_get_next_key);
+EXPORT_SYMBOL(ebpf_map_delete_elem_from_user);
+EXPORT_SYMBOL(ebpf_map_lookup_elem_from_user);
+EXPORT_SYMBOL(ebpf_map_update_elem_from_user);
+EXPORT_SYMBOL(ebpf_map_get_next_key_from_user);
 EXPORT_SYMBOL(ebpf_map_init);
 EXPORT_SYMBOL(ebpf_map_deinit_default);
 EXPORT_SYMBOL(ebpf_map_deinit);
