@@ -22,7 +22,6 @@ struct obj {
 	uint8_t val[VAL_SIZE];
 };
 
-static int ebpf_fd;
 static struct obj *objs;
 static uint32_t *insert_keys;
 static uint32_t *search_keys;
