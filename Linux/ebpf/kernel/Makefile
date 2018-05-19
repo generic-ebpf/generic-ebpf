@@ -28,7 +28,7 @@ EXTRA_CFLAGS:= \
 	-I$(CURDIR) \
 	-Wall \
 	-Wno-declaration-after-statement \
-	-std=c99
+	-std=gnu99
 
 all:
 	make -C $(LINUX_SRC) M=$(CURDIR) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' modules

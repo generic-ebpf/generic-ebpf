@@ -17,7 +17,7 @@ EXTRA_CFLAGS:= \
 	-I$(CURDIR)/../ebpf/kernel \
 	-Wall \
 	-Wno-declaration-after-statement \
-	-std=c99
+	-std=gnu99
 
 EXTRA_SYMBOLS:= \
 	$(CURDIR)/../ebpf/kernel/Module.symvers
