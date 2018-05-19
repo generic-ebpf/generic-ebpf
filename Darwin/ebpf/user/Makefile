@@ -27,9 +27,9 @@ CFLAGS += \
 	-I $(TOP_DIR) \
 	-I $(CURDIR) \
 	-Wall \
-	-D user \
-	-g \
-	-std=gnu11 -Wno-declaration-after-statement \
+	-Duser \
+	-Wno-declaration-after-statement \
+	-std=c99
 
 ifeq ($(COVERAGE), 1)
 	CFLAGS += -coverage

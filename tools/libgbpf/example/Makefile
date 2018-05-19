@@ -1,7 +1,8 @@
 CFLAGS= \
 	-O3 \
 	-I ../../../sys \
-	-I ../include
+	-I ../include \
+	-Wall
 
 all: printer test.o
 

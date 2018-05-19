@@ -26,7 +26,8 @@ CFLAGS += \
 	-I $(TOP_DIR) \
 	-I $(CURDIR) \
 	-Wall \
-	-std=gnu11 -Wno-declaration-after-statement
+	-Wno-declaration-after-statement \
+	-std=c99
 
 LIBS = \
 	-lpthread

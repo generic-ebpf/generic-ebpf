@@ -23,11 +23,12 @@ LINUX_SRC:=/lib/modules/$(shell uname -r)/build
 
 EXTRA_CFLAGS:= \
 	-Ofast \
-	-D _KERNEL \
+	-D_KERNEL \
 	-I$(CURDIR)/$(TOP_DIR) \
 	-I$(CURDIR) \
 	-Wall \
-	-std=gnu11 -Wno-declaration-after-statement \
+	-Wno-declaration-after-statement \
+	-std=c99
 
 all:
 	make -C $(LINUX_SRC) M=$(CURDIR) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' modules

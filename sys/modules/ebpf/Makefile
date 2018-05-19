@@ -7,6 +7,8 @@ IDENT  != uname -i
 
 CFLAGS += -I$(KSRC)/sys/$(TARGET)/compile/$(IDENT)
 CFLAGS += -I../../
+CFLAGS += -Wall
+CFLAGS += -std=c99
 
 KMOD    = ebpf
 
