@@ -327,21 +327,21 @@ typedef void tommy_foreach_arg_func(void *arg, void *obj);
  * You can use it only for exact power of 2 up to 256.
  */
 #define TOMMY_ILOG2(value)                                                     \
-	((value) == 256                                                        \
-	     ? 8                                                               \
-	     : (value) == 128                                                  \
-		   ? 7                                                         \
-		   : (value) == 64                                             \
-			 ? 6                                                   \
-			 : (value) == 32                                       \
-			       ? 5                                             \
-			       : (value) == 16                                 \
-				     ? 4                                       \
-				     : (value) == 8                            \
-					   ? 3                                 \
-					   : (value) == 4                      \
-						 ? 2                           \
-						 : (value) == 2 ? 1 : 0)
+	((value) == 256 ? 8 : (value) == 128                                   \
+				  ? 7                                          \
+				  : (value) == 64                              \
+					? 6                                    \
+					: (value) == 32                        \
+					      ? 5                              \
+					      : (value) == 16                  \
+						    ? 4                        \
+						    : (value) == 8             \
+							  ? 3                  \
+							  : (value) == 4       \
+								? 2            \
+								: (value) == 2 \
+								      ? 1      \
+								      : 0)
 
 /**
  * Bit scan reverse or integer log2.
