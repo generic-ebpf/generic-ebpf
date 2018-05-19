@@ -18,14 +18,18 @@
 
 #pragma once
 
-// core headers
-#include "core/gbpf_driver.h"
-#include "core/gbpf_elf_walker.h"
+#include <linux/bpf.h>
 
-// drivers headers
-#include "drivers/gbpf_null_driver.h"
-#include "drivers/ebpf_dev_driver.h"
+#include <gbpf/core/gbpf_driver.h>
 
-#ifdef linux
-#include "drivers/gbpf_linux_driver.h"
-#endif
+typedef struct gbpf_linux_driver {
+  GBPFDriver base;
+  uint64_t license;
+  uint32_t log_level;
+  uint32_t log_size;
+  uint64_t log_buf;
+  uint32_t kern_version;
+} GBPFLinuxDriver;
+
+GBPFLinuxDriver *gbpf_linux_driver_create(void);
+void gbpf_linux_driver_destroy(GBPFLinuxDriver *driver);

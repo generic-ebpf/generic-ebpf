@@ -13,7 +13,8 @@ CORE = \
 
 DRIVERS = \
 	src/drivers/gbpf_null_driver.o \
-	src/drivers/ebpf_dev_driver.o
+	src/drivers/ebpf_dev_driver.o \
+	src/drivers/gbpf_linux_driver.o
 
 OBJS = $(CORE) $(DRIVERS)
 
