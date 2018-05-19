@@ -4,7 +4,7 @@ CFLAGS = \
 	-L ../tools/libgbpf/lib
 
 map_benchmark: map_benchmark.c
-	$(CC) $(CFLAGS) -o $@ $^ -lgbpf
+	$(CC) $(CFLAGS) -o $@ map_benchmark.c -lgbpf
 
 clean:
 	- rm -f map_benchmark
