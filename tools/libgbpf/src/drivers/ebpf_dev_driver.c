@@ -108,7 +108,7 @@ ebpf_dev_map_delete_elem(GBPFDriver *self, int map_desc, void *key)
 	req.map_fd = map_desc;
 	req.key = key;
 
-	return ioctl(driver->ebpf_fd, EBPFIOC_MAP_LOOKUP_ELEM, &req);
+	return ioctl(driver->ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
 }
 
 static int
