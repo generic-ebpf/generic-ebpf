@@ -99,4 +99,4 @@ TEST_F(HashTableMapUpdateTest, UpdateExistingElementWithEXISTFlag)
 
 	EXPECT_EQ(0, error);
 }
-}
+} // namespace

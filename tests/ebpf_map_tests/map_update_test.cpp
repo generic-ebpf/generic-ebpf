@@ -69,4 +69,4 @@ TEST_F(MapUpdateTest, UpdateWithInvalidFlag)
 
 	EXPECT_EQ(EINVAL, error);
 }
-}
+} // namespace

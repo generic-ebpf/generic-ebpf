@@ -77,4 +77,4 @@ TEST_F(ArrayMapLookupTest, CorrectLookup)
 
 	EXPECT_EQ(100, *value);
 }
-}
+} // namespace

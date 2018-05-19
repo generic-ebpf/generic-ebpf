@@ -123,4 +123,4 @@ TEST_F(EbpfDevMapUpdateElemTest, CorrectUpdateMoreThanMaxEntries)
 		}
 	}
 }
-}
+} // namespace

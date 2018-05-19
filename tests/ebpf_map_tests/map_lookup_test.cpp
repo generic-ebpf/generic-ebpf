@@ -61,4 +61,4 @@ TEST_F(MapLookupTest, LookupWithNULLValue)
 
 	EXPECT_EQ(NULL, value);
 }
-}
+} // namespace

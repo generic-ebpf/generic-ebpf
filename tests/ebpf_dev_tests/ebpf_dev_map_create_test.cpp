@@ -166,4 +166,4 @@ TEST_F(EbpfDevMapCreateTest, CorrectCreateTommyHashMap)
 	EXPECT_EQ(0, error);
 	close(fd);
 }
-}
+} // namespace

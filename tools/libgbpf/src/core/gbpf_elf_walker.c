@@ -122,9 +122,9 @@ resolve_relocations(struct elf_refs *refs)
 					discovered_maps[num_maps] = symname;
 					num_maps++;
 				} else {
-          D("Too many maps");
-          break;
-        }
+					D("Too many maps");
+					break;
+				}
 			}
 
 			inst->imm = map_desc;

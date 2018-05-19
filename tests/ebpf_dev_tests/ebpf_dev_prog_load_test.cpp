@@ -138,4 +138,4 @@ TEST_F(EbpfDevProgLoadTest, CorrectLoad)
 
 	close(fd);
 }
-}
+} // namespace

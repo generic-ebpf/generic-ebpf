@@ -57,4 +57,4 @@ TEST_F(ArrayMapGetNextKeyTest, CorrectGetNextKey)
 
 	EXPECT_EQ(51, next_key);
 }
-}
+} // namespace

@@ -48,4 +48,4 @@ TEST_F(MapDeleteTest, DeleteWithNULLKey)
 
 	EXPECT_EQ(EINVAL, error);
 }
-}
+} // namespace

@@ -115,4 +115,4 @@ TEST_F(EbpfDevMapDeleteElemTest, CorrectDelete)
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
 	EXPECT_EQ(0, error);
 }
-}
+} // namespace

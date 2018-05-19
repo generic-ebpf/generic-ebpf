@@ -23,12 +23,12 @@
 #include <gbpf/core/gbpf_driver.h>
 
 typedef struct gbpf_linux_driver {
-  GBPFDriver base;
-  uint64_t license;
-  uint32_t log_level;
-  uint32_t log_size;
-  uint64_t log_buf;
-  uint32_t kern_version;
+	GBPFDriver base;
+	uint64_t license;
+	uint32_t log_level;
+	uint32_t log_size;
+	uint64_t log_buf;
+	uint32_t kern_version;
 } GBPFLinuxDriver;
 
 GBPFLinuxDriver *gbpf_linux_driver_create(void);

@@ -253,7 +253,7 @@ typedef struct {
     microcontroller. */
 #define EM_ST7                                                                 \
 	68	   /* STmicroelectronics ST7 8-bit                           \
-	     microcontroller. */
+	       microcontroller. */
 #define EM_68HC16 69 /* Motorola MC68HC16 microcontroller. */
 #define EM_68HC11 70 /* Motorola MC68HC11 microcontroller. */
 #define EM_68HC08 71 /* Motorola MC68HC08 microcontroller. */
@@ -266,7 +266,7 @@ typedef struct {
     processor. */
 #define EM_JAVELIN                                                             \
 	77	     /* Infineon Technologies 32-bit embedded                \
-	     processor. */
+	       processor. */
 #define EM_FIREPATH 78 /* Element 14 64-bit DSP Processor. */
 #define EM_ZSP 79      /* LSI Logic 16-bit DSP Processor. */
 #define EM_MMIX 80     /* Donald Knuth's educational 64-bit proc. */
@@ -289,7 +289,7 @@ typedef struct {
 #define EM_VIDEOCORE 95 /* Alphamosaic VideoCore processor. */
 #define EM_TMM_GPP                                                             \
 	96	   /* Thompson Multimedia General Purpose                    \
-	   Processor. */
+	     Processor. */
 #define EM_NS32K 97  /* National Semiconductor 32000 series. */
 #define EM_TPC 98    /* Tenor Network TPC processor. */
 #define EM_SNP1K 99  /* Trebia SNP 1000 processor. */
@@ -298,7 +298,7 @@ typedef struct {
 #define EM_MAX 102   /* MAX Processor. */
 #define EM_CR                                                                  \
 	103	   /* National Semiconductor CompactRISC                    \
-		microprocessor. */
+		   microprocessor. */
 #define EM_F2MC16 104 /* Fujitsu F2MC16. */
 #define EM_MSP430                                                              \
 	105		/* Texas Instruments embedded microcontroller          \
@@ -309,7 +309,7 @@ typedef struct {
 #define EM_ARCA 109     /* Arca RISC Microprocessor. */
 #define EM_UNICORE                                                             \
 	110	    /* Microprocessor series from PKU-Unity Ltd.            \
-	      and MPRC of Peking University */
+		 and MPRC of Peking University */
 #define EM_AARCH64 183 /* AArch64 (64-bit ARM) */
 #define EM_RISCV 243   /* RISC-V */
 
@@ -546,7 +546,7 @@ typedef struct {
 #define DT_NULL 0 /* Terminating entry. */
 #define DT_NEEDED                                                              \
 	1	     /* String table offset of a needed shared                \
-	    library. */
+	     library. */
 #define DT_PLTRELSZ 2 /* Total size in bytes of PLT relocations. */
 #define DT_PLTGOT 3   /* Processor-dependent address. */
 #define DT_HASH 4     /* Address of symbol hash table. */
@@ -561,7 +561,7 @@ typedef struct {
 #define DT_FINI 13    /* Address of finalization function. */
 #define DT_SONAME                                                              \
 	14	     /* String table offset of shared object                 \
-	      name. */
+		name. */
 #define DT_RPATH 15    /* String table offset of library path. [sup] */
 #define DT_SYMBOLIC 16 /* Indicates "symbolic" linking. [sup] */
 #define DT_REL 17      /* Address of ElfNN_Rel relocations. */
@@ -571,7 +571,7 @@ typedef struct {
 #define DT_DEBUG 21    /* Reserved (not used). */
 #define DT_TEXTREL                                                             \
 	22	     /* Indicates there may be relocations in                \
-	     non-writable segments. [sup] */
+	       non-writable segments. [sup] */
 #define DT_JMPREL 23   /* Address of PLT relocations. */
 #define DT_BIND_NOW 24 /* [sup] */
 #define DT_INIT_ARRAY                                                          \
@@ -588,7 +588,7 @@ typedef struct {
     termination functions. */
 #define DT_RUNPATH                                                             \
 	29	  /* String table offset of a null-terminated                \
-	  library search path string. */
+	    library search path string. */
 #define DT_FLAGS 30 /* Object specific flag values. */
 #define DT_ENCODING                                                            \
 	32 /* Values greater than or equal to DT_ENCODING                      \

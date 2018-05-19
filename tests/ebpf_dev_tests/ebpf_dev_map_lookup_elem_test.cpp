@@ -151,4 +151,4 @@ TEST_F(EbpfDevMapLookupElemTest, CorrectLookup)
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_LOOKUP_ELEM, &req);
 	EXPECT_EQ(0, error);
 }
-}
+} // namespace

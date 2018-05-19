@@ -133,4 +133,4 @@ TEST_F(EbpfDevMapGetNextKeyElemTest, CorrectGetNextKey)
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
 	EXPECT_EQ(0, error);
 }
-}
+} // namespace

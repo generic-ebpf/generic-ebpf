@@ -130,4 +130,4 @@ TEST_F(ArrayMapUpdateTest, UpdateExistingElementWithEXISTFlag)
 
 	EXPECT_EQ(0, error);
 }
-}
+} // namespace

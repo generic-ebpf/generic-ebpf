@@ -58,4 +58,4 @@ TEST_F(HashTableMapGetNextKeyTest, CorrectGetNextKey)
 
 	EXPECT_EQ(70, next_key);
 }
-}
+} // namespace

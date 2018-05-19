@@ -95,4 +95,4 @@ TEST_F(EbpfDevRunTestTest, MapLookupFromProg)
 	close(map_fd);
 	close(prog_fd);
 }
-}
+} // namespace

@@ -18,6 +18,9 @@
 
 #pragma once
 
+#include <sys/ebpf_inst.h>
+#include <sys/ebpf_uapi.h>
+
 #include "gbpf_driver.h"
 
 struct gbpf_elf_walker;

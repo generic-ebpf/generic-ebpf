@@ -59,4 +59,4 @@ TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLNextKey)
 
 	EXPECT_EQ(EINVAL, error);
 }
-}
+} // namespace

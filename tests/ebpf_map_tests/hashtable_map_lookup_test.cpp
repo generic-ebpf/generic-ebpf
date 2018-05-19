@@ -55,4 +55,4 @@ TEST_F(HashTableMapLookupTest, CorrectLookup)
 
 	EXPECT_EQ(100, *value);
 }
-}
+} // namespace

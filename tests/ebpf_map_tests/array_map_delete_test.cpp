@@ -65,4 +65,4 @@ TEST_F(ArrayMapDeleteTest, CorrectDelete)
 
 	EXPECT_EQ(0, error);
 }
-}
+} // namespace

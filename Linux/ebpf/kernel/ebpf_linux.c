@@ -126,7 +126,7 @@ ebpf_init_map_types(void)
 static int
 ebpf_init(void)
 {
-  ebpf_init_map_types();
+	ebpf_init_map_types();
 	printk("ebpf loaded\n");
 	return 0;
 }
