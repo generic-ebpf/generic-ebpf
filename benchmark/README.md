@@ -22,6 +22,8 @@ for more details.
 
 #### Hashtable Map
 
+Below shows benchmark results for hashtable for each cases. Lower is better.
+
 ##### Insert
 ![Insert](plots/hashtable_map_bench_insert.png "Hashtable insert")
 
