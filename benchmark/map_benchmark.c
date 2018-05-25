@@ -225,7 +225,7 @@ run_remove_benchmark(GBPFDriver *driver, int mapfd, uint32_t nobjs)
 	}
 }
 
-double
+uint64_t
 measure(GBPFDriver *driver, int mapfd, uint32_t nobjs,
 	void (*bench)(GBPFDriver *driver, int mapfd, uint32_t nobjs))
 {
@@ -235,10 +235,8 @@ measure(GBPFDriver *driver, int mapfd, uint32_t nobjs,
 	bench(driver, mapfd, nobjs);
 	gettimeofday(&tv1, NULL);
 
-	double t1 =
-	    ((double)(tv0.tv_sec) + (double)(tv0.tv_usec) * 0.001 * 0.001);
-	double t2 =
-	    ((double)(tv1.tv_sec) + (double)(tv1.tv_usec) * 0.001 * 0.001);
+	uint64_t t1 = (uint64_t)(tv0.tv_sec * 1000000) + (uint64_t)(tv0.tv_usec);
+	uint64_t t2 = (uint64_t)(tv1.tv_sec * 1000000) + (uint64_t)(tv1.tv_usec);
 
 	return t2 - t1;
 }
@@ -247,21 +245,21 @@ void
 run_benchmark(GBPFDriver *driver, int mapfd, int map_type, int mode,
 	      uint32_t nobjs)
 {
-	double result;
-	const char *fmt = "%d,%s,%d,%u,%lf\n";
+	uint64_t result;
+	const char *fmt = "%d,%s,%d,%u,%ld\n";
 
 	init_objs(nobjs);
 	init_keys(map_type, mode, nobjs);
 
 	result = measure(driver, mapfd, nobjs, run_insert_benchmark);
 	printf(fmt, map_type, "insert", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_change_benchmark);
+	result = measure(driver, mapfd, nobjs, run_change_benchmark);
 	printf(fmt, map_type, "change", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_hit_benchmark);
+	result = measure(driver, mapfd, nobjs, run_hit_benchmark);
 	printf(fmt, map_type, "hit", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_miss_benchmark);
+	result = measure(driver, mapfd, nobjs, run_miss_benchmark);
 	printf(fmt, map_type, "miss", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_remove_benchmark);
+	result = measure(driver, mapfd, nobjs, run_remove_benchmark);
 	printf(fmt, map_type, "remove", mode, nobjs, result);
 
 	deinit_keys();
@@ -275,13 +273,19 @@ main(void)
 	GBPFDriver *driver;
 
 #ifdef linux
+#ifdef native_bpf
 	driver = (GBPFDriver *)gbpf_linux_driver_create();
 	if (!driver) {
 		die("gbpf_linux_driver_create");
 	}
-
-	type_array = BPF_MAP_TYPE_ARRAY;
-	type_hashtable = BPF_MAP_TYPE_HASH;
+#else
+	driver = (GBPFDriver *)ebpf_dev_driver_create();
+	if (!driver) {
+		die("gbpf_linux_driver_create");
+	}
+#endif
+	type_array = EBPF_MAP_TYPE_ARRAY;
+	type_hashtable = EBPF_MAP_TYPE_HASHTABLE;
 #elif defined(__FreeBSD__)
 	driver = (GBPFDriver *)ebpf_dev_driver_create();
 	if (!driver) {
@@ -324,9 +328,16 @@ main(void)
 	}
 
 #ifdef linux
+#ifdef native_bpf
 	gbpf_linux_driver_destroy((GBPFLinuxDriver *)driver);
+	printf("Benchmark for Linux native bpf map finished\n");
+#else
+	ebpf_dev_driver_destroy((EBPFDevDriver *)driver);
+	printf("Benchmark for generic-ebpf-Linux map finished\n");
+#endif
 #elif defined(__FreeBSD__)
 	ebpf_dev_driver_destroy((EBPFDevDriver *)driver);
+	printf("Benchmark for generic-ebpf-FreeBSD map finished\n");
 #endif
 
 	return EXIT_SUCCESS;
