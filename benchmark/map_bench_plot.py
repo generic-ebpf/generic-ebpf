@@ -39,7 +39,7 @@ for i, t in enumerate(["hashtable"]):
             ax[mode].set_title("Benchmark type: %s-%s" %
                     (bench.title(), "Forward" if mode == 0 else "Random"))
             ax[mode].set_xticklabels(plot.get_xticklabels(), rotation=-40)
-            ax[mode].set(xlabel="Number of Object", ylabel="Time [usec]")
+            ax[mode].set(xlabel="Number of Objects", ylabel="Time [usecs]")
 
         plt.subplots_adjust(
             left   = left,
