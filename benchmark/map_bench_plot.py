@@ -6,10 +6,6 @@ from matplotlib import pyplot as plt
 sns.set_style("whitegrid")
 
 df = pd.read_csv("data/map_bench_result.csv")
-df = df.replace({
-    "FreeBSD": "generic-ebpf-FreeBSD",
-    "Linux": "Linux-native"
-})
 
 left   = 0.10
 right  = 0.99
