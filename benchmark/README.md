@@ -11,8 +11,8 @@ for more details.
 
 We compared Linux's native map and generic-ebpf (with ebpf-dev) map on FreeBSD for each benchmark types.
 We measured performance for 3 map implementation and for each of them, we measured with/without KPTI(Kernel
-Page Table Isolation), because Linux's bpf(2) or our ebpf\_dev calls systemcall for each map operation
-(update/delete/lookup) and this is very systemcall-heavy workload. We were interested in how it affects
+Page Table Isolation), because since Linux's bpf(2) or our ebpf\_dev calls systemcall for each map operation
+(update/delete/lookup), this is very systemcall-heavy workload. We were interested in how it affects
 performance.
 
 ### Setup
