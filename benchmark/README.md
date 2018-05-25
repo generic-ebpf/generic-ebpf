@@ -9,6 +9,8 @@ Here we have performance number of maps. Benchmark procedure is based on [tommyd
 one](http://www.tommyds.it/doc/benchmark). Please see our code at benchmark/map\_benchmark.c
 for more details.
 
+We compared Linux's native map and generic-ebpf map on FreeBSD for each cases.
+
 ### Setup
 
 - CPU: Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz (3599.03-MHz K8-class CPU)
@@ -22,7 +24,7 @@ for more details.
 
 #### Hashtable Map
 
-Below shows benchmark results for hashtable for each cases. Lower is better.
+Below shows benchmark results for hashtable map. Lower is better.
 
 ##### Insert
 ![Insert](plots/hashtable_map_bench_insert.png "Hashtable insert")
