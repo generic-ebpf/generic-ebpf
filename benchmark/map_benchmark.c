@@ -235,8 +235,8 @@ measure(GBPFDriver *driver, int mapfd, uint32_t nobjs,
 	bench(driver, mapfd, nobjs);
 	gettimeofday(&tv1, NULL);
 
-	uint64_t t1 = (uint64_t)(tv0.tv_sec * 1000 * 1000) + (uint64_t)(tv0.tv_usec);
-	uint64_t t2 = (uint64_t)(tv1.tv_sec * 1000 * 1000) + (uint64_t)(tv1.tv_usec);
+	uint64_t t1 = (uint64_t)(tv0.tv_sec * 1000000) + (uint64_t)(tv0.tv_usec);
+	uint64_t t2 = (uint64_t)(tv1.tv_sec * 1000000) + (uint64_t)(tv1.tv_usec);
 
 	return t2 - t1;
 }
