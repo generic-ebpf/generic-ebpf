@@ -225,7 +225,7 @@ run_remove_benchmark(GBPFDriver *driver, int mapfd, uint32_t nobjs)
 	}
 }
 
-double
+uint64_t
 measure(GBPFDriver *driver, int mapfd, uint32_t nobjs,
 	void (*bench)(GBPFDriver *driver, int mapfd, uint32_t nobjs))
 {
@@ -235,10 +235,8 @@ measure(GBPFDriver *driver, int mapfd, uint32_t nobjs,
 	bench(driver, mapfd, nobjs);
 	gettimeofday(&tv1, NULL);
 
-	double t1 =
-	    ((double)(tv0.tv_sec) + (double)(tv0.tv_usec) * 0.001 * 0.001);
-	double t2 =
-	    ((double)(tv1.tv_sec) + (double)(tv1.tv_usec) * 0.001 * 0.001);
+	uint64_t t1 = (uint64_t)(tv0.tv_sec * 1000000) + (uint64_t)(tv0.tv_usec);
+	uint64_t t2 = (uint64_t)(tv1.tv_sec * 1000000) + (uint64_t)(tv1.tv_usec);
 
 	return t2 - t1;
 }
@@ -247,8 +245,8 @@ void
 run_benchmark(GBPFDriver *driver, int mapfd, int map_type, int mode,
 	      uint32_t nobjs)
 {
-	double result;
-	const char *fmt = "%d,%s,%d,%u,%lf\n";
+	uint64_t result;
+	const char *fmt = "%d,%s,%d,%u,%ld\n";
 
 	init_objs(nobjs);
 	init_keys(map_type, mode, nobjs);
