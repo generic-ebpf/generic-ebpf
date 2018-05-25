@@ -255,13 +255,13 @@ run_benchmark(GBPFDriver *driver, int mapfd, int map_type, int mode,
 
 	result = measure(driver, mapfd, nobjs, run_insert_benchmark);
 	printf(fmt, map_type, "insert", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_change_benchmark);
+	result = measure(driver, mapfd, nobjs, run_change_benchmark);
 	printf(fmt, map_type, "change", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_hit_benchmark);
+	result = measure(driver, mapfd, nobjs, run_hit_benchmark);
 	printf(fmt, map_type, "hit", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_miss_benchmark);
+	result = measure(driver, mapfd, nobjs, run_miss_benchmark);
 	printf(fmt, map_type, "miss", mode, nobjs, result);
-	measure(driver, mapfd, nobjs, run_remove_benchmark);
+	result = measure(driver, mapfd, nobjs, run_remove_benchmark);
 	printf(fmt, map_type, "remove", mode, nobjs, result);
 
 	deinit_keys();
