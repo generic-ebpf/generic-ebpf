@@ -5,12 +5,12 @@ export gtestpath=$(PWD)/extern/googletest
 all: $(platform)_all
 clean: $(platform)_clean
 
-FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev libgbpf tests
-Linux_all: ebpf_user ebpf_kernel ebpf_dev libgbpf tests
+FreeBSD_all: ebpf_user ebpf_kernel ebpf_dev libgbpf benchmark tests
+Linux_all: ebpf_user ebpf_kernel ebpf_dev libgbpf benchmark tests
 Darwin_all: ebpf_user_darwin libgbpf tests
 
-FreeBSD_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests clean_libgbpf
-Linux_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests clean_libgbpf
+FreeBSD_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests clean_benchmark clean_libgbpf
+Linux_clean: clean_ebpf_user clean_ebpf_kernel clean_ebpf_dev clean_tests clean_benchmark clean_libgbpf
 Darwin_clean: clean_ebpf_user_darwin clean_tests clean_libgbpf
 
 ebpf_user:
@@ -63,6 +63,13 @@ libgbpf:
 
 clean_libgbpf:
 	make -C tools/libgbpf clean
+
+.PHONY: benchmark
+benchmark:
+	make -C benchmark
+
+clean_benchmark:
+	make -C benchmark clean
 
 format:
 	clang-format -i */**/*.{c,h,cpp}
