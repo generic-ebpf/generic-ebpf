@@ -278,20 +278,21 @@ main(void)
 	if (!driver) {
 		die("gbpf_linux_driver_create");
 	}
+	type_array = BPF_MAP_TYPE_ARRAY;
+	type_hashtable = BPF_MAP_TYPE_HASH;
 #else
 	driver = (GBPFDriver *)ebpf_dev_driver_create();
 	if (!driver) {
-		die("gbpf_linux_driver_create");
+		die("ebpf_dev_driver_create");
 	}
-#endif
 	type_array = EBPF_MAP_TYPE_ARRAY;
 	type_hashtable = EBPF_MAP_TYPE_HASHTABLE;
+#endif
 #elif defined(__FreeBSD__)
 	driver = (GBPFDriver *)ebpf_dev_driver_create();
 	if (!driver) {
-		die("gbpf_linux_driver_create");
+		die("ebpf_dev_driver_create");
 	}
-
 	type_array = EBPF_MAP_TYPE_ARRAY;
 	type_hashtable = EBPF_MAP_TYPE_HASHTABLE;
 #else
