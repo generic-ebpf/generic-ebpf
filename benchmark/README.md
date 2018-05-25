@@ -9,7 +9,11 @@ Here we have performance number of maps. Benchmark procedure is based on [tommyd
 one](http://www.tommyds.it/doc/benchmark). Please see our code at benchmark/map\_benchmark.c
 for more details.
 
-We compared Linux's native map and generic-ebpf map on FreeBSD for each cases.
+We compared Linux's native map and generic-ebpf (with ebpf-dev) map on FreeBSD for each benchmark types.
+We measured performance for 3 map implementation and for each of them, we measured with/without KPTI(Kernel
+Page Table Isolation), because Linux's bpf(2) or our ebpf\_dev calls systemcall for each map operation
+(update/delete/lookup) and this is very systemcall-heavy workload. We were interested in how it affects
+performance.
 
 ### Setup
 
@@ -17,7 +21,6 @@ We compared Linux's native map and generic-ebpf map on FreeBSD for each cases.
 - Memory: 4GB
 - OS: Linux-4.16.10 and FreeBSD-11.1-RELEASE
 - Turn off Hyper-Threading and Turbo-Boost
-- Set C-State to C0
 - Run benchmark on single CPU (set affinity by taskset or cpuset)
 
 ### Results
