@@ -21,6 +21,8 @@ for i, t in enumerate(["hashtable"]):
             plotdf = df[(df.type == i + 1) & (df.bench == bench) & (df.keymode == mode) \
                     & (df.nobjs % 4000 == 0)].drop(columns=["type", "bench"], axis=1)
 
+            plotdf["nobjs"] = plotdf["nobjs"].map(lambda x: x / 1000)
+
             plot = sns.pointplot(
                 x="nobjs",
                 y="time",
@@ -35,7 +37,7 @@ for i, t in enumerate(["hashtable"]):
             ax[mode].set_title("Benchmark type: %s-%s" %
                     (bench.title(), "Forward" if mode == 0 else "Random"))
             ax[mode].set_xticklabels(plot.get_xticklabels(), rotation=-40)
-            ax[mode].set(xlabel="Number of Objects", ylabel="Time [usecs]")
+            ax[mode].set(xlabel="Number of Objects [K]", ylabel="Time [usecs]")
 
         plt.subplots_adjust(
             left   = left,
