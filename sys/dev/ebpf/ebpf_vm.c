@@ -110,6 +110,23 @@ ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len)
 	return 0;
 }
 
+void
+ebpf_unload(struct ebpf_vm *vm)
+{
+	if (!vm) {
+		return;
+	}
+
+	if (vm->jitted) {
+		ebpf_exfree(vm->jitted, vm->jitted_size);
+	}
+
+	if (vm->insts) {
+		ebpf_free(vm->insts);
+		vm->insts = NULL;
+	}
+}
+
 static uint32_t
 uint32(uint64_t x)
 {

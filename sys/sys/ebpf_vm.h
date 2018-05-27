@@ -54,6 +54,14 @@ int ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name,
 int ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len);
 
 /*
+ * Unload program from VM
+ *
+ * Release currently loaded bytecodes from vm.
+ * Note that this function doesn't unregister external functions.
+ */
+void ebpf_unload(struct ebpf_vm *vm);
+
+/*
  * Load program from an ELF binary
  *
  * This must be done before calling ebpf_exec or ebpf_compile and after
