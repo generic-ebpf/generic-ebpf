@@ -77,7 +77,7 @@ unsigned int
 ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name)
 {
 	if (!vm || !name) {
-		return MAX_EXT_FUNCS;
+		return -1;
 	}
 
 	for (int i = 0; i < MAX_EXT_FUNCS; i++) {
@@ -87,7 +87,7 @@ ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name)
 		}
 	}
 
-	return MAX_EXT_FUNCS;
+	return -1;
 }
 
 int
@@ -153,7 +153,7 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 	uint64_t reg[16];
 	uint64_t stack[(STACK_SIZE + 7) / 8];
 
-	if (!vm || !mem || mem_len == 0) {
+	if (!vm) {
 		return UINT64_MAX;
 	}
 
@@ -576,7 +576,7 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 uint64_t
 ebpf_exec_jit(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 {
-	if (!vm || !mem || mem_len == 0) {
+	if (!vm) {
 		return UINT64_MAX;
 	}
 
