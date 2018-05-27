@@ -98,8 +98,7 @@ ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len)
 	}
 
 	if (vm->insts) {
-		ebpf_error("prog has already been loaded into this VM\n");
-		return -1;
+		ebpf_unload(vm);
 	}
 
 	if (prog_len % sizeof(struct ebpf_inst) != 0) {
