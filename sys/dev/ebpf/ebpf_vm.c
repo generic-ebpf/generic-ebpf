@@ -47,9 +47,14 @@ ebpf_create(void)
 void
 ebpf_destroy(struct ebpf_vm *vm)
 {
+	if (!vm) {
+		return;
+	}
+
 	if (vm->jitted) {
 		ebpf_exfree(vm->jitted, vm->jitted_size);
 	}
+
 	ebpf_free(vm->insts);
 	ebpf_free(vm->ext_funcs);
 	ebpf_free(vm->ext_func_names);
@@ -59,7 +64,7 @@ ebpf_destroy(struct ebpf_vm *vm)
 int
 ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name, void *fn)
 {
-	if (idx >= MAX_EXT_FUNCS) {
+	if (!vm || idx >= MAX_EXT_FUNCS || !name || !fn) {
 		return -1;
 	}
 
@@ -71,19 +76,27 @@ ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name, void *fn)
 unsigned int
 ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name)
 {
-	int i;
-	for (i = 0; i < MAX_EXT_FUNCS; i++) {
+	if (!vm || !name) {
+		return MAX_EXT_FUNCS;
+	}
+
+	for (int i = 0; i < MAX_EXT_FUNCS; i++) {
 		const char *other = vm->ext_func_names[i];
 		if (other && !strcmp(other, name)) {
 			return i;
 		}
 	}
-	return -1;
+
+	return MAX_EXT_FUNCS;
 }
 
 int
 ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len)
 {
+	if (!vm || !prog || prog_len == 0) {
+		return -1;
+	}
+
 	if (vm->insts) {
 		ebpf_error("prog has already been loaded into this VM\n");
 		return -1;
@@ -137,15 +150,20 @@ uint64_t
 ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 {
 	uint16_t pc = 0;
-	const struct ebpf_inst *insts = vm->insts;
+	const struct ebpf_inst *insts;
 	uint64_t reg[16];
 	uint64_t stack[(STACK_SIZE + 7) / 8];
 
-	if (!insts) {
+	if (!vm || !mem || mem_len == 0) {
+		return UINT64_MAX;
+	}
+
+	if (!vm->insts) {
 		/* Code must be loaded before we can execute */
 		return UINT64_MAX;
 	}
 
+	insts = vm->insts;
 	reg[1] = (uintptr_t)mem;
 	reg[10] = (uintptr_t)stack + sizeof(stack);
 
@@ -559,6 +577,10 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 uint64_t
 ebpf_exec_jit(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 {
+	if (!vm || !mem || mem_len == 0) {
+		return UINT64_MAX;
+	}
+
 	if (vm->jitted) {
 		return vm->jitted(mem, mem_len);
 	} else {
