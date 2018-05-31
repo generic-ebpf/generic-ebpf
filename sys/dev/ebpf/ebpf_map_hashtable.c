@@ -121,7 +121,7 @@ hashtable_map_lookup_elem_common(struct ebpf_map *self,
 
 	struct ebpf_map_hashtable_elem *elem =
 	    tommy_hashtable_search(&hashtable->hashtable, hashtable_map_cmp,
-				   key, tommy_hash_u64(0, key, self->key_size));
+				   key, tommy_hash_u32(0, key, self->key_size));
 	if (!elem) {
 		return NULL;
 	}
@@ -175,7 +175,7 @@ hashtable_map_update_elem_common(struct ebpf_map *self,
 	memcpy(hashtable_map_elem_get_value(elem), value, self->value_size);
 
 	tommy_hashtable_insert(&hashtable->hashtable, &elem->node, elem,
-			       tommy_hash_u64(0, elem->key, self->key_size));
+			       tommy_hash_u32(0, elem->key, self->key_size));
 
 	return 0;
 }
@@ -205,7 +205,7 @@ hashtable_map_delete_elem_common(struct ebpf_map *self,
 
 	struct ebpf_map_hashtable_elem *elem =
 	    tommy_hashtable_remove(&hashtable->hashtable, hashtable_map_cmp,
-				   key, tommy_hash_u64(0, key, self->key_size));
+				   key, tommy_hash_u32(0, key, self->key_size));
 	if (elem == 0) {
 		return ENOENT;
 	}
@@ -246,7 +246,7 @@ hashtable_map_get_next_key_common(struct ebpf_map *self,
 	}
 
 	tommy_hashtable_node *node = tommy_hashtable_bucket(
-	    &hashtable->hashtable, tommy_hash_u64(0, key, self->key_size));
+	    &hashtable->hashtable, tommy_hash_u32(0, key, self->key_size));
 	if (node->next == 0) {
 		pos = node->key & table->bucket_mask;
 		if (pos == table->bucket_max - 1) {
