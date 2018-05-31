@@ -111,9 +111,9 @@ hashtable_map_cmp(const void *a, const void *b)
 }
 
 static void *
-hashtable_map_lookup_elem_common(struct ebpf_map *self,
+__hashtable_map_lookup_elem_common(struct ebpf_map *self,
 				 struct ebpf_map_hashtable *hashtable,
-				 void *key, uint64_t flags)
+				 void *key, uint32_t hashval, uint64_t flags)
 {
 	if (tommy_hashtable_count(&hashtable->hashtable) == 0) {
 		return NULL;
@@ -121,12 +121,21 @@ hashtable_map_lookup_elem_common(struct ebpf_map *self,
 
 	struct ebpf_map_hashtable_elem *elem =
 	    tommy_hashtable_search(&hashtable->hashtable, hashtable_map_cmp,
-				   key, tommy_hash_u32(0, key, self->key_size));
+				   key, hashval);
 	if (!elem) {
 		return NULL;
 	}
 
 	return hashtable_map_elem_get_value(elem);
+}
+
+static void *
+hashtable_map_lookup_elem_common(struct ebpf_map *self,
+				 struct ebpf_map_hashtable *hashtable,
+				 void *key, uint64_t flags)
+{
+  return __hashtable_map_lookup_elem_common(self, hashtable,
+      key, tommy_hash_u32(0, key, self->key_size), flags);
 }
 
 static void *
@@ -151,8 +160,9 @@ hashtable_map_update_elem_common(struct ebpf_map *self,
 		return EBUSY;
 	}
 
+  uint32_t hashval = tommy_hash_u32(0, key, self->key_size);
 	struct ebpf_map_hashtable_elem *elem =
-	    hashtable_map_lookup_elem_common(self, hashtable, key, flags);
+	    __hashtable_map_lookup_elem_common(self, hashtable, key, hashval, flags);
 	if (elem) {
 		if (flags & EBPF_NOEXIST) {
 			return EEXIST;
@@ -174,8 +184,7 @@ hashtable_map_update_elem_common(struct ebpf_map *self,
 	memcpy(elem->key, key, self->key_size);
 	memcpy(hashtable_map_elem_get_value(elem), value, self->value_size);
 
-	tommy_hashtable_insert(&hashtable->hashtable, &elem->node, elem,
-			       tommy_hash_u32(0, elem->key, self->key_size));
+	tommy_hashtable_insert(&hashtable->hashtable, &elem->node, elem, hashval);
 
 	return 0;
 }
