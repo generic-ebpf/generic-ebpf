@@ -113,7 +113,7 @@ hashtable_map_cmp(const void *a, const void *b)
 static void *
 hashtable_map_lookup_elem_common(struct ebpf_map *self,
 				 struct ebpf_map_hashtable *hashtable,
-				 uint32_t *key, uint64_t flags)
+				 void *key, uint64_t flags)
 {
 	if (tommy_hashtable_count(&hashtable->hashtable) == 0) {
 		return NULL;
