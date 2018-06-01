@@ -40,7 +40,7 @@ struct ebpf_map_def {
 				     .flags = _flags};
 
 enum ebpf_common_functions {
-	EBPF_FUN_unspec = 0,
+	EBPF_FUNC_unspec = 0,
 	EBPF_FUNC_ebpf_map_update_elem,
 	EBPF_FUNC_ebpf_map_lookup_elem,
 	EBPF_FUNC_ebpf_map_delete_elem,
