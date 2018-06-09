@@ -61,7 +61,7 @@ array_map_init(struct ebpf_map *self, uint32_t key_size, uint32_t value_size,
 {
 	int error;
 
-	struct ebpf_map_array *map = ebpf_malloc(sizeof(struct ebpf_map_array));
+	struct ebpf_map_array *map = ebpf_calloc(1, sizeof(struct ebpf_map_array));
 	if (!map) {
 		return ENOMEM;
 	}

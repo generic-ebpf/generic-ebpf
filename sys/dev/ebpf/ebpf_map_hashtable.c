@@ -70,7 +70,7 @@ hashtable_map_init(struct ebpf_map *self, uint32_t key_size,
 	int error;
 
 	struct ebpf_map_hashtable *map =
-	    ebpf_malloc(sizeof(struct ebpf_map_hashtable));
+	    ebpf_calloc(1, sizeof(struct ebpf_map_hashtable));
 	if (!map) {
 		return ENOMEM;
 	}
