@@ -85,49 +85,13 @@ TEST_F(ArrayMapUpdateTest, CreateMoreThenMaxEntries)
 	EXPECT_EQ(EINVAL, error);
 }
 
-TEST_F(ArrayMapUpdateTest, UpdateExistingElementWithNOEXISTFlag)
+TEST_F(ArrayMapUpdateTest, UpdateElementWithNOEXISTFlag)
 {
 	int error;
 	uint32_t key = 50, value = 100;
-
-	error = ebpf_map_update_elem(&map, &key, &value, EBPF_ANY);
-	ASSERT_TRUE(!error);
 
 	error = ebpf_map_update_elem(&map, &key, &value, EBPF_NOEXIST);
 
 	EXPECT_EQ(EEXIST, error);
-}
-
-TEST_F(ArrayMapUpdateTest, UpdateNonExistingElementWithNOEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
-
-	error = ebpf_map_update_elem(&map, &key, &value, EBPF_NOEXIST);
-
-	EXPECT_EQ(0, error);
-}
-
-TEST_F(ArrayMapUpdateTest, UpdateNonExistingElementWithEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
-
-	error = ebpf_map_update_elem(&map, &key, &value, EBPF_EXIST);
-
-	EXPECT_EQ(ENOENT, error);
-}
-
-TEST_F(ArrayMapUpdateTest, UpdateExistingElementWithEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
-
-	error = ebpf_map_update_elem(&map, &key, &value, EBPF_ANY);
-
-	value++;
-	error = ebpf_map_update_elem(&map, &key, &value, EBPF_EXIST);
-
-	EXPECT_EQ(0, error);
 }
 } // namespace

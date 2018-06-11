@@ -34,17 +34,6 @@ class ArrayMapLookupTest : public ::testing::Test {
 	}
 };
 
-TEST_F(ArrayMapLookupTest, LookupUnexistingEntry)
-{
-	int error;
-	uint32_t key = 51;
-	void *value;
-
-	value = ebpf_map_lookup_elem(&map, &key, 0);
-
-	EXPECT_EQ(NULL, value);
-}
-
 TEST_F(ArrayMapLookupTest, LookupMaxEntryPlusOne)
 {
 	int error;

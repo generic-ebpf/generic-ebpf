@@ -17,42 +17,23 @@
  */
 
 #include "ebpf_map.h"
-#include "ebpf_allocator.h"
 
 struct ebpf_map_array {
-	ebpf_rwlock_t rw;
-	ebpf_allocator_t allocator;
-	uint64_t counter; // entry counter
-	void **array;
+	void *array;
 };
+
+#define map_to_array(map) (uint8_t *)(((struct ebpf_map_array *)(map->data))->array)
 
 static int
 array_map_init_common(struct ebpf_map_array *array_map, uint32_t key_size,
 		      uint32_t value_size, uint32_t max_entries, uint32_t flags)
 {
-	int error;
-
-	array_map->array = ebpf_calloc(max_entries, sizeof(void *));
+	array_map->array = ebpf_calloc(max_entries, key_size);
 	if (!array_map->array) {
 		return ENOMEM;
 	}
 
-	ebpf_rw_init(&array_map->rw, "ebpf_array_map_lock");
-	ebpf_allocator_init(&array_map->allocator, value_size, 8);
-
-	error = ebpf_allocator_prealloc(&array_map->allocator, max_entries);
-	if (error) {
-		goto err0;
-	}
-
-	array_map->counter = 0;
-
 	return 0;
-
-err0:
-	ebpf_allocator_deinit(&array_map->allocator);
-	ebpf_free(array_map->array);
-	return error;
 }
 
 static int
@@ -81,8 +62,6 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 static void
 array_map_deinit_common(struct ebpf_map_array *array_map, void *arg)
 {
-	ebpf_rw_destroy(&array_map->rw);
-	ebpf_allocator_deinit(&array_map->allocator);
 	ebpf_free(array_map->array);
 	ebpf_free(array_map);
 }
@@ -94,31 +73,15 @@ array_map_deinit(struct ebpf_map *map, void *arg)
 }
 
 static void *
-array_map_lookup_elem_common(struct ebpf_map_array *array_map, uint32_t *key,
-			     uint64_t flags)
-{
-	if (array_map->counter == 0) {
-		return NULL;
-	}
-
-	return array_map->array[*key];
-}
-
-static void *
 array_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
 {
 	if (*(uint32_t *)key >= map->max_entries) {
 		return NULL;
 	}
 
-	void *ret;
-	struct ebpf_map_array *array_map = map->data;
+	uint8_t *array = map_to_array(map);
 
-	ebpf_rw_rlock(&array_map->rw);
-	ret = array_map_lookup_elem_common(array_map, (uint32_t *)key, flags);
-	ebpf_rw_runlock(&array_map->rw);
-
-	return ret;
+	return array + (map->key_size * *(uint32_t *)key);
 }
 
 static int
@@ -126,30 +89,8 @@ array_map_update_elem_common(struct ebpf_map *map,
 			     struct ebpf_map_array *array, void *key,
 			     void *value, uint64_t flags)
 {
-	void *elem = array_map_lookup_elem_common(array, key, 0);
-	if (elem) {
-		if (flags & EBPF_NOEXIST) {
-			return EEXIST;
-		} else {
-			memcpy(elem, value, map->value_size);
-			goto end;
-		}
-	}
-
-	if (flags & EBPF_EXIST) {
-		return ENOENT;
-	}
-
-	elem = ebpf_allocator_alloc(&array->allocator);
-	if (!elem) {
-		return ENOMEM;
-	}
-
+  uint8_t *elem = map_to_array(map) + (map->key_size * *(uint32_t *)key);
 	memcpy(elem, value, map->value_size);
-	array->array[*(uint32_t *)key] = elem;
-
-end:
-	array->counter++;
 	return 0;
 }
 
@@ -157,54 +98,23 @@ static int
 array_map_update_elem(struct ebpf_map *map, void *key, void *value,
 		      uint64_t flags)
 {
-	int ret;
 	struct ebpf_map_array *array_map = map->data;
+
+  if (flags & EBPF_NOEXIST) {
+    return EEXIST;
+  }
 
 	if (*(uint32_t *)key >= map->max_entries) {
 		return EINVAL;
 	}
 
-	ebpf_rw_wlock(&array_map->rw);
-	ret = array_map_update_elem_common(map, array_map, key, value, flags);
-	ebpf_rw_wunlock(&array_map->rw);
-
-	return ret;
-}
-
-static int
-array_map_delete_elem_common(struct ebpf_map *map,
-			     struct ebpf_map_array *array_map, uint32_t key)
-{
-	if (array_map->counter == 0) {
-		return ENOENT;
-	}
-
-	if (key >= map->max_entries) {
-		return EINVAL;
-	}
-
-	if (!array_map->array[key]) {
-		return ENOENT;
-	}
-
-	ebpf_allocator_free(&array_map->allocator, array_map->array[key]);
-	array_map->array[key] = NULL;
-	array_map->counter--;
-
-	return 0;
+	return array_map_update_elem_common(map, array_map, key, value, flags);
 }
 
 static int
 array_map_delete_elem(struct ebpf_map *map, void *key)
 {
-	int ret;
-	struct ebpf_map_array *array_map = map->data;
-
-	ebpf_rw_wlock(&array_map->rw);
-	ret = array_map_delete_elem_common(map, array_map, *(uint32_t *)key);
-	ebpf_rw_wunlock(&array_map->rw);
-
-	return ret;
+  return EINVAL;
 }
 
 static int

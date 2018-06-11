@@ -36,26 +36,7 @@ class ArrayMapDeleteTest : public ::testing::Test {
 	}
 };
 
-TEST_F(ArrayMapDeleteTest, DeleteMaxKey)
-{
-	int error;
-	uint32_t key = 100;
-
-	error = ebpf_map_delete_elem(&map, &key);
-
-	EXPECT_EQ(EINVAL, error);
-}
-
-TEST_F(ArrayMapDeleteTest, DeleteOutOfMaxKey)
-{
-	int error;
-	uint32_t key = 101;
-
-	error = ebpf_map_delete_elem(&map, &key);
-
-	EXPECT_EQ(EINVAL, error);
-}
-
+/* Delete always failes */
 TEST_F(ArrayMapDeleteTest, CorrectDelete)
 {
 	int error;
@@ -63,6 +44,6 @@ TEST_F(ArrayMapDeleteTest, CorrectDelete)
 
 	error = ebpf_map_delete_elem(&map, &key);
 
-	EXPECT_EQ(0, error);
+	EXPECT_EQ(EINVAL, error);
 }
 } // namespace
