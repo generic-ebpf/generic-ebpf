@@ -100,7 +100,6 @@ TEST_F(EbpfDevMapDeleteElemTest, DeleteWithInvalidSizeKey) {
   EXPECT_EQ(-1, error);
   EXPECT_EQ(EINVAL, errno);
 }
-*/
 
 TEST_F(EbpfDevMapDeleteElemTest, CorrectDelete)
 {
@@ -115,4 +114,5 @@ TEST_F(EbpfDevMapDeleteElemTest, CorrectDelete)
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_DELETE_ELEM, &req);
 	EXPECT_EQ(0, error);
 }
+*/
 } // namespace
