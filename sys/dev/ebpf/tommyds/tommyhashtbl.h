@@ -171,7 +171,7 @@ typedef struct tommy_hashtable_struct {
  * \param buckets Minimum number of buckets to allocate. The effective number
  * used is the next power of 2.
  */
-void tommy_hashtable_init(tommy_hashtable *hashtable, tommy_count_t bucket_max);
+int tommy_hashtable_init(tommy_hashtable *hashtable, tommy_count_t bucket_max);
 
 /**
  * Deinitializes the hashtable.

@@ -42,7 +42,10 @@ hashtable_map_init_common(struct ebpf_map_hashtable *hash_map, uint32_t key_size
 {
 	int error;
 
-	tommy_hashtable_init(&hash_map->hashtable, max_entries);
+	error = tommy_hashtable_init(&hash_map->hashtable, max_entries);
+  if (error) {
+    return error;
+  }
 
 	uint64_t elem_size =
 	    sizeof(struct hash_elem) + key_size + value_size;
