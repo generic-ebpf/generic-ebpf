@@ -49,11 +49,11 @@ clean_ebpf_dev:
 	rm -f ebpf-dev.ko
 	make -C $(platform)/ebpf_dev clean
 
-do_test:
-	make -C tests do_test
+check:
+	make -C tests check
 
-do_kernel_test:
-	make -C tests do_kernel_test
+check_kernel:
+	make -C tests check_kernel
 
 clean_tests:
 	make -C tests clean

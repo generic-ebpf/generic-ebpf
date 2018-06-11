@@ -35,7 +35,7 @@ map_tests = \
 all_tests: $(map_tests)
 	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(deps) -lpthread -lebpf
 
-do_test:
+check:
 	- LD_LIBRARY_PATH=$(libebpf_path) ./all_tests
 
 clean:
