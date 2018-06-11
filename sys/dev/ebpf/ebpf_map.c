@@ -56,82 +56,82 @@ ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
 }
 
 void *
-ebpf_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
+ebpf_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
 {
-	if (!self || !key) {
+	if (!map || !key) {
 		return NULL;
 	}
 
-	return ebpf_map_ops[self->type]->lookup_elem(self, key, flags);
+	return ebpf_map_ops[map->type]->lookup_elem(map, key, flags);
 }
 
 void *
-ebpf_map_lookup_elem_from_user(struct ebpf_map *self, void *key, uint64_t flags)
+ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, uint64_t flags)
 {
-	if (!self || !key) {
+	if (!map || !key) {
 		return NULL;
 	}
 
-	return ebpf_map_ops[self->type]->lookup_elem_from_user(self, key,
+	return ebpf_map_ops[map->type]->lookup_elem_from_user(map, key,
 							       flags);
 }
 
 int
-ebpf_map_update_elem(struct ebpf_map *self, void *key, void *value,
+ebpf_map_update_elem(struct ebpf_map *map, void *key, void *value,
 		     uint64_t flags)
 {
-	if (!self || !key || !value || flags > EBPF_EXIST) {
+	if (!map || !key || !value || flags > EBPF_EXIST) {
 		return EINVAL;
 	}
 
-	return ebpf_map_ops[self->type]->update_elem(self, key, value, flags);
+	return ebpf_map_ops[map->type]->update_elem(map, key, value, flags);
 }
 
 int
-ebpf_map_update_elem_from_user(struct ebpf_map *self, void *key, void *value,
+ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 			       uint64_t flags)
 {
-	if (!self || !key || !value) {
+	if (!map || !key || !value) {
 		return EINVAL;
 	}
 
-	return ebpf_map_ops[self->type]->update_elem_from_user(self, key, value,
+	return ebpf_map_ops[map->type]->update_elem_from_user(map, key, value,
 							       flags);
 }
 
 int
-ebpf_map_delete_elem(struct ebpf_map *self, void *key)
+ebpf_map_delete_elem(struct ebpf_map *map, void *key)
 {
-	if (!self || !key) {
+	if (!map || !key) {
 		return EINVAL;
 	}
 
-	return ebpf_map_ops[self->type]->delete_elem(self, key);
+	return ebpf_map_ops[map->type]->delete_elem(map, key);
 }
 
 int
-ebpf_map_delete_elem_from_user(struct ebpf_map *self, void *key)
+ebpf_map_delete_elem_from_user(struct ebpf_map *map, void *key)
 {
-	if (!self || !key) {
+	if (!map || !key) {
 		return EINVAL;
 	}
 
-	return ebpf_map_ops[self->type]->delete_elem_from_user(self, key);
+	return ebpf_map_ops[map->type]->delete_elem_from_user(map, key);
 }
 
 int
-ebpf_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
+ebpf_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 {
 	/*
 	 * key == NULL is valid, because it means "Give me a
 	 * first key"
 	 */
-	if (!self || !next_key) {
+	if (!map || !next_key) {
 		return EINVAL;
 	}
 
-	if (ebpf_map_ops[self->type]->get_next_key) {
-		return ebpf_map_ops[self->type]->get_next_key(self, key,
+	if (ebpf_map_ops[map->type]->get_next_key) {
+		return ebpf_map_ops[map->type]->get_next_key(map, key,
 							      next_key);
 	} else {
 		return ENOTSUP;
@@ -139,36 +139,36 @@ ebpf_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
 }
 
 int
-ebpf_map_get_next_key_from_user(struct ebpf_map *self, void *key,
+ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key,
 				void *next_key)
 {
 	/*
 	 * key == NULL is valid, because it means "Give me a
 	 * first key"
 	 */
-	if (!self || !next_key) {
+	if (!map || !next_key) {
 		return EINVAL;
 	}
 
-	if (ebpf_map_ops[self->type]->get_next_key) {
-		return ebpf_map_ops[self->type]->get_next_key_from_user(
-		    self, key, next_key);
+	if (ebpf_map_ops[map->type]->get_next_key) {
+		return ebpf_map_ops[map->type]->get_next_key_from_user(
+		    map, key, next_key);
 	} else {
 		return ENOTSUP;
 	}
 }
 
 void
-ebpf_map_deinit_default(struct ebpf_map *self, void *arg)
+ebpf_map_deinit_default(struct ebpf_map *map, void *arg)
 {
-	ebpf_map_ops[self->type]->deinit(self, arg);
+	ebpf_map_ops[map->type]->deinit(map, arg);
 }
 
 void
-ebpf_map_deinit(struct ebpf_map *self, void *arg)
+ebpf_map_deinit(struct ebpf_map *map, void *arg)
 {
-	if (!self) {
+	if (!map) {
 		return;
 	}
-	self->deinit(self, arg);
+	map->deinit(map, arg);
 }
