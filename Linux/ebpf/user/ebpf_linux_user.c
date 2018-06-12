@@ -84,6 +84,12 @@ ebpf_ncpus(void)
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
+long
+ebpf_getpagesize(void)
+{
+	return sysconf(_SC_PAGESIZE);
+}
+
 void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {

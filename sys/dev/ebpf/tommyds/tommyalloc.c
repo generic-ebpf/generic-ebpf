@@ -34,8 +34,8 @@
  * Basic allocation segment.
  * Smaller of a memory page, to allow also a little heap overread.
  * The heap manager may put it in a single memory page.
+ * #define TOMMY_ALLOCATOR_BLOCK_SIZE (4096 - 64)
  */
-#define TOMMY_ALLOCATOR_BLOCK_SIZE (4096 - 64)
 
 void
 tommy_allocator_init(tommy_allocator *alloc, tommy_size_t block_size,
@@ -95,7 +95,7 @@ tommy_allocator_alloc(tommy_allocator *alloc)
 		tommy_allocator_entry *segment;
 
 		/* default allocation size */
-		size = TOMMY_ALLOCATOR_BLOCK_SIZE;
+		size = (size_t)(ebpf_getpagesize() - 64);
 
 		/* ensure that we can allocate at least one block */
 		if (size < sizeof(tommy_allocator_entry) + alloc->align_size +

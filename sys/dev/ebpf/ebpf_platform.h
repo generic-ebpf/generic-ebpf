@@ -53,6 +53,7 @@ extern int ebpf_error(const char *fmt, ...);
 extern void ebpf_assert(bool expr);
 extern uint16_t ebpf_ncpus(void);
 extern uint16_t ebpf_curcpu(void);
+extern long ebpf_getpagesize(void);
 extern void ebpf_rw_init(ebpf_rwlock_t *rw, char *name);
 extern void ebpf_rw_rlock(ebpf_rwlock_t *rw);
 extern void ebpf_rw_runlock(ebpf_rwlock_t *rw);

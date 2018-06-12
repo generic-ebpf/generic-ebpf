@@ -96,6 +96,12 @@ ebpf_curcpu(void)
 	return 0; // FIXME: Probably it makes no sense to do this in user space.
 }
 
+long
+ebpf_getpagesize(void)
+{
+	return sysconf(_SC_PAGE_SIZE);
+}
+
 void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {

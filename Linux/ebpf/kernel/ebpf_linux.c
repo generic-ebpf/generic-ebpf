@@ -74,6 +74,12 @@ ebpf_ncpus(void)
 	return nr_cpu_ids;
 }
 
+long
+ebpf_getpagesize(void)
+{
+	return PAGE_SIZE;
+}
+
 void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {
