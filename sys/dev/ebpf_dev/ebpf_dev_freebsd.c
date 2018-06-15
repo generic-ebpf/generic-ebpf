@@ -83,8 +83,12 @@ ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
 int
 ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
 {
+#if __FreeBSD_version >= 1200062
+	return fget(td, fd, &cap_ioctl_rights, f);
+#else
 	cap_rights_t cap;
 	return fget(td, fd, cap_rights_init(&cap, CAP_IOCTL), f);
+#endif
 }
 
 int
