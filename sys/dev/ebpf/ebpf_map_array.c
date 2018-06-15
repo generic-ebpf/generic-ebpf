@@ -61,6 +61,13 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	return 0;
 }
 
+static int
+array_map_init_percpu(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
+	       uint32_t max_entries, uint32_t flags)
+{
+  return EINVAL;
+}
+
 static void
 array_map_deinit_common(struct ebpf_map_array *array_map, void *arg)
 {
@@ -74,6 +81,12 @@ array_map_deinit(struct ebpf_map *map, void *arg)
 	array_map_deinit_common(map->data, arg);
 }
 
+static void
+array_map_deinit_percpu(struct ebpf_map *map, void *arg)
+{
+  return;
+}
+
 static void *
 array_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
 {
@@ -81,9 +94,19 @@ array_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
 		return NULL;
 	}
 
-	uint8_t *array = map_to_array(map);
+	return (uint8_t *)map_to_array(map) + (map->key_size * *(uint32_t *)key);
+}
 
-	return array + (map->key_size * *(uint32_t *)key);
+static void *
+array_map_lookup_elem_percpu(struct ebpf_map *map, void *key, uint64_t flags)
+{
+  return NULL;
+}
+
+static void *
+array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, uint64_t flags)
+{
+  return NULL;
 }
 
 static int
@@ -113,6 +136,20 @@ array_map_update_elem(struct ebpf_map *map, void *key, void *value,
 }
 
 static int
+array_map_update_elem_percpu(struct ebpf_map *map, void *key, void *value,
+		      uint64_t flags)
+{
+  return EINVAL;
+}
+
+static int
+array_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key, void *value,
+		      uint64_t flags)
+{
+  return EINVAL;
+}
+
+static int
 array_map_delete_elem(struct ebpf_map *map, void *key)
 {
 	return EINVAL;
@@ -137,6 +174,18 @@ array_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	return 0;
 }
 
+static int
+array_map_get_next_key_percpu(struct ebpf_map *map, void *key, void *next_key)
+{
+  return EINVAL;
+}
+
+static int
+array_map_get_next_key_percpu_from_user(struct ebpf_map *map, void *key, void *next_key)
+{
+  return EINVAL;
+}
+
 struct ebpf_map_ops array_map_ops = {
     .init = array_map_init,
     .update_elem = array_map_update_elem,
@@ -148,3 +197,15 @@ struct ebpf_map_ops array_map_ops = {
     .delete_elem_from_user = array_map_delete_elem,
     .get_next_key_from_user = array_map_get_next_key,
     .deinit = array_map_deinit};
+
+struct ebpf_map_ops percpu_array_map_ops = {
+    .init = array_map_init_percpu,
+    .update_elem = array_map_update_elem_percpu,
+    .lookup_elem = array_map_lookup_elem_percpu,
+    .delete_elem = array_map_delete_elem, // delete is anyway invalid
+    .get_next_key = array_map_get_next_key_percpu,
+    .update_elem_from_user = array_map_update_elem_percpu_from_user,
+    .lookup_elem_from_user = array_map_lookup_elem_percpu_from_user,
+    .delete_elem_from_user = array_map_delete_elem, // delete is anyway invalid
+    .get_next_key_from_user = array_map_get_next_key_percpu_from_user,
+    .deinit = array_map_deinit_percpu};
