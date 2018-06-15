@@ -22,7 +22,8 @@ struct ebpf_map_array {
 	void *array;
 };
 
-#define map_to_array(map) (uint8_t *)(((struct ebpf_map_array *)(map->data))->array)
+#define map_to_array(map)                                                      \
+	(uint8_t *)(((struct ebpf_map_array *)(map->data))->array)
 
 static int
 array_map_init_common(struct ebpf_map_array *array_map, uint32_t key_size,
@@ -42,13 +43,14 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 {
 	int error;
 
-	struct ebpf_map_array *array_map = ebpf_calloc(1, sizeof(struct ebpf_map_array));
+	struct ebpf_map_array *array_map =
+	    ebpf_calloc(1, sizeof(struct ebpf_map_array));
 	if (!map) {
 		return ENOMEM;
 	}
 
-	error = array_map_init_common(array_map, key_size, value_size, max_entries,
-				      flags);
+	error = array_map_init_common(array_map, key_size, value_size,
+				      max_entries, flags);
 	if (error) {
 		ebpf_free(array_map);
 		return error;
@@ -85,11 +87,10 @@ array_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
 }
 
 static int
-array_map_update_elem_common(struct ebpf_map *map,
-			     struct ebpf_map_array *array, void *key,
-			     void *value, uint64_t flags)
+array_map_update_elem_common(struct ebpf_map *map, struct ebpf_map_array *array,
+			     void *key, void *value, uint64_t flags)
 {
-  uint8_t *elem = map_to_array(map) + (map->key_size * *(uint32_t *)key);
+	uint8_t *elem = map_to_array(map) + (map->key_size * *(uint32_t *)key);
 	memcpy(elem, value, map->value_size);
 	return 0;
 }
@@ -100,9 +101,9 @@ array_map_update_elem(struct ebpf_map *map, void *key, void *value,
 {
 	struct ebpf_map_array *array_map = map->data;
 
-  if (flags & EBPF_NOEXIST) {
-    return EEXIST;
-  }
+	if (flags & EBPF_NOEXIST) {
+		return EEXIST;
+	}
 
 	if (*(uint32_t *)key >= map->max_entries) {
 		return EINVAL;
@@ -114,7 +115,7 @@ array_map_update_elem(struct ebpf_map *map, void *key, void *value,
 static int
 array_map_delete_elem(struct ebpf_map *map, void *key)
 {
-  return EINVAL;
+	return EINVAL;
 }
 
 static int

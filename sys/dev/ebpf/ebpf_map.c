@@ -72,8 +72,7 @@ ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, uint64_t flags)
 		return NULL;
 	}
 
-	return ebpf_map_ops[map->type]->lookup_elem_from_user(map, key,
-							       flags);
+	return ebpf_map_ops[map->type]->lookup_elem_from_user(map, key, flags);
 }
 
 int
@@ -96,7 +95,7 @@ ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 	}
 
 	return ebpf_map_ops[map->type]->update_elem_from_user(map, key, value,
-							       flags);
+							      flags);
 }
 
 int
@@ -132,15 +131,14 @@ ebpf_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 
 	if (ebpf_map_ops[map->type]->get_next_key) {
 		return ebpf_map_ops[map->type]->get_next_key(map, key,
-							      next_key);
+							     next_key);
 	} else {
 		return ENOTSUP;
 	}
 }
 
 int
-ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key,
-				void *next_key)
+ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 {
 	/*
 	 * key == NULL is valid, because it means "Give me a

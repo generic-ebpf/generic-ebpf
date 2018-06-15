@@ -51,16 +51,16 @@ tommy_hashtable_init(tommy_hashtable *hashtable, tommy_count_t bucket_max)
 	    tommy_cast(tommy_hashtable_node **,
 		       tommy_malloc(hashtable->bucket_max *
 				    sizeof(tommy_hashtable_node *)));
-  if (!hashtable->bucket) {
-    return ENOMEM;
-  }
+	if (!hashtable->bucket) {
+		return ENOMEM;
+	}
 
 	memset(hashtable->bucket, 0,
 	       hashtable->bucket_max * sizeof(tommy_hashtable_node *));
 
 	hashtable->count = 0;
 
-  return 0;
+	return 0;
 }
 
 void

@@ -27,9 +27,9 @@
 extern struct ebpf_map_ops array_map_ops;
 extern struct ebpf_map_ops hashtable_map_ops;
 
-const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] =
-    {[EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
-     [EBPF_MAP_TYPE_HASHTABLE] = &hashtable_map_ops};
+const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] = {
+    [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
+    [EBPF_MAP_TYPE_HASHTABLE] = &hashtable_map_ops};
 
 void *
 ebpf_malloc(size_t size)
