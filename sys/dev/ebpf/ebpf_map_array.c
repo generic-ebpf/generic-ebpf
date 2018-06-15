@@ -45,7 +45,7 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 
 	struct ebpf_map_array *array_map =
 	    ebpf_calloc(1, sizeof(struct ebpf_map_array));
-	if (!map) {
+	if (!array_map) {
 		return ENOMEM;
 	}
 
