@@ -54,6 +54,7 @@ struct ebpf_map {
 	uint32_t value_size;
 	uint32_t map_flags;
 	uint32_t max_entries;
+	bool percpu;
 	void *data;
 	void (*deinit)(struct ebpf_map *, void *);
 };
