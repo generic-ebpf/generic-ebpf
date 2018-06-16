@@ -23,7 +23,7 @@ class HashTableMapLookupTest : public ::testing::Test {
 				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 
-		error = ebpf_map_update_elem(&map, &gkey, &gval, 0);
+		error = ebpf_map_update_elem_from_user(&map, &gkey, &gval, 0);
 		ASSERT_TRUE(!error);
 	}
 
@@ -40,7 +40,7 @@ TEST_F(HashTableMapLookupTest, LookupUnexistingEntry)
 	uint32_t key = 51;
 	void *value;
 
-	value = ebpf_map_lookup_elem(&map, &key, 0);
+	value = ebpf_map_lookup_elem_from_user(&map, &key, 0);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -51,7 +51,7 @@ TEST_F(HashTableMapLookupTest, CorrectLookup)
 	uint32_t key = 50;
 	uint32_t *value;
 
-	value = (uint32_t *)ebpf_map_lookup_elem(&map, &key, 0);
+	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key, 0);
 
 	EXPECT_EQ(100, *value);
 }

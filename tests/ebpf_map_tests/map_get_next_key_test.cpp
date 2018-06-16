@@ -35,7 +35,7 @@ TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLMap)
 	int error;
 	uint32_t key = 50, next_key = 0;
 
-	error = ebpf_map_get_next_key(NULL, &key, &next_key);
+	error = ebpf_map_get_next_key_from_user(NULL, &key, &next_key);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -45,7 +45,7 @@ TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLKey)
 	int error;
 	uint32_t key = 50, next_key = 0;
 
-	error = ebpf_map_get_next_key(&map, NULL, &next_key);
+	error = ebpf_map_get_next_key_from_user(&map, NULL, &next_key);
 
 	EXPECT_NE(EINVAL, error);
 }
@@ -55,7 +55,7 @@ TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLNextKey)
 	int error;
 	uint32_t key = 50;
 
-	error = ebpf_map_get_next_key(&map, &key, NULL);
+	error = ebpf_map_get_next_key_from_user(&map, &key, NULL);
 
 	EXPECT_EQ(EINVAL, error);
 }

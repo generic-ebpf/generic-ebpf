@@ -26,9 +26,9 @@ class HashTableMapGetNextKeyTest : public ::testing::Test {
 				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 
-		error = ebpf_map_update_elem(&map, &gkey1, &gval1, 0);
+		error = ebpf_map_update_elem_from_user(&map, &gkey1, &gval1, 0);
 		ASSERT_TRUE(!error);
-		error = ebpf_map_update_elem(&map, &gkey2, &gval2, 0);
+		error = ebpf_map_update_elem_from_user(&map, &gkey2, &gval2, 0);
 		ASSERT_TRUE(!error);
 	}
 
@@ -44,7 +44,7 @@ TEST_F(HashTableMapGetNextKeyTest, GetFirstKey)
 	int error;
 	uint32_t next_key = 0;
 
-	error = ebpf_map_get_next_key(&map, NULL, &next_key);
+	error = ebpf_map_get_next_key_from_user(&map, NULL, &next_key);
 
 	EXPECT_EQ(0, error);
 }
@@ -54,7 +54,7 @@ TEST_F(HashTableMapGetNextKeyTest, CorrectGetNextKey)
 	int error;
 	uint32_t key = 50, next_key = 0;
 
-	error = ebpf_map_get_next_key(&map, &key, &next_key);
+	error = ebpf_map_get_next_key_from_user(&map, &key, &next_key);
 
 	EXPECT_EQ(70, next_key);
 }
