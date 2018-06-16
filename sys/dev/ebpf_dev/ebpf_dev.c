@@ -302,7 +302,15 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 		goto err1;
 	}
 
-	error = ebpf_copyout(v, (void *)req->value, map->map.value_size);
+	/*
+	 * In percpu case, returned value is dynamically allocated
+	 */
+	if (map->map.percpu) {
+		error = ebpf_copyout(v, (void *)req->value, map->map.value_size * ebpf_ncpus());
+		ebpf_free(v);
+	} else {
+		error = ebpf_copyout(v, (void *)req->value, map->map.value_size);
+	}
 
 err1:
 	ebpf_free(k);

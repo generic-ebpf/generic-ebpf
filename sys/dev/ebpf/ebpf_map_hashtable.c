@@ -85,6 +85,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	}
 
 	map->data = hash_map;
+	map->percpu = false;
 
 	return 0;
 }
