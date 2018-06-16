@@ -114,25 +114,6 @@ ebpf_map_delete_elem_from_user(struct ebpf_map *map, void *key)
 }
 
 int
-ebpf_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
-{
-	/*
-	 * key == NULL is valid, because it means "Give me a
-	 * first key"
-	 */
-	if (!map || !next_key) {
-		return EINVAL;
-	}
-
-	if (ebpf_map_ops[map->type]->get_next_key) {
-		return ebpf_map_ops[map->type]->get_next_key(map, key,
-							     next_key);
-	} else {
-		return ENOTSUP;
-	}
-}
-
-int
 ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 {
 	/*
@@ -143,7 +124,7 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 		return EINVAL;
 	}
 
-	if (ebpf_map_ops[map->type]->get_next_key) {
+	if (ebpf_map_ops[map->type]->get_next_key_from_user) {
 		return ebpf_map_ops[map->type]->get_next_key_from_user(
 		    map, key, next_key);
 	} else {

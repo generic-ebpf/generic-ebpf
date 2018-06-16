@@ -40,7 +40,6 @@ struct ebpf_map_ops {
 	ebpf_map_lookup_elem_t *lookup_elem;
 	ebpf_map_update_elem_t *update_elem;
 	ebpf_map_delete_elem_t *delete_elem;
-	ebpf_map_get_next_key_t *get_next_key;
 	ebpf_map_lookup_elem_t *lookup_elem_from_user;
 	ebpf_map_update_elem_t *update_elem_from_user;
 	ebpf_map_delete_elem_t *delete_elem_from_user;
@@ -67,7 +66,6 @@ void *ebpf_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags);
 int ebpf_map_update_elem(struct ebpf_map *map, void *key, void *value,
 			 uint64_t flags);
 int ebpf_map_delete_elem(struct ebpf_map *map, void *key);
-int ebpf_map_get_next_key(struct ebpf_map *map, void *key, void *next_key);
 void *ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key,
 				     uint64_t flags);
 int ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
