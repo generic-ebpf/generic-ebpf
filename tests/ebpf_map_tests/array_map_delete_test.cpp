@@ -25,7 +25,7 @@ class ArrayMapDeleteTest : public ::testing::Test {
 				  sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 
-		error = ebpf_map_update_elem(&map, &gkey, &gval, 0);
+		error = ebpf_map_update_elem_from_user(&map, &gkey, &gval, 0);
 		ASSERT_TRUE(!error);
 	}
 
@@ -42,7 +42,7 @@ TEST_F(ArrayMapDeleteTest, CorrectDelete)
 	int error;
 	uint32_t key = 50;
 
-	error = ebpf_map_delete_elem(&map, &key);
+	error = ebpf_map_delete_elem_from_user(&map, &key);
 
 	EXPECT_EQ(EINVAL, error);
 }

@@ -158,7 +158,7 @@ array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, uint64_t
 	}
 
 	uint8_t *elem;
-	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
+	for (uint16_t i = 0; i < ncpus; i++) {
 		elem = (uint8_t *)(ARRAY_MAP(map) + i)->array + (map->value_size * k);
 		memcpy(ret + map->value_size * i, elem, map->value_size);
 	}

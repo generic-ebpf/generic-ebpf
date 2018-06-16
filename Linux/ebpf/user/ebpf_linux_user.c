@@ -84,6 +84,12 @@ ebpf_ncpus(void)
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
+uint16_t
+ebpf_curcpu(void)
+{
+	return 0; // This makes no sense. Just for testing.
+}
+
 long
 ebpf_getpagesize(void)
 {
@@ -140,7 +146,7 @@ ebpf_init_map_types(void)
 	}
 
 	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
-	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &bad_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &percpu_array_map_ops);
 	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
 }
 

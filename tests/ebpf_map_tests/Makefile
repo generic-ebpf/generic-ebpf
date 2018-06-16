@@ -27,6 +27,10 @@ map_tests = \
 	array_map_get_next_key_test.o \
 	array_map_lookup_test.o \
 	array_map_update_test.o \
+	percpu_array_map_delete_test.o \
+	percpu_array_map_get_next_key_test.o \
+	percpu_array_map_lookup_test.o \
+	percpu_array_map_update_test.o \
 	hashtable_map_delete_test.o \
 	hashtable_map_get_next_key_test.o \
 	hashtable_map_lookup_test.o \

@@ -90,7 +90,7 @@ int
 ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 			       uint64_t flags)
 {
-	return ebpf_map_update_elem(map, key, value, flags);
+	return ebpf_map_ops[map->type]->update_elem_from_user(map, key, value, flags);
 }
 
 int
