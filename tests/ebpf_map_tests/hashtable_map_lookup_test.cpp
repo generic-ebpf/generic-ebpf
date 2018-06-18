@@ -40,7 +40,7 @@ TEST_F(HashTableMapLookupTest, LookupUnexistingEntry)
 	uint32_t key = 51;
 	void *value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key, 0);
+	value = ebpf_map_lookup_elem_from_user(&map, &key);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -51,7 +51,7 @@ TEST_F(HashTableMapLookupTest, CorrectLookup)
 	uint32_t key = 50;
 	uint32_t *value;
 
-	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key, 0);
+	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key);
 
 	EXPECT_EQ(100, *value);
 }

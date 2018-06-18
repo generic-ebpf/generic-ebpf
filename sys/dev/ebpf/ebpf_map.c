@@ -56,23 +56,23 @@ ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
 }
 
 void *
-ebpf_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
+ebpf_map_lookup_elem(struct ebpf_map *map, void *key)
 {
 	if (!map || !key) {
 		return NULL;
 	}
 
-	return ebpf_map_ops[map->type]->lookup_elem(map, key, flags);
+	return ebpf_map_ops[map->type]->lookup_elem(map, key);
 }
 
 void *
-ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, uint64_t flags)
+ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key)
 {
 	if (!map || !key) {
 		return NULL;
 	}
 
-	return ebpf_map_ops[map->type]->lookup_elem_from_user(map, key, flags);
+	return ebpf_map_ops[map->type]->lookup_elem_from_user(map, key);
 }
 
 int

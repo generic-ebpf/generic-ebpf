@@ -36,7 +36,7 @@ TEST_F(MapLookupTest, LookupWithNULLMap)
 	uint32_t key = 50;
 	void *value;
 
-	value = ebpf_map_lookup_elem(NULL, (void *)&key, 0);
+	value = ebpf_map_lookup_elem(NULL, (void *)&key);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -46,7 +46,7 @@ TEST_F(MapLookupTest, LookupWithNULLKey)
 	int error;
 	void *value;
 
-	value = ebpf_map_lookup_elem(&map, NULL, 0);
+	value = ebpf_map_lookup_elem(&map, NULL);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -57,7 +57,7 @@ TEST_F(MapLookupTest, LookupWithNULLValue)
 	uint32_t key = 100;
 	void *value;
 
-	value = ebpf_map_lookup_elem(&map, (void *)&key, 0);
+	value = ebpf_map_lookup_elem(&map, (void *)&key);
 
 	EXPECT_EQ(NULL, value);
 }

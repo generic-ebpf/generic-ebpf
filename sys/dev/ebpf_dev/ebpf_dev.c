@@ -296,7 +296,7 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 		goto err1;
 	}
 
-	v = ebpf_map_lookup_elem_from_user(&map->map, k, req->flags);
+	v = ebpf_map_lookup_elem_from_user(&map->map, k);
 	if (!v) {
 		error = ENOENT;
 		goto err1;

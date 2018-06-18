@@ -115,7 +115,7 @@ hashtable_map_cmp(const void *a, const void *b)
 static void *
 __hashtable_map_lookup_elem_common(struct ebpf_map *map,
 				   struct ebpf_map_hashtable *hashtable,
-				   void *key, uint32_t hashval, uint64_t flags)
+				   void *key, uint32_t hashval)
 {
 	if (tommy_hashtable_count(&hashtable->hashtable) == 0) {
 		return NULL;
@@ -133,20 +133,20 @@ __hashtable_map_lookup_elem_common(struct ebpf_map *map,
 static void *
 hashtable_map_lookup_elem_common(struct ebpf_map *map,
 				 struct ebpf_map_hashtable *hashtable,
-				 void *key, uint64_t flags)
+				 void *key)
 {
 	return __hashtable_map_lookup_elem_common(
-	    map, hashtable, key, tommy_hash_u32(0, key, map->key_size), flags);
+	    map, hashtable, key, tommy_hash_u32(0, key, map->key_size));
 }
 
 static void *
-hashtable_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
+hashtable_map_lookup_elem(struct ebpf_map *map, void *key)
 {
 	void *ret;
 	struct ebpf_map_hashtable *hash_map = map->data;
 
 	ebpf_rw_rlock(&hash_map->rw);
-	ret = hashtable_map_lookup_elem_common(map, hash_map, key, flags);
+	ret = hashtable_map_lookup_elem_common(map, hash_map, key);
 	ebpf_rw_runlock(&hash_map->rw);
 
 	return ret;
@@ -163,7 +163,7 @@ hashtable_map_update_elem_common(struct ebpf_map *map,
 
 	uint32_t hashval = tommy_hash_u32(0, key, map->key_size);
 	struct hash_elem *elem = __hashtable_map_lookup_elem_common(
-	    map, hash_map, key, hashval, flags);
+	    map, hash_map, key, hashval);
 	if (elem) {
 		if (flags & EBPF_NOEXIST) {
 			return EEXIST;

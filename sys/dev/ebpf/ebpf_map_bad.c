@@ -33,7 +33,7 @@ bad_map_update_elem(struct ebpf_map *self, void *key, void *value,
 }
 
 static void *
-bad_map_lookup_elem(struct ebpf_map *self, void *key, uint64_t flags)
+bad_map_lookup_elem(struct ebpf_map *self, void *key)
 {
 	return NULL;
 }

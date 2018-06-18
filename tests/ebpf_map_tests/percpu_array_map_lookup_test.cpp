@@ -40,7 +40,7 @@ TEST_F(PercpuArrayMapLookupTest, LookupMaxEntryPlusOne)
 	uint32_t key = 100;
 	void *value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key, 0);
+	value = ebpf_map_lookup_elem_from_user(&map, &key);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -51,7 +51,7 @@ TEST_F(PercpuArrayMapLookupTest, LookupOutOfMaxEntry)
 	uint32_t key = 102;
 	void *value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key, 0);
+	value = ebpf_map_lookup_elem_from_user(&map, &key);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -62,7 +62,7 @@ TEST_F(PercpuArrayMapLookupTest, CorrectLookup)
 	uint32_t key = 50;
 	uint32_t *value;
 
-	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key, 0);
+	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key);
 
 	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
 		EXPECT_EQ(100, value[i]);

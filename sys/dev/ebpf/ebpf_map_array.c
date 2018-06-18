@@ -119,7 +119,7 @@ err0:
 }
 
 static void *
-array_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
+array_map_lookup_elem(struct ebpf_map *map, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
@@ -131,7 +131,7 @@ array_map_lookup_elem(struct ebpf_map *map, void *key, uint64_t flags)
 }
 
 static void *
-array_map_lookup_elem_percpu(struct ebpf_map *map, void *key, uint64_t flags)
+array_map_lookup_elem_percpu(struct ebpf_map *map, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
@@ -143,7 +143,7 @@ array_map_lookup_elem_percpu(struct ebpf_map *map, void *key, uint64_t flags)
 }
 
 static void *
-array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, uint64_t flags)
+array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
