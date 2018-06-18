@@ -18,7 +18,7 @@ We compared Linux's native map and generic-ebpf (with ebpf-dev) map on FreeBSD/L
 - OS: Linux-4.16.10 (Ubuntu 18.04-LTS) and FreeBSD 12.0-CUREENT (revision: 334876)
 - Turn off Hyper-Threading and Turbo-Boost
 - Run benchmark on single CPU (set affinity by taskset or cpuset)
-- On FreeBSD, turn off all of the debug features of kernel
+- On FreeBSD, turn off all of the debug features of kernel (BUF\_TRACKING, DDB, FULL\_BUF\_TRACKING, GDB, DEADLKRES, INVARIANTS, INVARIANT\_SUPPORT, WITNESS, WITNESS\_SKIPSPIN, MALLOC\_DEBUG\_MAXZONES)
 - Turn off KPTI for both kernels
 
 ### Results
