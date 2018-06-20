@@ -157,8 +157,6 @@ ebpf_init_map_types(void)
 
 	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
 	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &percpu_array_map_ops);
-	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
-	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_HASHTABLE, &bad_map_ops);
 }
 
 int

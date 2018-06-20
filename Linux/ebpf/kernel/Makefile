@@ -5,12 +5,9 @@ ebpf-objs += $(SRC_DIR)/ebpf_vm.o
 ebpf-objs += $(SRC_DIR)/ebpf_loader.o
 ebpf-objs += $(SRC_DIR)/ebpf_verifer.o
 ebpf-objs += $(SRC_DIR)/ebpf_prog.o
-ebpf-objs += $(SRC_DIR)/ebpf_allocator.o
 ebpf-objs += $(SRC_DIR)/ebpf_map.o
 ebpf-objs += $(SRC_DIR)/ebpf_map_bad.o
 ebpf-objs += $(SRC_DIR)/ebpf_map_array.o
-ebpf-objs += $(SRC_DIR)/tommyds/tommy.o
-ebpf-objs += $(SRC_DIR)/ebpf_map_hashtable.o
 ebpf-objs += ./ebpf_linux.o
 
 ifeq ($(shell arch), x86_64)

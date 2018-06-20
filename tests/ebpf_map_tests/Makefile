@@ -30,11 +30,7 @@ map_tests = \
 	percpu_array_map_delete_test.o \
 	percpu_array_map_get_next_key_test.o \
 	percpu_array_map_lookup_test.o \
-	percpu_array_map_update_test.o \
-	hashtable_map_delete_test.o \
-	hashtable_map_get_next_key_test.o \
-	hashtable_map_lookup_test.o \
-	hashtable_map_update_test.o
+	percpu_array_map_update_test.o
 
 all_tests: $(map_tests)
 	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(deps) -lpthread -lebpf
