@@ -18,8 +18,6 @@
 
 #include "ebpf_obj.h"
 
-#define ebpf_offsetof(type, member) __builtin_offsetof(type, member)
-
 void *
 ebpf_obj_container_of(struct ebpf_obj *obj)
 {
@@ -30,9 +28,9 @@ ebpf_obj_container_of(struct ebpf_obj *obj)
 	switch (obj->type) {
 	case EBPF_OBJ_TYPE_PROG:
 		return (uint8_t *)obj -
-		       ebpf_offsetof(struct ebpf_obj_prog, obj);
+		       __builtin_offsetof(struct ebpf_obj_prog, obj);
 	case EBPF_OBJ_TYPE_MAP:
-		return (uint8_t *)obj - ebpf_offsetof(struct ebpf_obj_map, obj);
+		return (uint8_t *)obj - __builtin_offsetof(struct ebpf_obj_map, obj);
 	default:
 		return NULL;
 	}
