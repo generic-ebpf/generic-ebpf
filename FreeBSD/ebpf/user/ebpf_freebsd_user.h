@@ -35,3 +35,5 @@
 #include <pthread.h>
 
 typedef pthread_rwlock_t ebpf_rwlock_t;
+typedef void*  ebpf_epoch_context_t;
+typedef pthread_mutex_t ebpf_mtx_t;

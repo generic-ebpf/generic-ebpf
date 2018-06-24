@@ -72,7 +72,12 @@ ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key)
 		return NULL;
 	}
 
-	return ebpf_map_ops[map->type]->lookup_elem_from_user(map, key);
+	void *ret;
+	ebpf_epoch_enter();
+	ret = ebpf_map_ops[map->type]->lookup_elem_from_user(map, key);
+	ebpf_epoch_exit();
+
+	return ret;
 }
 
 int

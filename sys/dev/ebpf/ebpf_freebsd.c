@@ -135,6 +135,74 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 	rw_destroy(rw);
 }
 
+static epoch_t ebpf_epoch;
+
+void
+ebpf_epoch_enter(void)
+{
+	epoch_enter(ebpf_epoch);
+}
+
+void
+ebpf_epoch_exit(void)
+{
+	epoch_exit(ebpf_epoch);
+}
+
+void
+ebpf_epoch_call(ebpf_epoch_context_t ctx, void (*callback) (ebpf_epoch_context_t))
+{
+	epoch_call(ebpf_epoch, ctx, callback);
+}
+
+void
+ebpf_epoch_wait(void)
+{
+	epoch_wait(ebpf_epoch);
+}
+
+void
+ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
+{
+	refcount_init(count, val);
+}
+
+void
+ebpf_refcount_acquire(volatile uint32_t *count)
+{
+	refcount_acquire(count);
+}
+
+int
+ebpf_refcount_release(volatile uint32_t *count)
+{
+	return refcount_release(count);
+}
+
+void
+ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+{
+	mtx_init(mutex, name, NULL, MTX_DEF);
+}
+
+void
+ebpf_mtx_lock(ebpf_mtx_t *mutex)
+{
+	mtx_lock(mutex);
+}
+
+void
+ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+{
+	mtx_unlock(mutex);
+}
+
+void
+ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+{
+	mtx_destroy(mutex);
+}
+
 /*
  * Kernel module operations
  */
@@ -162,6 +230,7 @@ ebpf_init_map_types(void)
 int
 ebpf_init(void)
 {
+	ebpf_epoch = epoch_alloc(0);
 	ebpf_init_map_types();
 	printf("ebpf loaded\n");
 	return 0;

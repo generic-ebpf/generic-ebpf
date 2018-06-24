@@ -144,6 +144,86 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 	assert(!error);
 }
 
+/*
+ * FIXME Below epoch and refcount~ things are just a stub and doesn't work correctly.
+ * In future version, replace them to correct one.
+ */
+
+void
+ebpf_epoch_enter(void)
+{
+	return;
+}
+
+void
+ebpf_epoch_exit(void)
+{
+	return;
+}
+
+void
+ebpf_epoch_call(ebpf_epoch_context_t ctx,
+		void (*callback)(ebpf_epoch_context_t))
+{
+	return;
+}
+
+void
+ebpf_epoch_wait(void)
+{
+	return;
+}
+
+void
+ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
+{
+	*count = val;
+}
+
+void
+ebpf_refcount_acquire(volatile uint32_t *count)
+{
+	*count++;
+}
+
+int
+ebpf_refcount_release(volatile uint32_t *count)
+{
+	*count--;
+	if (count == 0) {
+		return 1;
+	}
+	return 0;
+}
+
+void
+ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+{
+	int error = pthread_mutex_init(mutex, NULL);
+	assert(!error);
+}
+
+void
+ebpf_mtx_lock(ebpf_mtx_t *mutex)
+{
+	int error = pthread_mutex_lock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+{
+	int error = pthread_mutex_unlock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+{
+	int error = pthread_mutex_destroy(mutex);
+	assert(!error);
+}
+
 void
 ebpf_init_map_types(void)
 {
@@ -151,7 +231,6 @@ ebpf_init_map_types(void)
 		ebpf_register_map_type(i, &bad_map_ops);
 	}
 
-	ebpf_register_map_type(EBPF_MAP_TYPE_BAD, &bad_map_ops);
 	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
 	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &percpu_array_map_ops);
 }

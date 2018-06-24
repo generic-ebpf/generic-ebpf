@@ -27,7 +27,7 @@ prog_tests = \
 	ebpf_dev_run_test_test.o
 
 all_tests: $(map_tests) $(prog_tests)
-	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(prog_tests) $(deps) -lpthread -lebpf
+	$(CXX) $(CXXFLAGS) -o all_tests $(map_tests) $(prog_tests) $(deps) -lpthread
 
 check:
 	- LD_LIBRARY_PATH=$(libebpf_path) ./all_tests
