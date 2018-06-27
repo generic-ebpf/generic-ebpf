@@ -31,6 +31,7 @@ typedef struct ebpf_allocator_s {
 	uint32_t block_size;
 	uint32_t nblocks;
 	uint32_t count;
+	ebpf_mtx_t lock;
 } ebpf_allocator_t;
 
 int ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size);
