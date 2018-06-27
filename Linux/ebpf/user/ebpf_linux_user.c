@@ -176,8 +176,8 @@ ebpf_epoch_exit(void)
 }
 
 void
-ebpf_epoch_call(ebpf_epoch_context_t ctx,
-		void (*callback)(ebpf_epoch_context_t))
+ebpf_epoch_call(ebpf_epoch_context_t *ctx,
+		void (*callback)(ebpf_epoch_context_t*))
 {
 	return;
 }
