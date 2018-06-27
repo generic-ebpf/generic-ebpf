@@ -21,13 +21,8 @@
 #define EBPF_ALLOCATOR_ALIGN sizeof(void *)
 
 /*
- * Simple memory allocator implementation for eBPF maps.
- * It first allocates page size memory region and split it
- * into block. Block size can be specified from users, but
- * it assumes 8 byte aligned size.
- *
- * This is not a thread safe allocator. Callers of alloc or
- * free need to use locks.
+ * Simple fixed size memory block allocator with free list
+ * for eBPF maps.
  */
 
 int
@@ -45,6 +40,10 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
 	return 0;
 }
 
+/*
+ * Preallocate nblocks of memory block and keep it to
+ * free list.
+ */
 int
 ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
 {
@@ -64,7 +63,6 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
 	return 0;
 }
 
-
 void
 ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 {
@@ -76,6 +74,15 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 	}
 }
 
+/*
+ * Allocates memory block from free list.
+ *
+ * When the free list is empty, first it calls malloc()
+ * and allocate page size memory region, then split it
+ * into multiple memory block. When memory block size
+ * is larger than page size, it only allocates single
+ * block. All blocks are aligned to EBPF_ALLOCATOR_ALIGN.
+ */
 void *
 ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 {
@@ -130,6 +137,9 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 	return ret;
 }
 
+/*
+ * Put ptr into free list. It never calls free().
+ */
 void
 ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
 {
