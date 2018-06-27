@@ -62,8 +62,8 @@ extern void ebpf_rw_wunlock(ebpf_rwlock_t *rw);
 extern void ebpf_rw_destroy(ebpf_rwlock_t *rw);
 extern void ebpf_epoch_enter(void);
 extern void ebpf_epoch_exit(void);
-extern void ebpf_epoch_call(ebpf_epoch_context_t ctx,
-		void (*callback)(ebpf_epoch_context_t));
+extern void ebpf_epoch_call(ebpf_epoch_context_t *ctx,
+		void (*callback)(ebpf_epoch_context_t*));
 extern void ebpf_epoch_wait(void);
 extern void ebpf_refcount_init(volatile uint32_t *count, uint32_t val);
 extern void ebpf_refcount_acquire(volatile uint32_t *count);
@@ -72,6 +72,7 @@ extern void ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name);
 extern void ebpf_mtx_lock(ebpf_mtx_t *mutex);
 extern void ebpf_mtx_unlock(ebpf_mtx_t *mutex);
 extern void ebpf_mtx_destroy(ebpf_mtx_t *mutex);
+extern uint32_t ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash);
 
 /*
  * Prototypes of basic map ops

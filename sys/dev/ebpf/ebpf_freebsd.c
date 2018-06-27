@@ -150,7 +150,7 @@ ebpf_epoch_exit(void)
 }
 
 void
-ebpf_epoch_call(ebpf_epoch_context_t ctx, void (*callback) (ebpf_epoch_context_t))
+ebpf_epoch_call(ebpf_epoch_context_t *ctx, void (*callback) (ebpf_epoch_context_t*))
 {
 	epoch_call(ebpf_epoch, ctx, callback);
 }
@@ -203,6 +203,12 @@ ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 	mtx_destroy(mutex);
 }
 
+uint32_t
+ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
+{
+	return jenkins_hash(buf, len, hash);
+}
+
 /*
  * Kernel module operations
  */
@@ -225,6 +231,7 @@ ebpf_init_map_types(void)
 
 	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
 	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &percpu_array_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
 }
 
 int

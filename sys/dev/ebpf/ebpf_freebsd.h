@@ -47,7 +47,7 @@
 #include <ck_queue.h>
 
 typedef struct rwlock ebpf_rwlock_t;
-typedef epoch_context_t ebpf_epoch_context_t;
+typedef struct epoch_context ebpf_epoch_context_t;
 typedef struct mtx ebpf_mtx_t;
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
