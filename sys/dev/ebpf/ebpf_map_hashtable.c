@@ -50,6 +50,7 @@ struct ebpf_map_hashtable {
 	uint32_t nbuckets;
 	struct hash_bucket *buckets;
 	ebpf_allocator_t allocator;
+	ebpf_epoch_context_t ec;
 };
 
 #define hash_elem_get_value(elem) elem->key + elem->key_size
@@ -155,6 +156,7 @@ err0:
 
 /*
  * This function should be called under condition which no one
+ * except the pending callbacks registered by ebpf_epoch_call
  * can access to the map. Then, we can correctly release map.
  *
  * For example, in ebpf_dev case, program which uses maps holds
@@ -163,9 +165,6 @@ err0:
  * eBPF programs are under executing (because they are called under
  * epoch critical section) and no userspace programs are referring
  * the map.
- *
- * Only we need to consider is possibly there are callbacks of
- * ebpf_epoch_call waiting for physical release of map elements.
  */
 static void
 hashtable_map_deinit(struct ebpf_map *map, void *arg)
@@ -173,12 +172,9 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	struct ebpf_map_hashtable *hash_map = map->data;
 
 	/*
-	 * FIXME: We need synchronization mechanism in here which
-	 * waits all callbacks. Otherwise some memory blocks
-	 * can be free'd after ebpf_allocator free'd all memory
-	 * regions.
+	 * Wait for release of all map elements
 	 */
-
+	ebpf_epoch_wait();
 	ebpf_allocator_deinit(&hash_map->allocator);
 	ebpf_free(hash_map->buckets);
 	ebpf_free(hash_map);
@@ -218,14 +214,6 @@ check_update_flags(struct ebpf_map_hashtable *hash_map,
 	}
 
 	return 0;
-}
-
-static void
-hashtable_map_release_elem(ebpf_epoch_context_t *ctx)
-{
-	struct hash_elem *elem = ebpf_container_of(ctx, struct hash_elem, ec);
-	struct ebpf_map_hashtable *hash_map = elem->hash_map;
-	ebpf_allocator_free(&hash_map->allocator, elem);
 }
 
 static int
@@ -270,7 +258,8 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key,
 	if (old_elem) {
 		EBPF_EPOCH_LIST_REMOVE(old_elem, elem);
 		old_elem->hash_map = hash_map;
-		ebpf_epoch_call(&old_elem->ec, hashtable_map_release_elem);
+		ebpf_epoch_wait();
+		ebpf_allocator_free(&hash_map->allocator, old_elem);
 	} else {
 		ebpf_refcount_acquire(&hash_map->count);
 	}
@@ -297,7 +286,8 @@ hashtable_map_delete_elem(struct ebpf_map *map, void *key)
 		ebpf_refcount_release(&hash_map->count);
 		EBPF_EPOCH_LIST_REMOVE(elem, elem);
 		elem->hash_map = hash_map;
-		ebpf_epoch_call(&elem->ec, hashtable_map_release_elem);
+		ebpf_epoch_wait();
+		ebpf_allocator_free(&hash_map->allocator, elem);
 	}
 
 	ebpf_mtx_unlock(&bucket->lock);
@@ -312,6 +302,7 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	struct hash_bucket *bucket;
 	struct hash_elem *elem, *next_elem;
 	uint32_t hash = 0;
+	int i = 0;
 
 	if (hash_map->count == 0 ||
 			(hash_map->count == 1 && key != NULL)) {
@@ -335,13 +326,13 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 		return 0;
 	}
 
+	i = (hash & (hash_map->nbuckets - 1)) + 1;
+
 get_first_key:
-	for (uint32_t i = (hash & (hash_map->nbuckets - 1)) + 1;
-			i < hash_map->nbuckets; i++) {
+	for (; i < hash_map->nbuckets; i++) {
 		bucket = hash_map->buckets + i;
-		next_elem = hash_bucket_lookup_elem(bucket, key, map->key_size);
-		if (next_elem) {
-			memcpy(next_key, next_elem->key, map->key_size);
+		EBPF_EPOCH_LIST_FOREACH(elem, &bucket->head, elem) {
+			memcpy(next_key, elem->key, map->key_size);
 			return 0;
 		}
 	}
