@@ -5,6 +5,9 @@ of generic-ebpf. Below shows their setup and results.
 
 ## Map performance benchmark
 
+June 30th 2018: Since our hash table map implementation was wrong, we deleted previous benchmark
+results from this repository. When this message added to this document.
+
 Here we have performance number of maps. Benchmark procedure is based on [tommyds's
 one](http://www.tommyds.it/doc/benchmark). Please see our code at benchmark/map\_benchmark.c
 for more details.
@@ -21,6 +24,7 @@ We compared Linux's native map and generic-ebpf (with ebpf-dev) map on FreeBSD/L
 - On FreeBSD, turn off all of the debug features of kernel (BUF\_TRACKING, DDB, FULL\_BUF\_TRACKING, GDB, DEADLKRES, INVARIANTS, INVARIANT\_SUPPORT, WITNESS, WITNESS\_SKIPSPIN, MALLOC\_DEBUG\_MAXZONES)
 - Turn off KPTI for both kernels
 
+<!---
 ### Results
 
 #### Hashtable Map
@@ -41,3 +45,4 @@ Below shows benchmark results for hashtable map. Lower is better.
 
 ##### Remove
 ![Remove](plots/hashtable_map_bench_remove.png "Hashtable remove")
+-->
