@@ -129,12 +129,7 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 		return EINVAL;
 	}
 
-	if (ebpf_map_ops[map->type]->get_next_key_from_user) {
-		return ebpf_map_ops[map->type]->get_next_key_from_user(
-		    map, key, next_key);
-	} else {
-		return ENOTSUP;
-	}
+		return ebpf_map_ops[map->type]->get_next_key_from_user(map, key, next_key);
 }
 
 void
