@@ -33,9 +33,8 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
 	}
 
 	alloc->block_size = block_size;
-	SLIST_INIT(&alloc->free_block);
-	SLIST_INIT(&alloc->used_segment);
-	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
+	EBPF_EPOCH_SLIST_INIT(&alloc->free_block);
+	EBPF_EPOCH_SLIST_INIT(&alloc->used_segment);
 
 	return 0;
 }
@@ -67,9 +66,9 @@ void
 ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 {
 	ebpf_allocator_entry_t *tmp;
-	while (!SLIST_EMPTY(&alloc->used_segment)) {
-		tmp = SLIST_FIRST(&alloc->used_segment);
-		SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
+	while (!EBPF_EPOCH_SLIST_EMPTY(&alloc->used_segment)) {
+		tmp = EBPF_EPOCH_SLIST_FIRST(&alloc->used_segment);
+		EBPF_EPOCH_SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
 		ebpf_free(tmp);
 	}
 }
@@ -88,9 +87,7 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 {
 	void *ret;
 
-	ebpf_mtx_lock(&alloc->lock);
-
-	if (SLIST_EMPTY(&alloc->free_block)) {
+	if (EBPF_EPOCH_SLIST_EMPTY(&alloc->free_block)) {
 		uint32_t size;
 		uint8_t *data;
 		ebpf_allocator_entry_t *segment;
@@ -109,7 +106,7 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 		}
 
 		segment = (ebpf_allocator_entry_t *)data;
-		SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
+		EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
 		data += sizeof(ebpf_allocator_entry_t);
 
 		uintptr_t off, mis;
@@ -122,17 +119,15 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 		}
 
 		do {
-			SLIST_INSERT_HEAD(&alloc->free_block,
+			EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->free_block,
 					(ebpf_allocator_entry_t *)data, entry);
 			data += alloc->block_size;
 			size -= alloc->block_size;
 		} while (size > alloc->block_size);
 	}
 
-	ret = SLIST_FIRST(&alloc->free_block);
-	SLIST_REMOVE_HEAD(&alloc->free_block, entry);
-
-	ebpf_mtx_unlock(&alloc->lock);
+	ret = EBPF_EPOCH_SLIST_FIRST(&alloc->free_block);
+	EBPF_EPOCH_SLIST_REMOVE_HEAD(&alloc->free_block, entry);
 
 	return ret;
 }
@@ -147,10 +142,6 @@ ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
 		return;
 	}
 
-	ebpf_mtx_lock(&alloc->lock);
-
-	SLIST_INSERT_HEAD(&alloc->free_block,
+	EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->free_block,
 			(ebpf_allocator_entry_t *)ptr, entry);
-
-	ebpf_mtx_unlock(&alloc->lock);
 }

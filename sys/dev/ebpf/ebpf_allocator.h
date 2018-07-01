@@ -22,12 +22,12 @@
 #include "ebpf_queue.h"
 
 typedef struct ebpf_allocator_entry_s {
-	SLIST_ENTRY(ebpf_allocator_entry_s) entry;
+	EBPF_EPOCH_SLIST_ENTRY(ebpf_allocator_entry_s) entry;
 } ebpf_allocator_entry_t;
 
 typedef struct ebpf_allocator_s {
-	SLIST_HEAD(,ebpf_allocator_entry_s) free_block;
-	SLIST_HEAD(,ebpf_allocator_entry_s) used_segment;
+	EBPF_EPOCH_SLIST_HEAD(,ebpf_allocator_entry_s) free_block;
+	EBPF_EPOCH_SLIST_HEAD(,ebpf_allocator_entry_s) used_segment;
 	uint32_t block_size;
 	uint32_t nblocks;
 	uint32_t count;
