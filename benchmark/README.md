@@ -24,7 +24,6 @@ We compared Linux's native map and generic-ebpf (with ebpf-dev) map on FreeBSD/L
 - On FreeBSD, turn off all of the debug features of kernel (BUF\_TRACKING, DDB, FULL\_BUF\_TRACKING, GDB, DEADLKRES, INVARIANTS, INVARIANT\_SUPPORT, WITNESS, WITNESS\_SKIPSPIN, MALLOC\_DEBUG\_MAXZONES)
 - Turn off KPTI for both kernels
 
-<!---
 ### Results
 
 #### Hashtable Map
@@ -45,4 +44,3 @@ Below shows benchmark results for hashtable map. Lower is better.
 
 ##### Remove
 ![Remove](plots/hashtable_map_bench_remove.png "Hashtable remove")
--->
