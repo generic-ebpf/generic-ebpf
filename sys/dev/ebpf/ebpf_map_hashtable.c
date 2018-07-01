@@ -254,15 +254,25 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key,
 	 * Insert element to list head. Then readers after this operation
 	 * may see new element.
 	 */
+	bool need_wait;
 	EBPF_EPOCH_LIST_INSERT_HEAD(&bucket->head, new_elem, elem);
 	if (old_elem) {
 		EBPF_EPOCH_LIST_REMOVE(old_elem, elem);
 		old_elem->hash_map = hash_map;
-		ebpf_epoch_wait();
-		ebpf_allocator_free(&hash_map->allocator, old_elem);
+		need_wait = true;
 	} else {
 		ebpf_refcount_acquire(&hash_map->count);
+		need_wait = false;
 	}
+
+	ebpf_mtx_unlock(&bucket->lock);
+
+	if (need_wait) {
+		ebpf_epoch_wait();
+		ebpf_allocator_free(&hash_map->allocator, old_elem);
+	}
+
+	return error;
 
 err0:
 	ebpf_mtx_unlock(&bucket->lock);
