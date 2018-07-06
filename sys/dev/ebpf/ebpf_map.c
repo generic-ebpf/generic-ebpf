@@ -68,11 +68,12 @@ ebpf_map_lookup_elem(struct ebpf_map *map, void *key)
 void *
 ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key)
 {
+	void *ret;
+
 	if (!map || !key) {
 		return NULL;
 	}
 
-	void *ret;
 	ebpf_epoch_enter();
 	ret = ebpf_map_ops[map->type]->lookup_elem_from_user(map, key);
 	ebpf_epoch_exit();
@@ -95,7 +96,13 @@ int
 ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 			       uint64_t flags)
 {
-	return ebpf_map_ops[map->type]->update_elem_from_user(map, key, value, flags);
+	int error;
+
+	ebpf_epoch_enter();
+	error = ebpf_map_ops[map->type]->update_elem_from_user(map, key, value, flags);
+	ebpf_epoch_exit();
+
+	return error;
 }
 
 int
@@ -111,16 +118,23 @@ ebpf_map_delete_elem(struct ebpf_map *map, void *key)
 int
 ebpf_map_delete_elem_from_user(struct ebpf_map *map, void *key)
 {
+	int error;
 	if (!map || !key) {
 		return EINVAL;
 	}
 
-	return ebpf_map_ops[map->type]->delete_elem_from_user(map, key);
+	ebpf_epoch_enter();
+	error = ebpf_map_ops[map->type]->delete_elem_from_user(map, key);
+	ebpf_epoch_exit();
+
+	return error;
 }
 
 int
 ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 {
+	int error;
+
 	/*
 	 * key == NULL is valid, because it means "Give me a
 	 * first key"
@@ -129,7 +143,11 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 		return EINVAL;
 	}
 
-		return ebpf_map_ops[map->type]->get_next_key_from_user(map, key, next_key);
+	ebpf_epoch_enter();
+	error = ebpf_map_ops[map->type]->get_next_key_from_user(map, key, next_key);
+	ebpf_epoch_exit();
+
+	return error;
 }
 
 void

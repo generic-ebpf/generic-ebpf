@@ -19,7 +19,6 @@
 #pragma once
 
 #include "ebpf_platform.h"
-#include "ebpf_queue.h"
 
 typedef struct ebpf_allocator_entry_s {
 	EBPF_EPOCH_SLIST_ENTRY(ebpf_allocator_entry_s) entry;
@@ -30,7 +29,6 @@ typedef struct ebpf_allocator_s {
 	EBPF_EPOCH_SLIST_HEAD(,ebpf_allocator_entry_s) used_segment;
 	uint32_t block_size;
 	uint32_t nblocks;
-	uint32_t count;
 	ebpf_mtx_t lock;
 } ebpf_allocator_t;
 

@@ -22,7 +22,8 @@
 
 /*
  * Simple fixed size memory block allocator with free list
- * for eBPF maps.
+ * for eBPF maps. It doesn't count allocated blocks. Maps
+ * need to limit the number of blocks outside of this allocator.
  */
 
 int
@@ -35,6 +36,7 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
 	alloc->block_size = block_size;
 	EBPF_EPOCH_SLIST_INIT(&alloc->free_block);
 	EBPF_EPOCH_SLIST_INIT(&alloc->used_segment);
+	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
 
 	return 0;
 }
@@ -62,6 +64,12 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
 	return 0;
 }
 
+/*
+ * Deinitialize allocator.
+ *
+ * Callers need to to guarantee all memory blocks are returned to the
+ * allocator before calling this function.
+ */
 void
 ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 {
@@ -71,6 +79,7 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 		EBPF_EPOCH_SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
 		ebpf_free(tmp);
 	}
+	ebpf_mtx_destroy(&alloc->lock);
 }
 
 /*
@@ -126,8 +135,10 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 		} while (size > alloc->block_size);
 	}
 
+	ebpf_mtx_lock(&alloc->lock);
 	ret = EBPF_EPOCH_SLIST_FIRST(&alloc->free_block);
 	EBPF_EPOCH_SLIST_REMOVE_HEAD(&alloc->free_block, entry);
+	ebpf_mtx_unlock(&alloc->lock);
 
 	return ret;
 }
@@ -138,10 +149,6 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 void
 ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
 {
-	if (alloc->count == 0) {
-		return;
-	}
-
 	EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->free_block,
 			(ebpf_allocator_entry_t *)ptr, entry);
 }

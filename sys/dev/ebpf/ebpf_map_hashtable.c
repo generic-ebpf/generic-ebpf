@@ -20,11 +20,6 @@
 #include "ebpf_allocator.h"
 #include "ebpf_util.h"
 
-/*
- * This should be trimmed
- */
-#define HASH_MAP_NEXTRA_ELEMS 1
-
 struct ebpf_map_hashtable;
 
 /*
@@ -53,7 +48,7 @@ struct ebpf_map_hashtable {
 	ebpf_epoch_context_t ec;
 };
 
-#define hash_elem_get_value(elem) elem->key + elem->key_size
+#define HASH_ELEM_VALUE(elem) elem->key + elem->key_size
 
 static struct hash_bucket *
 hashtable_map_get_bucket(struct ebpf_map_hashtable *hash_map, uint32_t hash)
@@ -80,14 +75,6 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		   uint32_t max_entries, uint32_t flags)
 {
 	int error;
-
-	/*
-	 * Roundup key_size and value_size for efficiency.
-	 * However, users or eBPF programs still can't access
-	 * to extra bytes.
-	 */
-	key_size = ebpf_roundup(key_size, 8);
-	value_size = ebpf_roundup(value_size, 8);
 
 	/* Check overflow */
 	if (key_size + value_size + sizeof(struct hash_elem) > UINT32_MAX) {
@@ -135,7 +122,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	 * release of map element.
 	 */
 	error = ebpf_allocator_prealloc(&hash_map->allocator,
-			max_entries + ebpf_ncpus() + HASH_MAP_NEXTRA_ELEMS);
+			max_entries + ebpf_ncpus());
 	if (error) {
 		goto err2;
 	}
@@ -176,6 +163,11 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	 */
 	ebpf_epoch_wait();
 	ebpf_allocator_deinit(&hash_map->allocator);
+
+	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
+		ebpf_mtx_destroy(&hash_map->buckets[i].lock);
+	}
+
 	ebpf_free(hash_map->buckets);
 	ebpf_free(hash_map);
 }
@@ -196,7 +188,7 @@ hashtable_map_lookup_elem(struct ebpf_map *map, void *key)
 		return NULL;
 	}
 
-	return hash_elem_get_value(elem);
+	return HASH_ELEM_VALUE(elem);
 }
 
 static int
@@ -216,6 +208,14 @@ check_update_flags(struct ebpf_map_hashtable *hash_map,
 	return 0;
 }
 
+static void
+release_hash_map_elem(ebpf_epoch_context_t *ec)
+{
+	struct hash_elem *elem = ebpf_container_of(ec, struct hash_elem, ec);
+	struct ebpf_map_hashtable *hash_map = elem->hash_map;
+	ebpf_allocator_free(&hash_map->allocator, elem);
+}
+
 static int
 hashtable_map_update_elem(struct ebpf_map *map, void *key,
 		void *value, uint64_t flags)
@@ -232,50 +232,38 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key,
 	bucket = hashtable_map_get_bucket(hash_map,
 			ebpf_jenkins_hash(key, map->key_size, 0));
 
-	ebpf_mtx_lock(&bucket->lock);
-
 	old_elem = hash_bucket_lookup_elem(bucket, key, map->key_size);
 	error = check_update_flags(hash_map, old_elem, flags);
 	if (error) {
-		goto err0;
+		return error;
 	}
 
 	new_elem = ebpf_allocator_alloc(&hash_map->allocator);
 	if (!new_elem) {
-		error = ENOMEM;
-		goto err0;
+		return ENOMEM;
 	}
 
 	new_elem->key_size = map->key_size;
 	memcpy(new_elem->key, key, map->key_size);
-	memcpy(hash_elem_get_value(new_elem), value, map->value_size);
+	memcpy(HASH_ELEM_VALUE(new_elem), value, map->value_size);
+
+	ebpf_mtx_lock(&bucket->lock);
 
 	/*
 	 * Insert element to list head. Then readers after this operation
 	 * may see new element.
 	 */
-	bool need_wait;
 	EBPF_EPOCH_LIST_INSERT_HEAD(&bucket->head, new_elem, elem);
 	if (old_elem) {
 		EBPF_EPOCH_LIST_REMOVE(old_elem, elem);
 		old_elem->hash_map = hash_map;
-		need_wait = true;
+		ebpf_epoch_call(&old_elem->ec, release_hash_map_elem);
 	} else {
 		ebpf_refcount_acquire(&hash_map->count);
-		need_wait = false;
 	}
 
 	ebpf_mtx_unlock(&bucket->lock);
 
-	if (need_wait) {
-		ebpf_epoch_wait();
-		ebpf_allocator_free(&hash_map->allocator, old_elem);
-	}
-
-	return error;
-
-err0:
-	ebpf_mtx_unlock(&bucket->lock);
 	return error;
 }
 
@@ -289,18 +277,15 @@ hashtable_map_delete_elem(struct ebpf_map *map, void *key)
 	bucket = hashtable_map_get_bucket(hash_map,
 			ebpf_jenkins_hash(key, map->key_size, 0));
 
-	ebpf_mtx_lock(&bucket->lock);
-
 	elem = hash_bucket_lookup_elem(bucket, key, map->key_size);
 	if (elem) {
+		ebpf_mtx_lock(&bucket->lock);
 		ebpf_refcount_release(&hash_map->count);
 		EBPF_EPOCH_LIST_REMOVE(elem, elem);
 		elem->hash_map = hash_map;
-		ebpf_epoch_wait();
-		ebpf_allocator_free(&hash_map->allocator, elem);
+		ebpf_epoch_call(&elem->ec, release_hash_map_elem);
+		ebpf_mtx_unlock(&bucket->lock);
 	}
-
-	ebpf_mtx_unlock(&bucket->lock);
 
 	return 0;
 }
