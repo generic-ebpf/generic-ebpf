@@ -182,19 +182,19 @@ ebpf_refcount_release(volatile uint32_t *count)
 void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
-	mtx_init(mutex, name, NULL, MTX_DEF);
+	mtx_init(mutex, name, NULL, MTX_SPIN);
 }
 
-void
+__always_inline void
 ebpf_mtx_lock(ebpf_mtx_t *mutex)
 {
-	mtx_lock(mutex);
+	mtx_lock_spin(mutex);
 }
 
-void
+__always_inline void
 ebpf_mtx_unlock(ebpf_mtx_t *mutex)
 {
-	mtx_unlock(mutex);
+	mtx_unlock_spin(mutex);
 }
 
 void
