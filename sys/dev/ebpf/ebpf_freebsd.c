@@ -140,13 +140,13 @@ static epoch_t ebpf_epoch;
 void
 ebpf_epoch_enter(void)
 {
-	epoch_enter(ebpf_epoch);
+	epoch_enter_preempt(ebpf_epoch);
 }
 
 void
 ebpf_epoch_exit(void)
 {
-	epoch_exit(ebpf_epoch);
+	epoch_exit_preempt(ebpf_epoch);
 }
 
 void
@@ -158,7 +158,7 @@ ebpf_epoch_call(ebpf_epoch_context_t *ctx, void (*callback) (ebpf_epoch_context_
 void
 ebpf_epoch_wait(void)
 {
-	epoch_wait(ebpf_epoch);
+	epoch_wait_preempt(ebpf_epoch);
 }
 
 void
@@ -182,19 +182,19 @@ ebpf_refcount_release(volatile uint32_t *count)
 void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
-	mtx_init(mutex, name, NULL, MTX_SPIN);
+	mtx_init(mutex, name, NULL, MTX_DEF);
 }
 
-__always_inline void
+void
 ebpf_mtx_lock(ebpf_mtx_t *mutex)
 {
-	mtx_lock_spin(mutex);
+	mtx_lock(mutex);
 }
 
-__always_inline void
+void
 ebpf_mtx_unlock(ebpf_mtx_t *mutex)
 {
-	mtx_unlock_spin(mutex);
+	mtx_unlock(mutex);
 }
 
 void
@@ -237,7 +237,7 @@ ebpf_init_map_types(void)
 int
 ebpf_init(void)
 {
-	ebpf_epoch = epoch_alloc(0);
+	ebpf_epoch = epoch_alloc(EPOCH_PREEMPT);
 	ebpf_init_map_types();
 	printf("ebpf loaded\n");
 	return 0;

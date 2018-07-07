@@ -32,10 +32,6 @@ static void* __ebpf_allocator_alloc(ebpf_allocator_t *alloc);
 int
 ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
 {
-	if (block_size % EBPF_ALLOCATOR_ALIGN != 0 || block_size == 0) {
-		return EINVAL;
-	}
-
 	alloc->block_size = block_size;
 	SLIST_INIT(&alloc->free_block);
 	SLIST_INIT(&alloc->used_segment);

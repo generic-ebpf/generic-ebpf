@@ -41,6 +41,7 @@ struct hash_bucket {
 
 struct ebpf_map_hashtable {
 	uint32_t count;
+	uint32_t epoch_call_count;
 	uint32_t elem_size;
 	uint32_t nbuckets;
 	struct hash_bucket *buckets;
@@ -87,6 +88,11 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		return ENOMEM;
 	}
 
+	/*
+	 * Take one extra refcount in here to indecate that the map
+	 * is still in use.
+	 */
+	ebpf_refcount_init(&hash_map->epoch_call_count, 1);
 	ebpf_refcount_init(&hash_map->count, 0);
 	hash_map->elem_size = key_size + value_size + sizeof(struct hash_elem);
 
@@ -141,27 +147,9 @@ err0:
 	return error;
 }
 
-/*
- * This function should be called under condition which no one
- * except the pending callbacks registered by ebpf_epoch_call
- * can access to the map. Then, we can correctly release map.
- *
- * For example, in ebpf_dev case, program which uses maps holds
- * reference count to maps. Then, hashtable_map_deinit called
- * when map file's reference count becomes zero. This means no
- * eBPF programs are under executing (because they are called under
- * epoch critical section) and no userspace programs are referring
- * the map.
- */
 static void
-hashtable_map_deinit(struct ebpf_map *map, void *arg)
+hashtable_map_release(struct ebpf_map_hashtable *hash_map)
 {
-	struct ebpf_map_hashtable *hash_map = map->data;
-
-	/*
-	 * Wait for release of all map elements
-	 */
-	ebpf_epoch_wait();
 	ebpf_allocator_deinit(&hash_map->allocator);
 
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
@@ -170,6 +158,27 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 
 	ebpf_free(hash_map->buckets);
 	ebpf_free(hash_map);
+}
+
+/*
+ * This function should be called under condition which no one
+ * except the pending callbacks registered by ebpf_epoch_call
+ * can access to the map.
+ */
+static void
+hashtable_map_deinit(struct ebpf_map *map, void *arg)
+{
+	struct ebpf_map_hashtable *hash_map = map->data;
+
+	/*
+	 * Release refcount and see value. If the value is 0, it means
+	 * there is no other callbacks waiting for release, so we can
+	 * release map in here. Otherwise, one of the callbacks which
+	 * release last epoch_call_count releases the map.
+	 */
+	if (ebpf_refcount_release(&hash_map->epoch_call_count) != 0) {
+		hashtable_map_release(hash_map);
+	}
 }
 
 static void *
@@ -213,7 +222,14 @@ release_hash_map_elem(ebpf_epoch_context_t *ec)
 {
 	struct hash_elem *elem = ebpf_container_of(ec, struct hash_elem, ec);
 	struct ebpf_map_hashtable *hash_map = elem->hash_map;
+
+	/*
+	 * The one who releases last element will release the map too.
+	 */
 	ebpf_allocator_free(&hash_map->allocator, elem);
+	if (ebpf_refcount_release(&hash_map->epoch_call_count) != 0) {
+		hashtable_map_release(hash_map);
+	}
 }
 
 static int
@@ -257,6 +273,7 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key,
 	if (old_elem) {
 		EBPF_EPOCH_LIST_REMOVE(old_elem, elem);
 		old_elem->hash_map = hash_map;
+		ebpf_refcount_acquire(&hash_map->epoch_call_count);
 		ebpf_epoch_call(&old_elem->ec, release_hash_map_elem);
 	} else {
 		ebpf_refcount_acquire(&hash_map->count);
@@ -280,9 +297,10 @@ hashtable_map_delete_elem(struct ebpf_map *map, void *key)
 	elem = hash_bucket_lookup_elem(bucket, key, map->key_size);
 	if (elem) {
 		ebpf_mtx_lock(&bucket->lock);
-		ebpf_refcount_release(&hash_map->count);
 		EBPF_EPOCH_LIST_REMOVE(elem, elem);
 		elem->hash_map = hash_map;
+		ebpf_refcount_release(&hash_map->count);
+		ebpf_refcount_acquire(&hash_map->epoch_call_count);
 		ebpf_epoch_call(&elem->ec, release_hash_map_elem);
 		ebpf_mtx_unlock(&bucket->lock);
 	}
