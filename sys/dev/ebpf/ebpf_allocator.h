@@ -21,15 +21,15 @@
 #include "ebpf_platform.h"
 
 typedef struct ebpf_allocator_entry_s {
-	EBPF_EPOCH_SLIST_ENTRY(ebpf_allocator_entry_s) entry;
+	SLIST_ENTRY(ebpf_allocator_entry_s) entry;
 } ebpf_allocator_entry_t;
 
 typedef struct ebpf_allocator_s {
-	EBPF_EPOCH_SLIST_HEAD(,ebpf_allocator_entry_s) free_block;
-	EBPF_EPOCH_SLIST_HEAD(,ebpf_allocator_entry_s) used_segment;
+	SLIST_HEAD(,ebpf_allocator_entry_s) free_block;
+	SLIST_HEAD(,ebpf_allocator_entry_s) used_segment;
+	ebpf_mtx_t lock;
 	uint32_t block_size;
 	uint32_t nblocks;
-	ebpf_mtx_t lock;
 } ebpf_allocator_t;
 
 int ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size);

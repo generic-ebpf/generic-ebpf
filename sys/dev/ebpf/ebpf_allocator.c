@@ -26,6 +26,9 @@
  * need to limit the number of blocks outside of this allocator.
  */
 
+static void __ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr);
+static void* __ebpf_allocator_alloc(ebpf_allocator_t *alloc);
+
 int
 ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
 {
@@ -34,8 +37,8 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
 	}
 
 	alloc->block_size = block_size;
-	EBPF_EPOCH_SLIST_INIT(&alloc->free_block);
-	EBPF_EPOCH_SLIST_INIT(&alloc->used_segment);
+	SLIST_INIT(&alloc->free_block);
+	SLIST_INIT(&alloc->used_segment);
 	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
 
 	return 0;
@@ -54,11 +57,11 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
 
 	void *tmp;
 	for (uint32_t i = 0; i < nblocks; i++) {
-		tmp = ebpf_allocator_alloc(alloc);
+		tmp = __ebpf_allocator_alloc(alloc);
 		if (!tmp) {
 			return ENOMEM;
 		}
-		ebpf_allocator_free(alloc, tmp);
+		__ebpf_allocator_free(alloc, tmp);
 	}
 
 	return 0;
@@ -74,11 +77,13 @@ void
 ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 {
 	ebpf_allocator_entry_t *tmp;
-	while (!EBPF_EPOCH_SLIST_EMPTY(&alloc->used_segment)) {
-		tmp = EBPF_EPOCH_SLIST_FIRST(&alloc->used_segment);
-		EBPF_EPOCH_SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
+
+	while (!SLIST_EMPTY(&alloc->used_segment)) {
+		tmp = SLIST_FIRST(&alloc->used_segment);
+		SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
 		ebpf_free(tmp);
 	}
+
 	ebpf_mtx_destroy(&alloc->lock);
 }
 
@@ -91,12 +96,12 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc)
  * is larger than page size, it only allocates single
  * block. All blocks are aligned to EBPF_ALLOCATOR_ALIGN.
  */
-void *
-ebpf_allocator_alloc(ebpf_allocator_t *alloc)
+static void *
+__ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 {
 	void *ret;
 
-	if (EBPF_EPOCH_SLIST_EMPTY(&alloc->free_block)) {
+	if (SLIST_EMPTY(&alloc->free_block)) {
 		uint32_t size;
 		uint8_t *data;
 		ebpf_allocator_entry_t *segment;
@@ -115,7 +120,7 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 		}
 
 		segment = (ebpf_allocator_entry_t *)data;
-		EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
+		SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
 		data += sizeof(ebpf_allocator_entry_t);
 
 		uintptr_t off, mis;
@@ -128,19 +133,36 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 		}
 
 		do {
-			EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->free_block,
+			SLIST_INSERT_HEAD(&alloc->free_block,
 					(ebpf_allocator_entry_t *)data, entry);
 			data += alloc->block_size;
 			size -= alloc->block_size;
 		} while (size > alloc->block_size);
 	}
 
+	ret = SLIST_FIRST(&alloc->free_block);
+	SLIST_REMOVE_HEAD(&alloc->free_block, entry);
+
+	return ret;
+}
+
+void *
+ebpf_allocator_alloc(ebpf_allocator_t *alloc)
+{
+	void *ret;
+
 	ebpf_mtx_lock(&alloc->lock);
-	ret = EBPF_EPOCH_SLIST_FIRST(&alloc->free_block);
-	EBPF_EPOCH_SLIST_REMOVE_HEAD(&alloc->free_block, entry);
+	ret = __ebpf_allocator_alloc(alloc);
 	ebpf_mtx_unlock(&alloc->lock);
 
 	return ret;
+}
+
+static void
+__ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
+{
+	SLIST_INSERT_HEAD(&alloc->free_block,
+			(ebpf_allocator_entry_t *)ptr, entry);
 }
 
 /*
@@ -149,6 +171,7 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 void
 ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
 {
-	EBPF_EPOCH_SLIST_INSERT_HEAD(&alloc->free_block,
-			(ebpf_allocator_entry_t *)ptr, entry);
+	ebpf_mtx_lock(&alloc->lock);
+	__ebpf_allocator_free(alloc, ptr);
+	ebpf_mtx_unlock(&alloc->lock);
 }
