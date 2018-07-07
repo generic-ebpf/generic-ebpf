@@ -93,8 +93,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	 * is still in use.
 	 */
 	ebpf_refcount_init(&hash_map->epoch_call_count, 1);
-	ebpf_refcount_init(&hash_map->count, 0);
 	hash_map->elem_size = key_size + value_size + sizeof(struct hash_elem);
+	hash_map->count = 0;
 
 	/*
 	 * Roundup number of buckets to power of two.
@@ -276,7 +276,7 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key,
 		ebpf_refcount_acquire(&hash_map->epoch_call_count);
 		ebpf_epoch_call(&old_elem->ec, release_hash_map_elem);
 	} else {
-		ebpf_refcount_acquire(&hash_map->count);
+		hash_map->count++;
 	}
 
 	ebpf_mtx_unlock(&bucket->lock);
@@ -299,7 +299,7 @@ hashtable_map_delete_elem(struct ebpf_map *map, void *key)
 		ebpf_mtx_lock(&bucket->lock);
 		EBPF_EPOCH_LIST_REMOVE(elem, elem);
 		elem->hash_map = hash_map;
-		ebpf_refcount_release(&hash_map->count);
+		hash_map->count--;
 		ebpf_refcount_acquire(&hash_map->epoch_call_count);
 		ebpf_epoch_call(&elem->ec, release_hash_map_elem);
 		ebpf_mtx_unlock(&bucket->lock);
