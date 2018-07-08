@@ -429,7 +429,10 @@ ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 	int error;
 	ebpf_file_t *f;
 
-	if (!req || !td || !(void *)req->key || !(void *)req->value) {
+	/*
+	 * key == NULL is valid, because it means "give me a first key"
+	 */
+	if (!req || !td || !(void *)req->next_key) {
 		return EINVAL;
 	}
 
@@ -438,21 +441,23 @@ ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 		return error;
 	}
 
-	void *k, *nk;
+	void *k = NULL, *nk;
 	struct ebpf_obj_map *map = ebpf_objfile_get_container(f);
 	if (!map) {
 		return EINVAL;
 	}
 
-	k = ebpf_malloc(map->map.key_size);
-	if (!k) {
-		error = ENOMEM;
-		goto err0;
-	}
+	if (req->key) {
+		k = ebpf_malloc(map->map.key_size);
+		if (!k) {
+			error = ENOMEM;
+			goto err0;
+		}
 
-	error = ebpf_copyin((void *)req->key, k, map->map.key_size);
-	if (error) {
-		goto err1;
+		error = ebpf_copyin((void *)req->key, k, map->map.key_size);
+		if (error) {
+			goto err1;
+		}
 	}
 
 	nk = ebpf_malloc(map->map.key_size);
@@ -471,7 +476,9 @@ ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 err2:
 	ebpf_free(nk);
 err1:
-	ebpf_free(k);
+	if (k) {
+		ebpf_free(k);
+	}
 err0:
 	ebpf_fdrop(f, td);
 	return error;

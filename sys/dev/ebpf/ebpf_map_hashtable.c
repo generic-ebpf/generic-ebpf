@@ -312,7 +312,7 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	struct hash_bucket *bucket;
 	struct hash_elem *elem, *next_elem;
 	uint32_t hash = 0;
-	int i = 0;
+	uint32_t i = 0;
 
 	if (key == NULL) {
 		goto get_first_key;
@@ -336,8 +336,7 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 get_first_key:
 	for (; i < hash_map->nbuckets; i++) {
 		bucket = hash_map->buckets + i;
-		EBPF_EPOCH_LIST_FOREACH(elem, &bucket->head, elem)
-		{
+		EBPF_EPOCH_LIST_FOREACH(elem, &bucket->head, elem) {
 			memcpy(next_key, elem->key, map->key_size);
 			return 0;
 		}

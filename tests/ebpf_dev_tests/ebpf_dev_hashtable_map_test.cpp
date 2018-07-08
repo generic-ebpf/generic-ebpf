@@ -161,7 +161,6 @@ TEST_F(EbpfDevHashTableMapTest, CorrectDelete)
 	EXPECT_EQ(0, error);
 }
 
-/*
 TEST_F(EbpfDevHashTableMapTest, GetFirstKey)
 {
 	int error;
@@ -189,7 +188,7 @@ TEST_F(EbpfDevHashTableMapTest, GetFirstKey)
 TEST_F(EbpfDevHashTableMapTest, CorrectGetNextKey)
 {
 	int error;
-	uint32_t key1 = 70, key2 = 50, value = 100, next_key = 0;
+	uint32_t key1 = 50, key2 = 70, value = 100, next_key = 0;
 
 	union ebpf_req req1;
 	req1.map_fd = map_fd;
@@ -210,9 +209,8 @@ TEST_F(EbpfDevHashTableMapTest, CorrectGetNextKey)
 	req2.next_key = &next_key;
 
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req2);
-	EXPECT_EQ(70, next_key);
+	EXPECT_EQ(50, next_key);
 }
-*/
 
 TEST_F(EbpfDevHashTableMapTest, LookupUnexistingEntry)
 {
@@ -230,16 +228,25 @@ TEST_F(EbpfDevHashTableMapTest, LookupUnexistingEntry)
 	EXPECT_EQ(ENOENT, errno);
 }
 
-/*
-TEST_F(HashTableMapLookupTest, CorrectLookup)
+TEST_F(EbpfDevHashTableMapTest, CorrectLookup)
 {
 	int error;
-	uint32_t key = 50;
-	uint32_t *value;
+	uint32_t key = 50, val = 100;
+	uint32_t value;
 
-	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key);
+	union ebpf_req req;
+	req.map_fd = map_fd;
+	req.key = &key;
+	req.value = &val;
+	req.flags = EBPF_ANY;
 
-	EXPECT_EQ(100, *value);
+	error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req);
+	EXPECT_EQ(0, error);
+
+	req.value = &value;
+	error = ioctl(ebpf_fd, EBPFIOC_MAP_LOOKUP_ELEM, &req);
+	EXPECT_EQ(0, error);
+
+	EXPECT_EQ(100, value);
 }
-*/
 } // namespace

@@ -85,7 +85,7 @@ TEST_F(EbpfDevMapGetNextKeyElemTest, GetNextKeyWithInvalidMapFd)
 	EXPECT_EQ(EINVAL, errno);
 }
 
-TEST_F(EbpfDevMapGetNextKeyElemTest, GetNextKeyWithNullKey)
+TEST_F(EbpfDevMapGetNextKeyElemTest, GetFirstKey)
 {
 	int error;
 	uint32_t next_key;
@@ -97,27 +97,9 @@ TEST_F(EbpfDevMapGetNextKeyElemTest, GetNextKeyWithNullKey)
 	req.flags = 0;
 
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
-	EXPECT_EQ(-1, error);
-	EXPECT_EQ(EINVAL, errno);
+	EXPECT_EQ(0, error);
+	EXPECT_EQ(0, next_key);
 }
-
-/*
-TEST_F(EbpfDevMapGetNextKeyElemTest, GetNextKeyWithInvalidSizeKey) {
-  int error;
-  uint16_t k = 0;
-  uint32_t v = 100;
-
-  union ebpf_req req;
-  req.map_fd = map_fd;
-  req.key = &k;
-  req.value = &v;
-  req.flags = 0;
-
-  error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
-  EXPECT_EQ(-1, error);
-  EXPECT_EQ(EINVAL, errno);
-}
-*/
 
 TEST_F(EbpfDevMapGetNextKeyElemTest, CorrectGetNextKey)
 {
@@ -132,5 +114,6 @@ TEST_F(EbpfDevMapGetNextKeyElemTest, CorrectGetNextKey)
 
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
 	EXPECT_EQ(0, error);
+	EXPECT_EQ(2, next_key);
 }
 } // namespace
