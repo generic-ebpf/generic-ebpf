@@ -40,7 +40,7 @@ struct hash_bucket {
 
 struct ebpf_map_hashtable {
 	uint32_t elem_size;
-	uint32_t key_size; /* round upped key size */
+	uint32_t key_size;   /* round upped key size */
 	uint32_t value_size; /* round uppped value size */
 	uint32_t nbuckets;
 	struct hash_bucket *buckets;
@@ -106,7 +106,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 
 	/* Check overflow */
 	if (ebpf_roundup(key_size, 8) + ebpf_roundup(value_size, 8) +
-			sizeof(struct hash_elem) > UINT32_MAX) {
+		sizeof(struct hash_elem) >
+	    UINT32_MAX) {
 		return E2BIG;
 	}
 
@@ -127,8 +128,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	 */
 	hash_map->key_size = ebpf_roundup(key_size, 8);
 	hash_map->value_size = ebpf_roundup(value_size, 8);
-	hash_map->elem_size = hash_map->key_size +
-		hash_map->value_size + sizeof(struct hash_elem);
+	hash_map->elem_size = hash_map->key_size + hash_map->value_size +
+			      sizeof(struct hash_elem);
 
 	/*
 	 * Roundup number of buckets to power of two.
@@ -149,14 +150,14 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 			      "ebpf_hashtable_map bucket lock");
 	}
 
-	error = ebpf_allocator_init(&hash_map->allocator,
-			hash_map->elem_size, max_entries + ebpf_ncpus());
+	error = ebpf_allocator_init(&hash_map->allocator, hash_map->elem_size,
+				    max_entries + ebpf_ncpus());
 	if (error) {
 		goto err1;
 	}
 
 	hash_map->pcpu_extra_elems =
-		ebpf_calloc(ebpf_ncpus(), sizeof(struct hash_elem *));
+	    ebpf_calloc(ebpf_ncpus(), sizeof(struct hash_elem *));
 	if (!hash_map->pcpu_extra_elems) {
 		error = ENOMEM;
 		goto err2;
@@ -171,7 +172,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	 */
 	for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
 		hash_map->pcpu_extra_elems[i] =
-			ebpf_allocator_alloc(&hash_map->allocator);
+		    ebpf_allocator_alloc(&hash_map->allocator);
 		ebpf_assert(hash_map->pcpu_extra_elems);
 	}
 
@@ -336,7 +337,8 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 get_first_key:
 	for (; i < hash_map->nbuckets; i++) {
 		bucket = hash_map->buckets + i;
-		EBPF_EPOCH_LIST_FOREACH(elem, &bucket->head, elem) {
+		EBPF_EPOCH_LIST_FOREACH(elem, &bucket->head, elem)
+		{
 			memcpy(next_key, elem->key, map->key_size);
 			return 0;
 		}

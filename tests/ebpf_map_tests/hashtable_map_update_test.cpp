@@ -62,7 +62,8 @@ TEST_F(HashTableMapUpdateTest, UpdateExistingElementWithNOEXISTFlag)
 	error = ebpf_map_update_elem_from_user(&map, &key, &value, EBPF_ANY);
 	ASSERT_TRUE(!error);
 
-	error = ebpf_map_update_elem_from_user(&map, &key, &value, EBPF_NOEXIST);
+	error =
+	    ebpf_map_update_elem_from_user(&map, &key, &value, EBPF_NOEXIST);
 
 	EXPECT_EQ(EEXIST, error);
 }
@@ -72,7 +73,8 @@ TEST_F(HashTableMapUpdateTest, UpdateNonExistingElementWithNOEXISTFlag)
 	int error;
 	uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(&map, &key, &value, EBPF_NOEXIST);
+	error =
+	    ebpf_map_update_elem_from_user(&map, &key, &value, EBPF_NOEXIST);
 
 	EXPECT_EQ(0, error);
 }

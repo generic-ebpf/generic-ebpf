@@ -18,8 +18,8 @@ class PercpuArrayMapUpdateTest : public ::testing::Test {
 		int error;
 
 		error =
-		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPU_ARRAY, sizeof(uint32_t),
-				  sizeof(uint32_t), 100, 0);
+		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPU_ARRAY,
+				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 	}
 

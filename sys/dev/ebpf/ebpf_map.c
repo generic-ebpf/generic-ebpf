@@ -99,7 +99,8 @@ ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 	int error;
 
 	ebpf_epoch_enter();
-	error = ebpf_map_ops[map->type]->update_elem_from_user(map, key, value, flags);
+	error = ebpf_map_ops[map->type]->update_elem_from_user(map, key, value,
+							       flags);
 	ebpf_epoch_exit();
 
 	return error;
@@ -144,7 +145,8 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 	}
 
 	ebpf_epoch_enter();
-	error = ebpf_map_ops[map->type]->get_next_key_from_user(map, key, next_key);
+	error =
+	    ebpf_map_ops[map->type]->get_next_key_from_user(map, key, next_key);
 	ebpf_epoch_exit();
 
 	return error;

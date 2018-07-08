@@ -145,8 +145,8 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 }
 
 /*
- * FIXME Below epoch and refcount~ things are just a stub and doesn't work correctly.
- * In future version, replace them to correct one.
+ * FIXME Below epoch and refcount~ things are just a stub and doesn't work
+ * correctly. In future version, replace them to correct one.
  */
 
 void
@@ -163,7 +163,7 @@ ebpf_epoch_exit(void)
 
 void
 ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-		void (*callback)(ebpf_epoch_context_t*))
+		void (*callback)(ebpf_epoch_context_t *))
 {
 	return;
 }
@@ -232,7 +232,8 @@ ebpf_init_map_types(void)
 	}
 
 	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
-	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY, &percpu_array_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY,
+			       &percpu_array_map_ops);
 }
 
 __attribute__((constructor)) void

@@ -19,9 +19,9 @@ class EbpfDevHashTableMapTest : public ::testing::Test {
 	virtual void
 	SetUp()
 	{
-	  int error;
-	  ebpf_fd = open("/dev/ebpf", O_RDWR);
-	  ASSERT_TRUE(ebpf_fd > 0);
+		int error;
+		ebpf_fd = open("/dev/ebpf", O_RDWR);
+		ASSERT_TRUE(ebpf_fd > 0);
 
 		union ebpf_req req;
 		req.map_fdp = &map_fd;
@@ -37,8 +37,8 @@ class EbpfDevHashTableMapTest : public ::testing::Test {
 	virtual void
 	TearDown()
 	{
-	  close(ebpf_fd);
-	  close(map_fd);
+		close(ebpf_fd);
+		close(map_fd);
 	}
 };
 

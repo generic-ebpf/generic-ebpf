@@ -20,10 +20,10 @@
 
 #include "ebpf_platform.h"
 
-#define ebpf_container_of(_ptr, _type, _member) \
+#define ebpf_container_of(_ptr, _type, _member)                                \
 	((_type *)((uint8_t *)(_ptr) - __builtin_offsetof(_type, _member)))
 
-#define ebpf_roundup(x, y) ((((x)+((y)-1))/(y))*(y))
+#define ebpf_roundup(x, y) ((((x) + ((y)-1)) / (y)) * (y))
 
 static inline uint32_t
 ebpf_roundup_pow_of_two(uint32_t n)

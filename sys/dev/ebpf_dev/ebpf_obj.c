@@ -30,7 +30,8 @@ ebpf_obj_container_of(struct ebpf_obj *obj)
 		return (uint8_t *)obj -
 		       __builtin_offsetof(struct ebpf_obj_prog, obj);
 	case EBPF_OBJ_TYPE_MAP:
-		return (uint8_t *)obj - __builtin_offsetof(struct ebpf_obj_map, obj);
+		return (uint8_t *)obj -
+		       __builtin_offsetof(struct ebpf_obj_map, obj);
 	default:
 		return NULL;
 	}
