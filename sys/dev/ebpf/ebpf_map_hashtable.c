@@ -192,6 +192,7 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	}
 
 	ebpf_free(hash_map->buckets);
+	ebpf_free(hash_map->pcpu_extra_elems);
 	ebpf_free(hash_map);
 }
 
