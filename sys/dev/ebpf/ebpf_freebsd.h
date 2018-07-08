@@ -19,30 +19,29 @@
 #pragma once
 
 #include <sys/param.h>
+#include <sys/capsicum.h>
+#include <sys/ck.h>
 #include <sys/conf.h>
-#include <sys/proc.h>
-#include <sys/module.h>
-#include <sys/kernel.h>
-#include <sys/malloc.h>
-#include <sys/systm.h>
-#include <sys/libkern.h>
 #include <sys/elf.h>
 #include <sys/endian.h>
-#include <sys/ioccom.h>
+#include <sys/epoch.h>
+#include <sys/fcntl.h>
 #include <sys/file.h>
 #include <sys/filedesc.h>
-#include <sys/fcntl.h>
+#include <sys/hash.h>
+#include <sys/ioccom.h>
+#include <sys/kernel.h>
+#include <sys/libkern.h>
+#include <sys/lock.h>
+#include <sys/malloc.h>
+#include <sys/module.h>
+#include <sys/mutex.h>
+#include <sys/proc.h>
 #include <sys/refcount.h>
-#include <sys/capsicum.h>
+#include <sys/rwlock.h>
 #include <sys/smp.h>
 #include <sys/stddef.h>
-#include <sys/lock.h>
-#include <sys/mutex.h>
-#include <sys/rwlock.h>
-#include <sys/epoch.h>
-#include <sys/refcount.h>
-#include <sys/hash.h>
-#include <sys/ck.h>
+#include <sys/systm.h>
 #include <machine/stdarg.h>
 
 typedef struct rwlock ebpf_rwlock_t;
