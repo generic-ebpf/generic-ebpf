@@ -22,42 +22,29 @@
 
 /*
  * Simple fixed size memory block allocator with free list
- * for eBPF maps. It doesn't count allocated blocks. Maps
- * need to limit the number of blocks outside of this allocator.
+ * for eBPF maps. It preallocates all blocks at initialization
+ * time and never calls malloc() or free() until deinitialization
+ * time.
  */
 
-static void __ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr);
-static void* __ebpf_allocator_alloc(ebpf_allocator_t *alloc);
+static int ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks);
 
 int
-ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size)
+ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
+		    uint32_t nblocks)
 {
-	alloc->block_size = block_size;
+	int error = 0;
+
 	SLIST_INIT(&alloc->free_block);
 	SLIST_INIT(&alloc->used_segment);
+	alloc->block_size = block_size;
+	alloc->count = nblocks;
 	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
 
-	return 0;
-}
-
-/*
- * Preallocate nblocks of memory block and keep it to
- * free list.
- */
-int
-ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
-{
-	if (nblocks == 0) {
-		return EINVAL;
-	}
-
-	void *tmp;
-	for (uint32_t i = 0; i < nblocks; i++) {
-		tmp = __ebpf_allocator_alloc(alloc);
-		if (!tmp) {
-			return ENOMEM;
-		}
-		__ebpf_allocator_free(alloc, tmp);
+	error = ebpf_allocator_prealloc(alloc, nblocks);
+	if (error) {
+		ebpf_allocator_deinit(alloc);
+		return error;
 	}
 
 	return 0;
@@ -83,36 +70,27 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 	ebpf_mtx_destroy(&alloc->lock);
 }
 
-/*
- * Allocates memory block from free list.
- *
- * When the free list is empty, first it calls malloc()
- * and allocate page size memory region, then split it
- * into multiple memory block. When memory block size
- * is larger than page size, it only allocates single
- * block. All blocks are aligned to EBPF_ALLOCATOR_ALIGN.
- */
-static void *
-__ebpf_allocator_alloc(ebpf_allocator_t *alloc)
+static int
+ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
 {
-	void *ret;
+	uint32_t count = 0;
 
-	if (SLIST_EMPTY(&alloc->free_block)) {
+	while (count < nblocks) {
 		uint32_t size;
 		uint8_t *data;
 		ebpf_allocator_entry_t *segment;
 
 		size = ebpf_getpagesize();
 
-		if (size < sizeof(ebpf_allocator_entry_t) +
-				alloc->block_size + EBPF_ALLOCATOR_ALIGN) {
+		if (size < sizeof(ebpf_allocator_entry_t) + alloc->block_size +
+			       EBPF_ALLOCATOR_ALIGN) {
 			size = sizeof(ebpf_allocator_entry_t) +
-				alloc->block_size + EBPF_ALLOCATOR_ALIGN;
+			       alloc->block_size + EBPF_ALLOCATOR_ALIGN;
 		}
 
 		data = ebpf_malloc(size);
 		if (!data) {
-			return NULL;
+			return ENOMEM;
 		}
 
 		segment = (ebpf_allocator_entry_t *)data;
@@ -130,44 +108,39 @@ __ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 
 		do {
 			SLIST_INSERT_HEAD(&alloc->free_block,
-					(ebpf_allocator_entry_t *)data, entry);
+					  (ebpf_allocator_entry_t *)data,
+					  entry);
 			data += alloc->block_size;
 			size -= alloc->block_size;
+			count++;
 		} while (size > alloc->block_size);
 	}
 
-	ret = SLIST_FIRST(&alloc->free_block);
-	SLIST_REMOVE_HEAD(&alloc->free_block, entry);
-
-	return ret;
+	return 0;
 }
 
 void *
 ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 {
-	void *ret;
+	void *ret = NULL;
 
 	ebpf_mtx_lock(&alloc->lock);
-	ret = __ebpf_allocator_alloc(alloc);
+	if (alloc->count > 0) {
+		ret = SLIST_FIRST(&alloc->free_block);
+		SLIST_REMOVE_HEAD(&alloc->free_block, entry);
+		alloc->count--;
+	}
 	ebpf_mtx_unlock(&alloc->lock);
 
 	return ret;
 }
 
-static void
-__ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
-{
-	SLIST_INSERT_HEAD(&alloc->free_block,
-			(ebpf_allocator_entry_t *)ptr, entry);
-}
-
-/*
- * Put ptr into free list. It never calls free().
- */
 void
 ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
 {
 	ebpf_mtx_lock(&alloc->lock);
-	__ebpf_allocator_free(alloc, ptr);
+	SLIST_INSERT_HEAD(&alloc->free_block, (ebpf_allocator_entry_t *)ptr,
+			  entry);
+	alloc->count++;
 	ebpf_mtx_unlock(&alloc->lock);
 }

@@ -63,7 +63,7 @@ extern void ebpf_rw_destroy(ebpf_rwlock_t *rw);
 extern void ebpf_epoch_enter(void);
 extern void ebpf_epoch_exit(void);
 extern void ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-		void (*callback)(ebpf_epoch_context_t*));
+			    void (*callback)(ebpf_epoch_context_t *));
 extern void ebpf_epoch_wait(void);
 extern void ebpf_refcount_init(volatile uint32_t *count, uint32_t val);
 extern void ebpf_refcount_acquire(volatile uint32_t *count);

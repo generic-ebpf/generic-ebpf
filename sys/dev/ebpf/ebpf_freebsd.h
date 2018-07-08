@@ -45,33 +45,28 @@
 #include <sys/ck.h>
 #include <machine/stdarg.h>
 
-
 typedef struct rwlock ebpf_rwlock_t;
 typedef struct epoch_context ebpf_epoch_context_t;
 typedef struct mtx ebpf_mtx_t;
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
-#define EBPF_EPOCH_LIST_HEAD(_name, _type) \
-	CK_LIST_HEAD(_name, _type)
+#define EBPF_EPOCH_LIST_HEAD(_name, _type) CK_LIST_HEAD(_name, _type)
 #define EBPF_EPOCH_LIST_INIT(_headp) CK_LIST_INIT(_headp)
-#define EBPF_EPOCH_LIST_FOREACH(_var, _head, _name) \
+#define EBPF_EPOCH_LIST_FOREACH(_var, _head, _name)                            \
 	CK_LIST_FOREACH(_var, _head, _name)
-#define EBPF_EPOCH_LIST_INSERT_HEAD(_head, _elem, _name) \
+#define EBPF_EPOCH_LIST_INSERT_HEAD(_head, _elem, _name)                       \
 	CK_LIST_INSERT_HEAD(_head, _elem, _name)
-#define EBPF_EPOCH_LIST_REMOVE(_elem, _name) \
-	CK_LIST_REMOVE(_elem, _name)
-#define EBPF_EPOCH_LIST_NEXT(_elem, _name) \
-	CK_LIST_NEXT(_elem, _name)
+#define EBPF_EPOCH_LIST_REMOVE(_elem, _name) CK_LIST_REMOVE(_elem, _name)
+#define EBPF_EPOCH_LIST_NEXT(_elem, _name) CK_LIST_NEXT(_elem, _name)
 
 #define EBPF_EPOCH_SLIST_ENTRY(_type) CK_SLIST_ENTRY(_type)
 #define EBPF_EPOCH_SLIST_EMPTY(_head) CK_SLIST_EMPTY(_head)
 #define EBPF_EPOCH_SLIST_FIRST(_head) CK_SLIST_FIRST(_head)
-#define EBPF_EPOCH_SLIST_HEAD(_name, _type) \
-	CK_SLIST_HEAD(_name, _type)
+#define EBPF_EPOCH_SLIST_HEAD(_name, _type) CK_SLIST_HEAD(_name, _type)
 #define EBPF_EPOCH_SLIST_INIT(_headp) CK_SLIST_INIT(_headp)
-#define EBPF_EPOCH_SLIST_FOREACH(_var, _head, _name) \
+#define EBPF_EPOCH_SLIST_FOREACH(_var, _head, _name)                           \
 	CK_SLIST_FOREACH(_var, _head, _name)
-#define EBPF_EPOCH_SLIST_INSERT_HEAD(_head, _elem, _name) \
+#define EBPF_EPOCH_SLIST_INSERT_HEAD(_head, _elem, _name)                      \
 	CK_SLIST_INSERT_HEAD(_head, _elem, _name)
-#define EBPF_EPOCH_SLIST_REMOVE_HEAD(_head, _field) \
+#define EBPF_EPOCH_SLIST_REMOVE_HEAD(_head, _field)                            \
 	CK_SLIST_REMOVE_HEAD(_head, _field)

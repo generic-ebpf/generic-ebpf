@@ -25,15 +25,14 @@ typedef struct ebpf_allocator_entry_s {
 } ebpf_allocator_entry_t;
 
 typedef struct ebpf_allocator_s {
-	SLIST_HEAD(,ebpf_allocator_entry_s) free_block;
-	SLIST_HEAD(,ebpf_allocator_entry_s) used_segment;
+	SLIST_HEAD(, ebpf_allocator_entry_s) free_block;
+	SLIST_HEAD(, ebpf_allocator_entry_s) used_segment;
 	ebpf_mtx_t lock;
 	uint32_t block_size;
-	uint32_t nblocks;
+	uint32_t count;
 } ebpf_allocator_t;
 
-int ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size);
+int ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size, uint32_t nblocks);
 void ebpf_allocator_deinit(ebpf_allocator_t *alloc);
-int ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks);
 void *ebpf_allocator_alloc(ebpf_allocator_t *alloc);
 void ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr);
