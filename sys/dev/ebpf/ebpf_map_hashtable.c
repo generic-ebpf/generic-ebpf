@@ -30,7 +30,6 @@ struct hash_elem {
 	EBPF_EPOCH_LIST_ENTRY(hash_elem) elem;
 	ebpf_epoch_context_t ec;
 	struct ebpf_map_hashtable *hash_map;
-	uint32_t key_size;
 	uint8_t key[0];
 };
 
@@ -41,6 +40,8 @@ struct hash_bucket {
 
 struct ebpf_map_hashtable {
 	uint32_t elem_size;
+	uint32_t key_size; /* round upped key size */
+	uint32_t value_size; /* round uppped key size */
 	uint32_t nbuckets;
 	struct hash_bucket *buckets;
 	struct hash_elem **pcpu_extra_elems;
@@ -48,7 +49,7 @@ struct ebpf_map_hashtable {
 	ebpf_epoch_context_t ec;
 };
 
-#define HASH_ELEM_VALUE(_elemp) _elemp->key + _elemp->key_size
+#define HASH_ELEM_VALUE(_hash_mapp, _elemp) _elemp->key + _hash_mapp->key_size
 #define HASH_BUCKET_LOCK(_bucketp) ebpf_mtx_lock(&_bucketp->lock);
 #define HASH_BUCKET_UNLOCK(_bucketp) ebpf_mtx_unlock(&_bucketp->lock);
 
@@ -104,7 +105,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	int error;
 
 	/* Check overflow */
-	if (key_size + value_size + sizeof(struct hash_elem) > UINT32_MAX) {
+	if (ebpf_roundup(key_size, 8) + ebpf_roundup(value_size, 8) +
+			sizeof(struct hash_elem) > UINT32_MAX) {
 		return E2BIG;
 	}
 
@@ -114,7 +116,19 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		return ENOMEM;
 	}
 
-	hash_map->elem_size = key_size + value_size + sizeof(struct hash_elem);
+	/*
+	 * Roundup key size and value size for efficiency.
+	 * This affects sizeof element. Never allow users
+	 * to see "padded" memory region.
+	 *
+	 * Here we cache the "internal" key_size and value_size.
+	 * For getting the "real" key_size and value_size, please
+	 * use values stored in struct ebpf_map.
+	 */
+	hash_map->key_size = ebpf_roundup(key_size, 8);
+	hash_map->value_size = ebpf_roundup(value_size, 8);
+	hash_map->elem_size = hash_map->key_size +
+		hash_map->value_size + sizeof(struct hash_elem);
 
 	/*
 	 * Roundup number of buckets to power of two.
@@ -211,7 +225,7 @@ hashtable_map_lookup_elem(struct ebpf_map *map, void *key)
 		return NULL;
 	}
 
-	return HASH_ELEM_VALUE(elem);
+	return HASH_ELEM_VALUE(hash_map, elem);
 }
 
 static int
@@ -245,9 +259,8 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key, void *value,
 		}
 	}
 
-	new_elem->key_size = map->key_size;
 	memcpy(new_elem->key, key, map->key_size);
-	memcpy(HASH_ELEM_VALUE(new_elem), value, map->value_size);
+	memcpy(HASH_ELEM_VALUE(hash_map, new_elem), value, map->value_size);
 
 	HASH_BUCKET_LOCK(bucket);
 
