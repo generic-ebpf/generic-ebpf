@@ -41,7 +41,7 @@ struct hash_bucket {
 struct ebpf_map_hashtable {
 	uint32_t elem_size;
 	uint32_t key_size; /* round upped key size */
-	uint32_t value_size; /* round uppped key size */
+	uint32_t value_size; /* round uppped value size */
 	uint32_t nbuckets;
 	struct hash_bucket *buckets;
 	struct hash_elem **pcpu_extra_elems;
