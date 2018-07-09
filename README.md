@@ -35,16 +35,24 @@ $ make
 After compilation, you will see at least one of below
 - ebpf.ko: Kernel module for ebpf library
 - ebpf-dev.ko: Kernel module for ebpf_dev character device
-- libebpf.a: User space library for ebpf
+- libebpf.so: User space library for ebpf
 
 Please load or link them. Note that ebpf_dev.ko depends on ebpf.ko, so please load ebpf.ko before ebpf_dev.ko
 
 ## Running tests
 
-### Tests for Interpreter and JIT compiler
+### Tests for user space library
 ```
 // After make
-$ make do_test
+$ make check
+```
+
+### Tests for kernel
+```
+// After make
+# <kldload | insmod> ./ebpf.ko
+# <kldload | insmod> ./ebpf-dev.ko
+# make check_kernel
 ```
 
 ## Example Applications
@@ -58,4 +66,6 @@ Enhansing eBPF programmability to [VALE](http://info.iet.unipi.it/~luigi/papers/
 ## Notes
 Our ebpf interpreter and jit codes (and its tests) are based on [ubpf](https://github.com/iovisor/ubpf)
 
-Currently, we have experimental [tommyds](https://github.com/amadvance/tommyds) backed map implementation. However, this might be change in the future commit.
+## Dependency
+
+- BSD style libelf
