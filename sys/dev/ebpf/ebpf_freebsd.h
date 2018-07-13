@@ -49,6 +49,8 @@ typedef struct epoch_context ebpf_epoch_context_t;
 typedef struct mtx ebpf_mtx_t;
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
+#define EBPF_EPOCH_LIST_EMPTY(_type) CK_LIST_EMPTY(_type)
+#define EBPF_EPOCH_LIST_FIRST(_headp) CK_LIST_FIRST(_headp)
 #define EBPF_EPOCH_LIST_HEAD(_name, _type) CK_LIST_HEAD(_name, _type)
 #define EBPF_EPOCH_LIST_INIT(_headp) CK_LIST_INIT(_headp)
 #define EBPF_EPOCH_LIST_FOREACH(_var, _head, _name)                            \

@@ -21,7 +21,8 @@ map_tests = \
 	ebpf_dev_map_lookup_elem_test.o \
 	ebpf_dev_map_delete_elem_test.o \
 	ebpf_dev_map_get_next_key_test.o \
-	ebpf_dev_hashtable_map_test.o
+	ebpf_dev_hashtable_map_test.o \
+	ebpf_dev_percpu_hashtable_map_test.o
 
 prog_tests = \
 	ebpf_dev_prog_load_test.o \

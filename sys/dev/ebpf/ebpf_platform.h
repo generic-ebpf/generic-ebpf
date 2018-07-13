@@ -81,3 +81,4 @@ extern struct ebpf_map_ops bad_map_ops;
 extern struct ebpf_map_ops array_map_ops;
 extern struct ebpf_map_ops percpu_array_map_ops;
 extern struct ebpf_map_ops hashtable_map_ops;
+extern struct ebpf_map_ops percpu_hashtable_map_ops;
