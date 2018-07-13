@@ -28,7 +28,7 @@
  */
 
 static int ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
-		int (*ctor)(void *, void *), void *arg);
+				   int (*ctor)(void *, void *), void *arg);
 
 int
 ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
@@ -49,13 +49,14 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
  * allocator before calling this function.
  */
 void
-ebpf_allocator_deinit(ebpf_allocator_t *alloc,
-		void (*dtor)(void *, void *), void *arg)
+ebpf_allocator_deinit(ebpf_allocator_t *alloc, void (*dtor)(void *, void *),
+		      void *arg)
 {
 	ebpf_allocator_entry_t *tmp;
 
 	if (dtor) {
-		SLIST_FOREACH(tmp, &alloc->free_block, entry) {
+		SLIST_FOREACH(tmp, &alloc->free_block, entry)
+		{
 			dtor(tmp, arg);
 		}
 	}
@@ -71,7 +72,7 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc,
 
 static int
 ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
-		int (*ctor)(void *, void *), void *arg)
+			int (*ctor)(void *, void *), void *arg)
 {
 	uint32_t count = 0;
 

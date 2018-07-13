@@ -139,7 +139,8 @@ array_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
 		return EINVAL;
 	}
 
-	uint8_t *elem = (uint8_t *)ARRAY_MAP(map)->array + (map->value_size * k);
+	uint8_t *elem =
+	    (uint8_t *)ARRAY_MAP(map)->array + (map->value_size * k);
 	memcpy((uint8_t *)value, elem, map->value_size);
 
 	return 0;
@@ -159,7 +160,8 @@ array_map_lookup_elem_percpu(struct ebpf_map *map, void *key)
 }
 
 static int
-array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, void *value)
+array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key,
+				       void *value)
 {
 	uint32_t k = *(uint32_t *)key;
 
@@ -171,7 +173,8 @@ array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, void *va
 	for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
 		elem = (uint8_t *)(ARRAY_MAP(map) + i)->array +
 		       (map->value_size * k);
-		memcpy((uint8_t *)value + map->value_size * i, elem, map->value_size);
+		memcpy((uint8_t *)value + map->value_size * i, elem,
+		       map->value_size);
 	}
 
 	return 0;

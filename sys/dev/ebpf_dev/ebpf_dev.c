@@ -318,10 +318,10 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 
 	if (map->map.percpu) {
 		error = ebpf_copyout(v, (void *)req->value,
-				map->map.value_size * ncpus);
+				     map->map.value_size * ncpus);
 	} else {
-		error = ebpf_copyout(v, (void *)req->value,
-				map->map.value_size);
+		error =
+		    ebpf_copyout(v, (void *)req->value, map->map.value_size);
 	}
 
 err2:

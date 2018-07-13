@@ -73,7 +73,6 @@
 		SLIST_FIRST((head)) = SLIST_NEXT(SLIST_FIRST((head)), field);  \
 	} while (0)
 
-#define	SLIST_FOREACH(var, head, field)					\
-	for ((var) = SLIST_FIRST((head));				\
-	    (var);							\
-	    (var) = SLIST_NEXT((var), field))
+#define SLIST_FOREACH(var, head, field)                                        \
+	for ((var) = SLIST_FIRST((head)); (var);                               \
+	     (var) = SLIST_NEXT((var), field))

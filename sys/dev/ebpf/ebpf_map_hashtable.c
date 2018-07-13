@@ -52,10 +52,10 @@ struct ebpf_map_hashtable {
 };
 
 #define HASH_ELEM_VALUE(_hash_mapp, _elemp) _elemp->key + _hash_mapp->key_size
-#define HASH_ELEM_PERCPU_VALUE(_hash_mapp, _elemp, _cpuid) \
-	(*((uint8_t **)HASH_ELEM_VALUE(_hash_mapp, _elemp)) + \
-   _hash_mapp->value_size * _cpuid)
-#define HASH_ELEM_CURCPU_VALUE(_hash_mapp, _elemp) \
+#define HASH_ELEM_PERCPU_VALUE(_hash_mapp, _elemp, _cpuid)                     \
+	(*((uint8_t **)HASH_ELEM_VALUE(_hash_mapp, _elemp)) +                  \
+	 _hash_mapp->value_size * _cpuid)
+#define HASH_ELEM_CURCPU_VALUE(_hash_mapp, _elemp)                             \
 	HASH_ELEM_PERCPU_VALUE(_hash_mapp, _elemp, ebpf_curcpu())
 #define HASH_BUCKET_LOCK(_bucketp) ebpf_mtx_lock(&_bucketp->lock);
 #define HASH_BUCKET_UNLOCK(_bucketp) ebpf_mtx_unlock(&_bucketp->lock);
@@ -178,7 +178,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		hash_map->elem_size = hash_map->key_size + sizeof(uint8_t *) +
 				      sizeof(struct hash_elem);
 	} else {
-		hash_map->elem_size = hash_map->key_size + hash_map->value_size +
+		hash_map->elem_size = hash_map->key_size +
+				      hash_map->value_size +
 				      sizeof(struct hash_elem);
 	}
 
@@ -202,14 +203,16 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	}
 
 	if (map->percpu) {
-		error = ebpf_allocator_init(&hash_map->allocator, hash_map->elem_size,
-					    max_entries, percpu_elem_ctor, hash_map);
+		error = ebpf_allocator_init(&hash_map->allocator,
+					    hash_map->elem_size, max_entries,
+					    percpu_elem_ctor, hash_map);
 		if (error) {
 			goto err1;
 		}
 	} else {
-		error = ebpf_allocator_init(&hash_map->allocator, hash_map->elem_size,
-					    max_entries + ebpf_ncpus(), NULL, NULL);
+		error = ebpf_allocator_init(
+		    &hash_map->allocator, hash_map->elem_size,
+		    max_entries + ebpf_ncpus(), NULL, NULL);
 		if (error) {
 			goto err1;
 		}
@@ -241,8 +244,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 
 err2:
 	ebpf_allocator_deinit(&hash_map->allocator,
-			map->percpu ? percpu_elem_dtor : NULL,
-			map->percpu ? hash_map : NULL);
+			      map->percpu ? percpu_elem_dtor : NULL,
+			      map->percpu ? hash_map : NULL);
 err1:
 	ebpf_free(hash_map->buckets);
 err0:
@@ -266,7 +269,8 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	struct hash_elem *elem;
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
 		while (!EBPF_EPOCH_LIST_EMPTY(&hash_map->buckets[i].head)) {
-			elem = EBPF_EPOCH_LIST_FIRST(&hash_map->buckets[i].head);
+			elem =
+			    EBPF_EPOCH_LIST_FIRST(&hash_map->buckets[i].head);
 			if (elem) {
 				EBPF_EPOCH_LIST_REMOVE(elem, elem);
 			}
@@ -275,8 +279,8 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	}
 
 	ebpf_allocator_deinit(&hash_map->allocator,
-			map->percpu ? percpu_elem_dtor : NULL,
-			map->percpu ? hash_map : NULL);
+			      map->percpu ? percpu_elem_dtor : NULL,
+			      map->percpu ? hash_map : NULL);
 
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
 		ebpf_mtx_destroy(&hash_map->buckets[i].lock);
@@ -302,12 +306,13 @@ hashtable_map_lookup_elem(struct ebpf_map *map, void *key)
 		return NULL;
 	}
 
-	return map->percpu ? HASH_ELEM_CURCPU_VALUE(hash_map, elem) :
-		HASH_ELEM_VALUE(hash_map, elem);
+	return map->percpu ? HASH_ELEM_CURCPU_VALUE(hash_map, elem)
+			   : HASH_ELEM_VALUE(hash_map, elem);
 }
 
 static int
-hashtable_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
+hashtable_map_lookup_elem_from_user(struct ebpf_map *map, void *key,
+				    void *value)
 {
 	uint32_t hash = ebpf_jenkins_hash(key, map->key_size, 0);
 	struct ebpf_map_hashtable *hash_map;
@@ -327,7 +332,8 @@ hashtable_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value
 }
 
 static int
-hashtable_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, void *value)
+hashtable_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key,
+					   void *value)
 {
 	uint32_t hash = ebpf_jenkins_hash(key, map->key_size, 0);
 	struct ebpf_map_hashtable *hash_map;
@@ -343,7 +349,8 @@ hashtable_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, void
 
 	for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
 		memcpy((uint8_t *)value + map->value_size * i,
-				HASH_ELEM_PERCPU_VALUE(hash_map, elem, i), map->value_size);
+		       HASH_ELEM_PERCPU_VALUE(hash_map, elem, i),
+		       map->value_size);
 	}
 
 	return 0;
@@ -398,8 +405,8 @@ err0:
 }
 
 static int
-hashtable_map_update_elem_percpu(struct ebpf_map *map, void *key,
-		void *value, uint64_t flags)
+hashtable_map_update_elem_percpu(struct ebpf_map *map, void *key, void *value,
+				 uint64_t flags)
 {
 	int error = 0;
 	uint32_t hash = ebpf_jenkins_hash(key, map->key_size, 0);
@@ -418,8 +425,8 @@ hashtable_map_update_elem_percpu(struct ebpf_map *map, void *key,
 	}
 
 	if (old_elem) {
-		memcpy(HASH_ELEM_CURCPU_VALUE(hash_map, old_elem),
-				value, map->value_size);
+		memcpy(HASH_ELEM_CURCPU_VALUE(hash_map, old_elem), value,
+		       map->value_size);
 	} else {
 		new_elem = ebpf_allocator_alloc(&hash_map->allocator);
 		if (!new_elem) {
@@ -428,8 +435,8 @@ hashtable_map_update_elem_percpu(struct ebpf_map *map, void *key,
 		}
 
 		memcpy(new_elem->key, key, map->key_size);
-		memcpy(HASH_ELEM_CURCPU_VALUE(hash_map, new_elem),
-				value, map->value_size);
+		memcpy(HASH_ELEM_CURCPU_VALUE(hash_map, new_elem), value,
+		       map->value_size);
 		EBPF_EPOCH_LIST_INSERT_HEAD(&bucket->head, new_elem, elem);
 	}
 
@@ -439,8 +446,8 @@ err0:
 }
 
 static int
-hashtable_map_update_elem_percpu_from_user(struct ebpf_map *map,
-		void *key, void *value, uint64_t flags)
+hashtable_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key,
+					   void *value, uint64_t flags)
 {
 	int error = 0;
 	uint32_t hash = ebpf_jenkins_hash(key, map->key_size, 0);
@@ -461,7 +468,7 @@ hashtable_map_update_elem_percpu_from_user(struct ebpf_map *map,
 	if (old_elem) {
 		for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
 			memcpy(HASH_ELEM_PERCPU_VALUE(hash_map, old_elem, i),
-					value, map->value_size);
+			       value, map->value_size);
 		}
 	} else {
 		new_elem = ebpf_allocator_alloc(&hash_map->allocator);
@@ -472,7 +479,7 @@ hashtable_map_update_elem_percpu_from_user(struct ebpf_map *map,
 
 		for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
 			memcpy(HASH_ELEM_PERCPU_VALUE(hash_map, new_elem, i),
-					value, map->value_size);
+			       value, map->value_size);
 		}
 
 		memcpy(new_elem->key, key, map->key_size);
