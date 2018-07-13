@@ -130,7 +130,7 @@ TEST_F(EbpfDevProgLoadTest, CorrectLoad)
 	req.prog_fdp = &fd;
 	req.prog_type = EBPF_PROG_TYPE_TEST;
 	req.prog = insts;
-	req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
+	req.prog_len = sizeof(struct ebpf_inst) * 1;
 	req.map_flags = 0;
 
 	error = ioctl(ebpf_fd, EBPFIOC_LOAD_PROG, &req);
