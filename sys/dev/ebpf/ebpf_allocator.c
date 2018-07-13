@@ -27,27 +27,19 @@
  * time.
  */
 
-static int ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks);
+static int ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
+		int (*ctor)(void *, void *), void *arg);
 
 int
 ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
-		    uint32_t nblocks)
+		    uint32_t nblocks, int (*ctor)(void *, void *), void *arg)
 {
-	int error = 0;
-
 	SLIST_INIT(&alloc->free_block);
 	SLIST_INIT(&alloc->used_segment);
 	alloc->block_size = block_size;
 	alloc->count = nblocks;
 	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
-
-	error = ebpf_allocator_prealloc(alloc, nblocks);
-	if (error) {
-		ebpf_allocator_deinit(alloc);
-		return error;
-	}
-
-	return 0;
+	return ebpf_allocator_prealloc(alloc, nblocks, ctor, arg);
 }
 
 /*
@@ -57,9 +49,16 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
  * allocator before calling this function.
  */
 void
-ebpf_allocator_deinit(ebpf_allocator_t *alloc)
+ebpf_allocator_deinit(ebpf_allocator_t *alloc,
+		void (*dtor)(void *, void *), void *arg)
 {
 	ebpf_allocator_entry_t *tmp;
+
+	if (dtor) {
+		SLIST_FOREACH(tmp, &alloc->free_block, entry) {
+			dtor(tmp, arg);
+		}
+	}
 
 	while (!SLIST_EMPTY(&alloc->used_segment)) {
 		tmp = SLIST_FIRST(&alloc->used_segment);
@@ -71,7 +70,8 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc)
 }
 
 static int
-ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
+ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
+		int (*ctor)(void *, void *), void *arg)
 {
 	uint32_t count = 0;
 
@@ -107,6 +107,9 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks)
 		}
 
 		do {
+			if (ctor) {
+				ctor(data, arg);
+			}
 			SLIST_INSERT_HEAD(&alloc->free_block,
 					  (ebpf_allocator_entry_t *)data,
 					  entry);
