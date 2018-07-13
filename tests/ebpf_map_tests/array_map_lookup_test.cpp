@@ -38,32 +38,33 @@ TEST_F(ArrayMapLookupTest, LookupMaxEntryPlusOne)
 {
 	int error;
 	uint32_t key = 100;
-	void *value;
+	uint32_t value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key);
+	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
-	EXPECT_EQ(NULL, value);
+	EXPECT_EQ(EINVAL, error);
 }
 
 TEST_F(ArrayMapLookupTest, LookupOutOfMaxEntry)
 {
 	int error;
 	uint32_t key = 102;
-	void *value;
+	uint32_t value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key);
+	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
-	EXPECT_EQ(NULL, value);
+	EXPECT_EQ(EINVAL, error);
 }
 
 TEST_F(ArrayMapLookupTest, CorrectLookup)
 {
 	int error;
 	uint32_t key = 50;
-	uint32_t *value;
+	uint32_t value;
 
-	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key);
+	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
-	EXPECT_EQ(100, *value);
+	EXPECT_EQ(0, error);
+	EXPECT_EQ(100, value);
 }
 } // namespace

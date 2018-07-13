@@ -65,20 +65,20 @@ ebpf_map_lookup_elem(struct ebpf_map *map, void *key)
 	return ebpf_map_ops[map->type]->lookup_elem(map, key);
 }
 
-void *
-ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key)
+int
+ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
 {
-	void *ret;
+	int error;
 
-	if (!map || !key) {
-		return NULL;
+	if (!map || !key || !value) {
+		return EINVAL;
 	}
 
 	ebpf_epoch_enter();
-	ret = ebpf_map_ops[map->type]->lookup_elem_from_user(map, key);
+	error = ebpf_map_ops[map->type]->lookup_elem_from_user(map, key, value);
 	ebpf_epoch_exit();
 
-	return ret;
+	return error;
 }
 
 int

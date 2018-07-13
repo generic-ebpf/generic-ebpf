@@ -38,36 +38,34 @@ TEST_F(PercpuArrayMapLookupTest, LookupMaxEntryPlusOne)
 {
 	int error;
 	uint32_t key = 100;
-	void *value;
+	uint32_t value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key);
+	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
-	EXPECT_EQ(NULL, value);
+	EXPECT_EQ(EINVAL, error);
 }
 
 TEST_F(PercpuArrayMapLookupTest, LookupOutOfMaxEntry)
 {
 	int error;
 	uint32_t key = 102;
-	void *value;
+	uint32_t value;
 
-	value = ebpf_map_lookup_elem_from_user(&map, &key);
+	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
-	EXPECT_EQ(NULL, value);
+	EXPECT_EQ(EINVAL, error);
 }
 
 TEST_F(PercpuArrayMapLookupTest, CorrectLookup)
 {
 	int error;
 	uint32_t key = 50;
-	uint32_t *value;
+	uint32_t value[ebpf_ncpus()];
 
-	value = (uint32_t *)ebpf_map_lookup_elem_from_user(&map, &key);
+	error = ebpf_map_lookup_elem_from_user(&map, &key, value);
 
 	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
 		EXPECT_EQ(100, value[i]);
 	}
-
-	ebpf_free(value);
 }
 } // namespace

@@ -296,24 +296,36 @@ ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 		goto err1;
 	}
 
-	v = ebpf_map_lookup_elem_from_user(&map->map, k);
-	if (!v) {
-		error = ENOENT;
-		goto err1;
+	uint32_t ncpus = ebpf_ncpus();
+	if (map->map.percpu) {
+		v = ebpf_calloc(ncpus, map->map.value_size);
+		if (!v) {
+			error = ENOMEM;
+			goto err1;
+		}
+	} else {
+		v = ebpf_calloc(1, map->map.value_size);
+		if (!v) {
+			error = ENOMEM;
+			goto err1;
+		}
 	}
 
-	/*
-	 * In percpu case, returned value is dynamically allocated
-	 */
+	error = ebpf_map_lookup_elem_from_user(&map->map, k, v);
+	if (error) {
+		goto err2;
+	}
+
 	if (map->map.percpu) {
 		error = ebpf_copyout(v, (void *)req->value,
-				     map->map.value_size * ebpf_ncpus());
-		ebpf_free(v);
+				map->map.value_size * ncpus);
 	} else {
-		error =
-		    ebpf_copyout(v, (void *)req->value, map->map.value_size);
+		error = ebpf_copyout(v, (void *)req->value,
+				map->map.value_size);
 	}
 
+err2:
+	ebpf_free(v);
 err1:
 	ebpf_free(k);
 err0:

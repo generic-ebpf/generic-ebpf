@@ -39,6 +39,12 @@ bad_map_lookup_elem(struct ebpf_map *self, void *key)
 }
 
 static int
+bad_map_lookup_elem_from_user(struct ebpf_map *self, void *key, void *value)
+{
+	return EINVAL;
+}
+
+static int
 bad_map_delete_elem(struct ebpf_map *self, void *key)
 {
 	return EINVAL;
@@ -61,7 +67,7 @@ struct ebpf_map_ops bad_map_ops = {.init = bad_map_init,
 				   .lookup_elem = bad_map_lookup_elem,
 				   .delete_elem = bad_map_delete_elem,
 				   .update_elem_from_user = bad_map_update_elem,
-				   .lookup_elem_from_user = bad_map_lookup_elem,
+				   .lookup_elem_from_user = bad_map_lookup_elem_from_user,
 				   .delete_elem_from_user = bad_map_delete_elem,
 				   .get_next_key_from_user =
 				       bad_map_get_next_key,

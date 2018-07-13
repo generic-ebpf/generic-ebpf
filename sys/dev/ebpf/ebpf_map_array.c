@@ -130,6 +130,21 @@ array_map_lookup_elem(struct ebpf_map *map, void *key)
 	return (uint8_t *)ARRAY_MAP(map)->array + (map->value_size * k);
 }
 
+static int
+array_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
+{
+	uint32_t k = *(uint32_t *)key;
+
+	if (k >= map->max_entries) {
+		return EINVAL;
+	}
+
+	uint8_t *elem = (uint8_t *)ARRAY_MAP(map)->array + (map->value_size * k);
+	memcpy((uint8_t *)value, elem, map->value_size);
+
+	return 0;
+}
+
 static void *
 array_map_lookup_elem_percpu(struct ebpf_map *map, void *key)
 {
@@ -143,29 +158,23 @@ array_map_lookup_elem_percpu(struct ebpf_map *map, void *key)
 	       (map->value_size * k);
 }
 
-static void *
-array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key)
+static int
+array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key, void *value)
 {
 	uint32_t k = *(uint32_t *)key;
 
 	if (k >= map->max_entries) {
-		return NULL;
-	}
-
-	uint16_t ncpus = ebpf_ncpus();
-	uint8_t *ret = ebpf_calloc(ncpus, map->value_size);
-	if (!ret) {
-		return NULL;
+		return EINVAL;
 	}
 
 	uint8_t *elem;
-	for (uint16_t i = 0; i < ncpus; i++) {
+	for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
 		elem = (uint8_t *)(ARRAY_MAP(map) + i)->array +
 		       (map->value_size * k);
-		memcpy(ret + map->value_size * i, elem, map->value_size);
+		memcpy((uint8_t *)value + map->value_size * i, elem, map->value_size);
 	}
 
-	return ret;
+	return 0;
 }
 
 static int
@@ -278,7 +287,7 @@ struct ebpf_map_ops array_map_ops = {
     .lookup_elem = array_map_lookup_elem,
     .delete_elem = array_map_delete_elem,
     .update_elem_from_user = array_map_update_elem,
-    .lookup_elem_from_user = array_map_lookup_elem,
+    .lookup_elem_from_user = array_map_lookup_elem_from_user,
     .delete_elem_from_user = array_map_delete_elem,
     .get_next_key_from_user = array_map_get_next_key,
     .deinit = array_map_deinit};
