@@ -36,6 +36,7 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
 {
 	SLIST_INIT(&alloc->free_block);
 	SLIST_INIT(&alloc->used_segment);
+	alloc->nblocks = nblocks;
 	alloc->block_size = block_size;
 	alloc->count = nblocks;
 	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
@@ -54,6 +55,8 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc, void (*dtor)(void *, void *),
 {
 	ebpf_allocator_entry_t *tmp;
 
+	ebpf_assert(alloc->count == alloc->nblocks);
+
 	if (dtor) {
 		SLIST_FOREACH(tmp, &alloc->free_block, entry)
 		{
@@ -63,8 +66,10 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc, void (*dtor)(void *, void *),
 
 	while (!SLIST_EMPTY(&alloc->used_segment)) {
 		tmp = SLIST_FIRST(&alloc->used_segment);
-		SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
-		ebpf_free(tmp);
+		if (tmp) {
+			SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
+			ebpf_free(tmp);
+		}
 	}
 
 	ebpf_mtx_destroy(&alloc->lock);
@@ -76,7 +81,7 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 {
 	uint32_t count = 0;
 
-	while (count < nblocks) {
+	while (true) {
 		uint32_t size;
 		uint8_t *data;
 		ebpf_allocator_entry_t *segment;
@@ -116,10 +121,13 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 					  entry);
 			data += alloc->block_size;
 			size -= alloc->block_size;
-			count++;
+			if (++count == nblocks) {
+				goto finish;
+			}
 		} while (size > alloc->block_size);
 	}
 
+finish:
 	return 0;
 }
 

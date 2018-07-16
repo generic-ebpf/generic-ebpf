@@ -28,6 +28,7 @@ typedef struct ebpf_allocator_s {
 	SLIST_HEAD(, ebpf_allocator_entry_s) free_block;
 	SLIST_HEAD(, ebpf_allocator_entry_s) used_segment;
 	ebpf_mtx_t lock;
+	uint32_t nblocks;
 	uint32_t block_size;
 	uint32_t count;
 } ebpf_allocator_t;
