@@ -263,9 +263,13 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	 */
 	ebpf_epoch_wait();
 
-	/*
-	 * Return all elements to allocator
-	 */
+	if (!map->percpu) {
+		for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
+			ebpf_allocator_free(&hash_map->allocator,
+					hash_map->pcpu_extra_elems[i]);
+		}
+	}
+
 	struct hash_elem *elem;
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
 		while (!EBPF_EPOCH_LIST_EMPTY(&hash_map->buckets[i].head)) {
@@ -273,8 +277,8 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 			    EBPF_EPOCH_LIST_FIRST(&hash_map->buckets[i].head);
 			if (elem) {
 				EBPF_EPOCH_LIST_REMOVE(elem, elem);
+				ebpf_allocator_free(&hash_map->allocator, elem);
 			}
-			ebpf_allocator_free(&hash_map->allocator, elem);
 		}
 	}
 
@@ -286,8 +290,11 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 		ebpf_mtx_destroy(&hash_map->buckets[i].lock);
 	}
 
+	if (!map->percpu) {
+		ebpf_free(hash_map->pcpu_extra_elems);
+	}
+
 	ebpf_free(hash_map->buckets);
-	ebpf_free(hash_map->pcpu_extra_elems);
 	ebpf_free(hash_map);
 }
 
