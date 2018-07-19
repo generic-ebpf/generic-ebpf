@@ -11,7 +11,7 @@ SUBDIR_Linux=	${SUBDIR_FreeBSD}
 SUBDIR_Darwin=	${LIBEBPFDIR} \
 		${LIBGBPFDIR}
 
-all: sys/modules/ebpf/tommyds
+all:
 	for D in ${SUBDIR}; do \
 		(cd $$D && ${MAKE_CMD} && ${MAKE_CMD} install); \
 	done
@@ -27,8 +27,6 @@ init:
 	rm -rf ${.CURDIR}/extern/googletest
 	git submodule init
 	git submodule update
-sys/modules/ebpf/tommyds:
-	mkdir -p $@
 format::
 	clang-format -i */**/*.{c,h,cpp}
 load::
