@@ -1,0 +1,22 @@
+PROG=	all_tests
+SRCS=	prog_load_test.c
+OBJS=	prog_load_test.o \
+	${GTESTOBJS}
+CXXFLAGS+= \
+	-I $(BASE)/sys \
+	-I $(LIBEBPFDIR) \
+	-I $(GTESTPATH)/googletest/include \
+	-Wno-unused-command-line-argument \
+	-O0 \
+	$(LDFLAGS)
+LDFLAGS+=-coverage
+LIBS=	-lpthread -lebpf -L${BASE}
+
+all: $(PROG)
+$(PROG): $(OBJS)
+	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
+
+check:
+	-LD_LIBRARY_PATH=$(BASE) ./$(PROG)
+
+CLEANFILES=	$(PROG) $(OBJS) *.gcda *.gcno

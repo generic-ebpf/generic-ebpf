@@ -1,8 +1,4 @@
 # generic-ebpf
-[![Build Status](https://travis-ci.org/YutaroHayakawa/generic-ebpf.svg?branch=master)](https://travis-ci.org/YutaroHayakawa/generic-ebpf)
-[![Coverage Status](https://coveralls.io/repos/github/YutaroHayakawa/generic-ebpf/badge.svg)](https://coveralls.io/github/YutaroHayakawa/generic-ebpf)
-(for Linux)
-
 Generic eBPF runtime. It (currently) consists of two components
 
 1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel.

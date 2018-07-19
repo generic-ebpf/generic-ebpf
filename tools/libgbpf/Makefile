@@ -24,8 +24,11 @@ all: lib example
 lib: $(OBJS)
 	ar rc lib/libgbpf.a $(OBJS)
 
+install:
+	cp lib/libgbpf.a $(DESTDIR)
+
 .PHONY:example
-example:
+example: lib
 	make -C example
 
 clean:

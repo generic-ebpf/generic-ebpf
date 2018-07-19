@@ -2,10 +2,9 @@
 
 .PATH: ${.CURDIR}/../../dev/ebpf
 
-TARGET != uname -m
 IDENT  != uname -i
 
-CFLAGS += -I$(KSRC)/sys/$(TARGET)/compile/$(IDENT)
+CFLAGS += -I$(KSRC)/sys/$(MACHINE)/compile/$(IDENT)
 CFLAGS += -I../../
 CFLAGS += -Wall
 CFLAGS += -std=c99
@@ -24,11 +23,14 @@ MAPS += ebpf_map_bad.c
 MAPS += ebpf_map_array.c
 MAPS += ebpf_map_hashtable.c
 
-.if $(TARGET) == "amd64"
+.if $(MACHINE) == "amd64"
 CORES += ../../amd64/amd64/ebpf_jit_x86_64.c
 .endif
 
 SRCS += $(CORES)
 SRCS += $(MAPS)
+
+realinstall:
+	install ebpf.ko $(DESTDIR)
 
 .include <bsd.kmod.mk>

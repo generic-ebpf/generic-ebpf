@@ -16,4 +16,7 @@ SRCS += ebpf_dev_freebsd.c
 SRCS += ebpf_obj.c
 SRCS += ebpf_dev.c
 
+realinstall:
+	cp ebpf-dev.ko $(DESTDIR)
+
 .include <bsd.kmod.mk>

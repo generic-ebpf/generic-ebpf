@@ -1,0 +1,39 @@
+CC?=	clang
+
+ebpf-src += ebpf_freebsd_user.c
+ebpf-src += ebpf_vm.c
+ebpf-src += ebpf_loader.c
+ebpf-src += ebpf_verifer.c
+ebpf-src += ebpf_prog.c
+ebpf-src += ebpf_map.c
+ebpf-src += ebpf_map_bad.c
+ebpf-src += ebpf_map_array.c
+
+SRCS=	${ebpf-src} ${JITSRC}
+OBJS=	$(SRCS:%.c=%.o)
+
+CPPFLAGS= \
+	-Ofast \
+	-fPIC \
+	-I $(BASE)/dev/ebpf \
+	-I $(BASE)/sys \
+	-I $(BASE) \
+	-I $(.CURDIR) \
+	-Wall \
+	-Wno-declaration-after-statement \
+	-std=c99
+CFLAGS+=${CPPFLAGS}
+LIBS=	-lpthread
+
+all: libebpf.so
+
+libebpf.so: $(OBJS)
+	$(CC) $(LDFLAGS) -shared -o $@ ${OBJS} ${LIBS}
+
+install:
+	cp libebpf.so $(DESTDIR)
+
+CLEANFILES=	libebpf.so ${OBJS}
+
+.PATH:	${BASE}/sys/dev/ebpf ${BASE}/sys/${MACHINE}/${MACHINE_ARCH}
+VPATH=	${BASE}/sys/dev/ebpf ${BASE}/sys/${MACHINE}/${MACHINE_ARCH}
