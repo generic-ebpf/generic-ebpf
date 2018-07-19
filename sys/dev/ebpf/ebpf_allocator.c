@@ -80,6 +80,7 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 			int (*ctor)(void *, void *), void *arg)
 {
 	uint32_t count = 0;
+	int error = 0;
 
 	while (true) {
 		uint32_t size;
@@ -114,7 +115,10 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 
 		do {
 			if (ctor) {
-				ctor(data, arg);
+				error = ctor(data, arg);
+				if (error) {
+					return error;
+				}
 			}
 			SLIST_INSERT_HEAD(&alloc->free_block,
 					  (ebpf_allocator_entry_t *)data,
