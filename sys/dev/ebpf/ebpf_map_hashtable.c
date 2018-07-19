@@ -156,8 +156,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		return E2BIG;
 	}
 
-	struct ebpf_map_hashtable *hash_map =
-	    ebpf_calloc(1, sizeof(struct ebpf_map_hashtable));
+	struct ebpf_map_hashtable *hash_map = ebpf_calloc(1, sizeof(*hash_map));
 	if (!hash_map) {
 		return ENOMEM;
 	}

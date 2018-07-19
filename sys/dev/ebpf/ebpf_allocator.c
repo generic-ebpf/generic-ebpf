@@ -89,20 +89,19 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 
 		size = ebpf_getpagesize();
 
-		if (size < sizeof(ebpf_allocator_entry_t) + alloc->block_size +
+		if (size < sizeof(*segment) + alloc->block_size +
 			       EBPF_ALLOCATOR_ALIGN) {
-			size = sizeof(ebpf_allocator_entry_t) +
+			size = sizeof(*segment) +
 			       alloc->block_size + EBPF_ALLOCATOR_ALIGN;
 		}
 
-		data = ebpf_malloc(size);
-		if (!data) {
+		data = ebpf_calloc(1, size);
+		if (data == NULL) {
 			return ENOMEM;
 		}
-
 		segment = (ebpf_allocator_entry_t *)data;
 		SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
-		data += sizeof(ebpf_allocator_entry_t);
+		data += sizeof(*segment);
 
 		uintptr_t off, mis;
 

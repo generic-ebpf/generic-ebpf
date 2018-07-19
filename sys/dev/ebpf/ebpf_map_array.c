@@ -63,7 +63,7 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	int error;
 
 	struct ebpf_map_array *array_map =
-	    ebpf_calloc(1, sizeof(struct ebpf_map_array));
+	    ebpf_calloc(1, sizeof(*array_map));
 	if (!array_map) {
 		return ENOMEM;
 	}
@@ -89,7 +89,7 @@ array_map_init_percpu(struct ebpf_map *map, uint32_t key_size,
 	uint16_t ncpus = ebpf_ncpus();
 
 	struct ebpf_map_array *array_map =
-	    ebpf_calloc(ncpus, sizeof(struct ebpf_map_array));
+	    ebpf_calloc(ncpus, sizeof(*array_map));
 	if (!array_map) {
 		return ENOMEM;
 	}

@@ -165,7 +165,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 		return error;
 	}
 
-	prog = ebpf_calloc(sizeof(struct ebpf_obj_prog), 1);
+	prog = ebpf_calloc(sizeof(*prog), 1);
 	if (!prog) {
 		ebpf_free(insts);
 		return ENOMEM;
@@ -226,7 +226,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 		return EINVAL;
 	}
 
-	map = ebpf_malloc(sizeof(struct ebpf_obj_map));
+	map = ebpf_malloc(sizeof(*map));
 	if (!map) {
 		return ENOMEM;
 	}
