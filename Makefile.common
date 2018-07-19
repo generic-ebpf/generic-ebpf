@@ -32,8 +32,8 @@ sys/modules/ebpf/tommyds:
 format::
 	clang-format -i */**/*.{c,h,cpp}
 load::
-	${KMODLOAD} ebpf
-	${KMODLOAD} ebpf-dev
+	${KMODLOAD} ${.CURDIR}/ebpf.ko
+	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
 
 unload::
 	${KMODUNLOAD} ebpf
