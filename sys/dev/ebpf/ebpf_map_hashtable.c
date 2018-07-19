@@ -51,10 +51,10 @@ struct ebpf_map_hashtable {
 	ebpf_epoch_context_t ec;
 };
 
-#define HASH_ELEM_VALUE(_hash_mapp, _elemp) _elemp->key + _hash_mapp->key_size
+#define HASH_ELEM_VALUE(_hash_mapp, _elemp) ((_elemp)->key + (_hash_mapp)->key_size)
 #define HASH_ELEM_PERCPU_VALUE(_hash_mapp, _elemp, _cpuid)                     \
 	(*((uint8_t **)HASH_ELEM_VALUE(_hash_mapp, _elemp)) +                  \
-	 _hash_mapp->value_size * _cpuid)
+	 (_hash_mapp)->value_size * (_cpuid))
 #define HASH_ELEM_CURCPU_VALUE(_hash_mapp, _elemp)                             \
 	HASH_ELEM_PERCPU_VALUE(_hash_mapp, _elemp, ebpf_curcpu())
 #define HASH_BUCKET_LOCK(_bucketp) ebpf_mtx_lock(&_bucketp->lock);
