@@ -1,5 +1,3 @@
-CC?=	clang
-
 ebpf-src += ebpf_freebsd_user.c
 ebpf-src += ebpf_vm.c
 ebpf-src += ebpf_loader.c

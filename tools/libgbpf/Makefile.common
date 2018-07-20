@@ -1,0 +1,31 @@
+SUBDIR=	printer \
+	test
+
+LIB=	libgbpf.a
+SRCS=	${CORE} ${DRIVERS}
+OBJS=	${SRCS:.c=.o}
+CORE=	gbpf_elf_walker.c \
+	gbpf_driver.c
+DRIVERS=gbpf_null_driver.c \
+	ebpf_dev_driver.c \
+	gbpf_linux_driver.c
+
+CFLAGS+=-Ofast \
+	-I ${BASE}/sys \
+	-I ${.CURDIR}/include \
+	-Wall \
+	-Wextra \
+	-Wno-unused-parameter
+
+all: ${LIB}
+	for D in ${SUBDIR}; do (cd $$D && ${MAKE_CMD} $@); done
+
+${LIB}: $(OBJS)
+	ar rc $@ $(OBJS)
+CLEANFILES=	${LIB} *.o
+
+install:
+	cp ${LIB} $(DESTDIR)
+
+.PATH:	src/core src/drivers
+VPATH=	src/core src/drivers

@@ -10,13 +10,13 @@ CXXFLAGS+= \
 	-O0 \
 	$(LDFLAGS)
 LDFLAGS+=-coverage
-LIBS=	-lpthread -lebpf -L${BASE}
+LIBS=	-lpthread -lebpf -L${LIBEBPFDIR}
 
 all: $(PROG)
-$(PROG): $(OBJS)
+$(PROG): $(OBJS) ${LIBEBPF}
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 check:
-	-LD_LIBRARY_PATH=$(BASE) ./$(PROG)
+	-LD_LIBRARY_PATH=$(LIBEBPFDIR) ./$(PROG)
 
 CLEANFILES=	$(PROG) $(OBJS) *.gcda *.gcno

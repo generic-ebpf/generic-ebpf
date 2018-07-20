@@ -1,60 +1,48 @@
-# Available platforms
-PLATFORMS=	FreeBSD Linux Darwin
-
-# Targets for each platforms
-TARGETS_FreeBSD=sys/modules/ebpf/tommyds \
-		libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a benchmark tests
-SHLIB_FreeBSD=	.so
-TARGETS_Linux=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a benchmark tests
-SHLIB_Linux=	.so
-TARGETS_Darwin=	libebpf${SHLIB} libgbpf.a tests
-SHLIB_Darwin=	.dylib
-
-TARGETS=$(TARGETS_$(UNAME_s))
-SHLIB=	$(SHLIB_$(UNAME_s))
 MAKE_ENV+=	UNAME_s="${UNAME_s}"
 MAKE_ARGS+=	GTESTPATH="${GTESTPATH}" \
 		DESTDIR="${.CURDIR}"
 
-SUBDIR=	${LIBEBPFDIR} \
-	${EBPFKMODDIR} \
-	${EBPFDEVKMODDIR} \
-	${LIBGBPFDIR} \
-	tests \
-	benchmark
+SUBDIR=		$(SUBDIR_$(UNAME_s))
+SUBDIR_FreeBSD=	${LIBEBPFDIR} \
+		${EBPFKMODDIR} \
+		${EBPFDEVKMODDIR} \
+		${LIBGBPFDIR}
+SUBDIR_Linux=	${SUBDIR_FreeBSD}
+SUBDIR_Darwin=	${LIBEBPFDIR} \
+		${LIBGBPFDIR}
 
-all: $(TARGETS)
+all: sys/modules/ebpf/tommyds
+	for D in ${SUBDIR}; do \
+		(cd $$D && ${MAKE_CMD} && ${MAKE_CMD} install); \
+	done
 CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
-.PHONY: all afterclean
-
-init:
-	git submodule init
-	git submodule update
-
-sys/modules/ebpf/tommyds:
-	mkdir -p $@
-
-libebpf${SHLIB}:
-	cd ${LIBEBPFDIR} && ${MAKE_CMD} && ${MAKE_CMD} install
-
-ebpf.ko: libebpf${SHLIB}
-	cd ${EBPFKMODDIR} && ${MAKE_CMD} && ${MAKE_CMD} install
-
-ebpf-dev.ko: libebpf${SHLIB}
-	cd ${EBPFDEVKMODDIR} && ${MAKE_CMD} && ${MAKE_CMD} install
-
-libgbpf.a:
-	cd ${LIBGBPFDIR} && ${MAKE_CMD} && ${MAKE_CMD} install
 
 tests:
-	cd tests && make all
-check check_kernel:
-	cd tests && make $@
-.PHONY: tests check check_kernel
-
-benchmark: libebpf${SHLIB}
-	cd benchmark && make
-.PHONY: benchmark
-
-format:
+	cd tests && ${MAKE_CMD} all
+check check-kern:
+	cd tests && ${MAKE_CMD} $@
+benchmark:
+	cd benchmark && ${MAKE_CMD} all
+init:
+	rm -rf ${.CURDIR}/extern/googletest
+	git submodule init
+	git submodule update
+sys/modules/ebpf/tommyds:
+	mkdir -p $@
+format::
 	clang-format -i */**/*.{c,h,cpp}
+load::
+	${KMODLOAD} ebpf
+	${KMODLOAD} ebpf-dev
+
+unload::
+	${KMODUNLOAD} ebpf
+	${KMODUNLOAD} ebpf-dev
+
+reload::
+	-${KMODUNLOAD} ebpf
+	-${KMODUNLOAD} ebpf-dev
+	${KMODLOAD} ${.CURDIR}/ebpf.ko
+	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
+
+.PHONY: default tests check check-kern benchmark init format
