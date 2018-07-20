@@ -12,6 +12,7 @@ GTESTOBJS?=	${GTESTPATH}/googletest/make/gtest_main.o \
 		${GTESTPATH}/googletest/make/gtest-all.o
 
 LIBEBPFDIR?=	${BASE}/${UNAME_s}/ebpf/user
+LIBEBPF=	${LIBEBPFDIR}/libebpf${SHLIB}
 EBPFKMODDIR?=	${BASE}/${UNAME_s}/ebpf/kernel
 EBPFDEVKMODDIR?=${BASE}/${UNAME_s}/ebpf_dev
 LIBGBPFDIR?=	${BASE}/tools/libgbpf
@@ -29,6 +30,8 @@ clean:
 	rm -f ${CLEANFILES}
 .PHONY:	all clean
 
+${LIBEBPF}:
+	cd $(LIBEBPFDIR) && ${MAKE_CMD} libebpf${SHLIB}
 ${LIBGBPF}:
 	cd $(LIBGBPFDIR) && ${MAKE_CMD} libgbpf.a
 ${GTESTPATH}/googletest/make/gtest_main.o:
