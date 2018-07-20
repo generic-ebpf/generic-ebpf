@@ -1,4 +1,4 @@
-BASE=	${CURDIR}
+BASE=	.
 include ${BASE}/Makefile.inc
 include Makefile.common
 clean: afterclean
