@@ -32,6 +32,9 @@ EXTRA_CFLAGS:= \
 all:
 	make -C $(LINUX_SRC) M=$(CURDIR) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' modules
 
+install:
+	install ebpf.ko $(DESTDIR)
+
 clean:
 	make -C $(LINUX_SRC) M=$(CURDIR) clean
 	rm -rf $(SRC_DIR)/modules.order $(SRC_DIR)/Module.symvers \

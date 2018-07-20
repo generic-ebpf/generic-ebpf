@@ -26,6 +26,9 @@ all:
 	make -C $(LINUX_SRC) M=$(CURDIR) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' \
 		KBUILD_EXTRA_SYMBOLS='$(EXTRA_SYMBOLS)' modules
 
+install:
+	install ebpf-dev.ko $(DESTDIR)
+
 clean:
 	make -C $(LINUX_SRC) M=$(CURDIR) clean
 	rm -rf $(SRC_DIR)/modules.order $(SRC_DIR)/Module.symvers \
