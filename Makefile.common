@@ -24,6 +24,7 @@ check check_kernel:
 benchmark:
 	cd benchmark && ${MAKE_CMD} all
 init:
+	rm -rf ${.CURDIR}/extern/googletest
 	git submodule init
 	git submodule update
 sys/modules/ebpf/tommyds:
