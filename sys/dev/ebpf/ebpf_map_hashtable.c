@@ -273,7 +273,8 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
 		while (!EBPF_EPOCH_LIST_EMPTY(&hash_map->buckets[i].head)) {
 			elem =
-			    EBPF_EPOCH_LIST_FIRST(&hash_map->buckets[i].head);
+			    EBPF_EPOCH_LIST_FIRST(&hash_map->buckets[i].head,
+              struct hash_elem, elem);
 			if (elem) {
 				EBPF_EPOCH_LIST_REMOVE(elem, elem);
 				ebpf_allocator_free(&hash_map->allocator, elem);
