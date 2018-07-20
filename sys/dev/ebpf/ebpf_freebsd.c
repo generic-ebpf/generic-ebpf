@@ -213,17 +213,17 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 /*
  * Kernel module operations
  */
-void ebpf_fini(void);
-int ebpf_init(void);
-void ebpf_init_map_types(void);
+static void ebpf_fini(void);
+static int ebpf_init(void);
+static void ebpf_init_map_types(void);
 
-void
+static void
 ebpf_fini(void)
 {
 	printf("ebpf unloaded\n");
 }
 
-void
+static void
 ebpf_init_map_types(void)
 {
 	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
@@ -238,7 +238,7 @@ ebpf_init_map_types(void)
 			       &percpu_hashtable_map_ops);
 }
 
-int
+static int
 ebpf_init(void)
 {
 	ebpf_epoch = epoch_alloc(0);
