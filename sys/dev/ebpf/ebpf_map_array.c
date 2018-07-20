@@ -28,6 +28,9 @@ static void
 array_map_deinit(struct ebpf_map *map, void *arg)
 {
 	struct ebpf_map_array *array_map = map->data;
+
+	ebpf_epoch_wait();
+
 	ebpf_free(array_map->array);
 	ebpf_free(array_map);
 }
@@ -36,6 +39,8 @@ static void
 array_map_deinit_percpu(struct ebpf_map *map, void *arg)
 {
 	struct ebpf_map_array *array_map = map->data;
+
+	ebpf_epoch_wait();
 
 	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
 		ebpf_free(array_map[i].array);
