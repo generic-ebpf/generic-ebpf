@@ -5,6 +5,13 @@ SHLIB_Linux=	.so
 SHLIB_Darwin=	.dylib
 SHLIB=		$(SHLIB_$(UNAME_s))
 
+KMODLOAD_FreeBSD=	kldload
+KMODUNLOAD_FreeBSD=	kldunload
+KMODLOAD_Linux=		insmod
+KMODUNLOAD_Linux=	rmmod
+KMODLOAD=	$(KMODLOAD_$(UNAME_s))
+KMODUNLOAD=	$(KMODUNLOAD_$(UNAME_s))
+
 CC?=		cc
 
 GTESTPATH?=	${BASE}/extern/googletest

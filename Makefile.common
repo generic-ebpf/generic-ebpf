@@ -19,7 +19,7 @@ CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
 
 tests:
 	cd tests && ${MAKE_CMD} all
-check check_kernel:
+check check-kern:
 	cd tests && ${MAKE_CMD} $@
 benchmark:
 	cd benchmark && ${MAKE_CMD} all
@@ -31,5 +31,18 @@ sys/modules/ebpf/tommyds:
 	mkdir -p $@
 format::
 	clang-format -i */**/*.{c,h,cpp}
+load::
+	${KMODLOAD} ebpf
+	${KMODLOAD} ebpf-dev
 
-.PHONY: default tests check check_kernel benchmark init format
+unload::
+	${KMODUNLOAD} ebpf
+	${KMODUNLOAD} ebpf-dev
+
+reload::
+	-${KMODUNLOAD} ebpf
+	-${KMODUNLOAD} ebpf-dev
+	${KMODLOAD} ${.CURDIR}/ebpf.ko
+	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
+
+.PHONY: default tests check check-kern benchmark init format

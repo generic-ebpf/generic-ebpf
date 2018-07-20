@@ -18,13 +18,12 @@ Current support status
 
 ```
 // Pull submoduled googletest
-$ git submodule init && git submodule update
+$ make init
 // Install Python packages
 $ pip install -r requirements.txt
 ```
 
 ```
-$ ./configure
 $ make
 ```
 
@@ -46,9 +45,8 @@ $ make check
 ### Tests for kernel
 ```
 // After make
-# <kldload | insmod> ./ebpf.ko
-# <kldload | insmod> ./ebpf-dev.ko
-# make check_kernel
+# make load
+# make check-kern
 ```
 
 ## Example Applications
