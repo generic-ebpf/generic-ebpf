@@ -1,36 +1,9 @@
-CFLAGS = \
-	-Ofast \
-	-I ../../sys \
-	-I ./include \
-	-Wall \
-	-Wextra \
-	-Wno-unused-parameter \
-	-g
-
-CORE = \
-	src/core/gbpf_elf_walker.o \
-	src/core/gbpf_driver.o
-
-DRIVERS = \
-	src/drivers/gbpf_null_driver.o \
-	src/drivers/ebpf_dev_driver.o \
-	src/drivers/gbpf_linux_driver.o
-
-OBJS = $(CORE) $(DRIVERS)
-
-all: lib example
-
-.PHONY:lib
-lib: $(OBJS)
-	ar rc lib/libgbpf.a $(OBJS)
-
-install:
-	cp lib/libgbpf.a $(DESTDIR)
-
-.PHONY:example
-example: lib
-	make -C example
-
-clean:
-	- rm -f lib/*.a */**/*.o
-	- make -C example clean
+BASE=	../..
+.include "${BASE}/Makefile.inc"
+.include "Makefile.common"
+.if defined(SUBDIR) && !empty(SUBDIR)
+clean: afterclean
+afterclean:
+	for D in ${SUBDIR}; do (cd $$D && make clean); done
+.PHONY: afterclean
+.endif
