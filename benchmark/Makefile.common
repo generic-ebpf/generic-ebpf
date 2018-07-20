@@ -5,7 +5,7 @@ CPPFLAGS= \
 	-I ${LIBGBPFDIR}/include \
 	-Wall
 CFLAGS+=${CPPFLAGS}
-LIBS=	-lgbpf -L ${LIBGBPFDIR}/lib
+LIBS=	${LIBGBPF}
 
 TARGETS_Linux=		map_benchmark map_banchmark_native
 TARGETS_FreeBSD=	map_benchmark
@@ -14,9 +14,9 @@ TARGETS=	$(TARGETS_$(UNAME_s))
 all: $(TARGETS)
 CLEANFILES=	$(TARGETS) $(OBJS)
 
-map_benchmark: map_benchmark.o
-	$(CC) $(CFLAGS) -o $@ $? ${LIBS}
-map_benchmark_narive.o: map_benchmark.c
+map_benchmark: map_benchmark.o ${LIBGBPF}
+	$(CC) $(CFLAGS) -o $@ map_benchmark.o ${LIBS}
+map_benchmark_narive.o: map_benchmark.c ${LIBGBPF}
 	$(CC) $(CFLAGS) -Dnative_bpf -c -o $@ $?
-map_benchmark_native: map_benchmark_native.o
-	$(CC) $(CFLAGS) -o $@ $? ${LIBS}
+map_benchmark_native: map_benchmark_native.o ${LIBGBPF}
+	$(CC) $(CFLAGS) -o $@ map_benchmark_native.o ${LIBS}
