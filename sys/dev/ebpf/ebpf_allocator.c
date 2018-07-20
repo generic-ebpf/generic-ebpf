@@ -102,6 +102,7 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 		segment = (ebpf_allocator_entry_t *)data;
 		SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
 		data += sizeof(*segment);
+		size -= sizeof(*segment);
 
 		uintptr_t off, mis;
 
