@@ -25,6 +25,7 @@ $ pip install -r requirements.txt
 
 ```
 $ make
+$ cd tests && make
 ```
 
 After compilation, you will see at least one of below
