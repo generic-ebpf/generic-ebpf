@@ -192,4 +192,4 @@ EXPORT_SYMBOL(ebpf_obj_delete);
 
 module_init(ebpf_dev_init);
 module_exit(ebpf_dev_fini);
-MODULE_LICENSE("Dual Apache2/GPL");
+MODULE_LICENSE("Dual BSD/GPL");

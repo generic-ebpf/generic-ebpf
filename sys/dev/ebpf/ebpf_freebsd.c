@@ -163,24 +163,6 @@ ebpf_epoch_wait(void)
 }
 
 void
-ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
-{
-	refcount_init(count, val);
-}
-
-void
-ebpf_refcount_acquire(volatile uint32_t *count)
-{
-	refcount_acquire(count);
-}
-
-int
-ebpf_refcount_release(volatile uint32_t *count)
-{
-	return refcount_release(count);
-}
-
-void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
 	mtx_init(mutex, name, NULL, MTX_SPIN);

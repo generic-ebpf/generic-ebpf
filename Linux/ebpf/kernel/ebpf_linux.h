@@ -47,6 +47,10 @@
 #include <linux/vmalloc.h>
 #include <linux/cpumask.h>
 #include <linux/rwsem.h>
+#include <linux/spinlock.h>
+#include <linux/jhash.h>
+#include <linux/rcupdate.h>
+#include <linux/rculist.h>
 #include <asm/byteorder.h>
 
 #define UINT64_MAX U64_MAX
@@ -65,3 +69,17 @@
 #define ENOTSUP EOPNOTSUPP
 
 typedef struct rw_semaphore ebpf_rwlock_t;
+typedef struct rcu_head ebpf_epoch_context_t;
+typedef raw_spinlock_t ebpf_mtx_t;
+
+#define EBPF_EPOCH_LIST_ENTRY(_type) struct hlist_node
+#define EBPF_EPOCH_LIST_EMPTY(_type) hlist_empty(_type)
+#define EBPF_EPOCH_LIST_FIRST(_headp, _type, _name) \
+  hlist_entry(hlist_first_rcu(_headp), _type, _name)
+#define EBPF_EPOCH_LIST_HEAD(_name, _type) struct hlist_head
+#define EBPF_EPOCH_LIST_INIT(_headp) INIT_HLIST_HEAD(_headp)
+#define EBPF_EPOCH_LIST_FOREACH(_var, _head, _name) hlist_for_each_entry_rcu(_var, _head, _name)
+#define EBPF_EPOCH_LIST_INSERT_HEAD(_head, _elem, _name) hlist_add_head_rcu(&_elem->_name, _head)
+#define EBPF_EPOCH_LIST_REMOVE(_elem, _name) hlist_del_rcu(&_elem->_name)
+#define EBPF_EPOCH_LIST_NEXT(_elem, _name) \
+  hlist_entry(hlist_next_rcu(&_elem->_name), typeof(*_elem), _name)

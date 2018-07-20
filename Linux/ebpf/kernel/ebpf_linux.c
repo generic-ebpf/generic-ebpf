@@ -104,6 +104,12 @@ ebpf_ncpus(void)
 	return nr_cpu_ids;
 }
 
+uint16_t
+ebpf_curcpu(void)
+{
+  return smp_processor_id();
+}
+
 long
 ebpf_getpagesize(void)
 {
@@ -147,6 +153,61 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 }
 
 void
+ebpf_epoch_enter(void)
+{
+  rcu_read_lock();
+}
+
+void
+ebpf_epoch_exit(void)
+{
+  rcu_read_unlock();
+}
+
+void
+ebpf_epoch_call(ebpf_epoch_context_t *ctx,
+    void (*callback)(ebpf_epoch_context_t *))
+{
+  call_rcu(ctx, callback);
+}
+
+void
+ebpf_epoch_wait(void)
+{
+  synchronize_rcu();
+}
+
+void
+ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+{
+  raw_spin_lock_init(mutex);
+}
+
+void
+ebpf_mtx_lock(ebpf_mtx_t *mutex)
+{
+  raw_spin_lock(mutex);
+}
+
+void
+ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+{
+  raw_spin_unlock(mutex);
+}
+
+void
+ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+{ 
+  return;
+}
+
+uint32_t
+ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
+{
+  return jhash(buf, len, hash);
+}
+
+void
 ebpf_init_map_types(void)
 {
 	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
@@ -156,6 +217,9 @@ ebpf_init_map_types(void)
 	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
 	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY,
 			       &percpu_array_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_HASHTABLE,
+			       &percpu_hashtable_map_ops);
 }
 
 static int
@@ -194,13 +258,21 @@ EXPORT_SYMBOL(ebpf_rw_runlock);
 EXPORT_SYMBOL(ebpf_rw_wlock);
 EXPORT_SYMBOL(ebpf_rw_wunlock);
 EXPORT_SYMBOL(ebpf_rw_destroy);
+EXPORT_SYMBOL(ebpf_epoch_enter);
+EXPORT_SYMBOL(ebpf_epoch_exit);
+EXPORT_SYMBOL(ebpf_epoch_call);
+EXPORT_SYMBOL(ebpf_epoch_wait);
+EXPORT_SYMBOL(ebpf_mtx_init);
+EXPORT_SYMBOL(ebpf_mtx_lock);
+EXPORT_SYMBOL(ebpf_mtx_unlock);
+EXPORT_SYMBOL(ebpf_mtx_destroy);
+EXPORT_SYMBOL(ebpf_jenkins_hash);
 EXPORT_SYMBOL(ebpf_prog_init);
 EXPORT_SYMBOL(ebpf_prog_deinit_default);
 EXPORT_SYMBOL(ebpf_prog_deinit);
 EXPORT_SYMBOL(ebpf_map_delete_elem);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
-EXPORT_SYMBOL(ebpf_map_get_next_key);
 EXPORT_SYMBOL(ebpf_map_delete_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_lookup_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_update_elem_from_user);
@@ -213,4 +285,4 @@ module_init(ebpf_init);
 module_exit(ebpf_fini);
 MODULE_AUTHOR("Yutaro Hayakawa");
 MODULE_DESCRIPTION("Generic eBPF Module");
-MODULE_LICENSE("Dual Apache2/GPL");
+MODULE_LICENSE("Dual BSD/GPL");

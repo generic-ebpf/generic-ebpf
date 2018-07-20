@@ -19,6 +19,7 @@
 #pragma once
 
 #include "ebpf_platform.h"
+#include "ebpf_queue.h"
 
 typedef struct ebpf_allocator_entry_s {
 	SLIST_ENTRY(ebpf_allocator_entry_s) entry;
