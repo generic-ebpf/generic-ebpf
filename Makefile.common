@@ -33,12 +33,12 @@ load::
 	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
 
 unload::
-	${KMODUNLOAD} ebpf
 	${KMODUNLOAD} ebpf-dev
+	${KMODUNLOAD} ebpf
 
 reload::
-	-${KMODUNLOAD} ebpf
 	-${KMODUNLOAD} ebpf-dev
+	-${KMODUNLOAD} ebpf
 	${KMODLOAD} ${.CURDIR}/ebpf.ko
 	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
 
