@@ -7,7 +7,7 @@ CPPFLAGS= \
 CFLAGS+=${CPPFLAGS}
 LIBS=	${LIBGBPF}
 
-TARGETS_Linux=		map_benchmark map_banchmark_native
+TARGETS_Linux=		map_benchmark map_benchmark_native
 TARGETS_FreeBSD=	map_benchmark
 TARGETS=	$(TARGETS_$(UNAME_s))
 
@@ -16,7 +16,7 @@ CLEANFILES=	$(TARGETS) $(OBJS)
 
 map_benchmark: map_benchmark.o ${LIBGBPF}
 	$(CC) $(CFLAGS) -o $@ map_benchmark.o ${LIBS}
-map_benchmark_narive.o: map_benchmark.c ${LIBGBPF}
+map_benchmark_native.o: map_benchmark.c ${LIBGBPF}
 	$(CC) $(CFLAGS) -Dnative_bpf -c -o $@ $?
 map_benchmark_native: map_benchmark_native.o ${LIBGBPF}
 	$(CC) $(CFLAGS) -o $@ map_benchmark_native.o ${LIBS}
