@@ -114,7 +114,7 @@ percpu_elem_ctor(void *mem, void *arg)
 
 	valuep = (uint8_t **)HASH_ELEM_VALUE(hash_map, elem);
 	*valuep = ebpf_calloc(ebpf_ncpus(), hash_map->value_size);
-	if (*valuep != NULL) {
+	if (*valuep == NULL) {
 		return ENOMEM;
 	}
 
@@ -308,7 +308,7 @@ hashtable_map_lookup_elem(struct ebpf_map *map, void *key)
 	hash_map = map->data;
 	bucket = get_hash_bucket(hash_map, hash);
 	elem = get_hash_elem(bucket, key, map->key_size);
-	if (!elem) {
+	if (elem == NULL) {
 		return NULL;
 	}
 
@@ -328,7 +328,7 @@ hashtable_map_lookup_elem_from_user(struct ebpf_map *map, void *key,
 	hash_map = map->data;
 	bucket = get_hash_bucket(hash_map, hash);
 	elem = get_hash_elem(bucket, key, map->key_size);
-	if (!elem) {
+	if (elem == NULL) {
 		return ENOENT;
 	}
 
@@ -349,7 +349,7 @@ hashtable_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key,
 	hash_map = map->data;
 	bucket = get_hash_bucket(hash_map, hash);
 	elem = get_hash_elem(bucket, key, map->key_size);
-	if (!elem) {
+	if (elem == NULL) {
 		return ENOENT;
 	}
 
@@ -544,7 +544,7 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	hash = ebpf_jenkins_hash(key, map->key_size, 0);
 	bucket = get_hash_bucket(hash_map, hash);
 	elem = get_hash_elem(bucket, key, map->key_size);
-	if (!elem) {
+	if (elem == NULL) {
 		goto get_first_key;
 	}
 
