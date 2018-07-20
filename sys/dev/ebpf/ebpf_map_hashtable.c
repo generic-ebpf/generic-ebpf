@@ -114,7 +114,7 @@ percpu_elem_ctor(void *mem, void *arg)
 
 	valuep = (uint8_t **)HASH_ELEM_VALUE(hash_map, elem);
 	*valuep = ebpf_calloc(ebpf_ncpus(), hash_map->value_size);
-	if (!*valuep) {
+	if (*valuep != NULL) {
 		return ENOMEM;
 	}
 
@@ -157,7 +157,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	}
 
 	struct ebpf_map_hashtable *hash_map = ebpf_calloc(1, sizeof(*hash_map));
-	if (!hash_map) {
+	if (hash_map == NULL) {
 		return ENOMEM;
 	}
 
@@ -190,7 +190,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	hash_map->nbuckets = ebpf_roundup_pow_of_two(max_entries);
 	hash_map->buckets =
 	    ebpf_calloc(hash_map->nbuckets, sizeof(struct hash_bucket));
-	if (!hash_map->buckets) {
+	if (hash_map->buckets == NULL) {
 		error = ENOMEM;
 		goto err0;
 	}
