@@ -41,10 +41,9 @@ gbpf_map_update_elem(GBPFDriver *driver, int map_desc, void *key, void *value,
 }
 
 int
-gbpf_map_lookup_elem(GBPFDriver *driver, int map_desc, void *key, void *value,
-		     uint64_t flags)
+gbpf_map_lookup_elem(GBPFDriver *driver, int map_desc, void *key, void *value)
 {
-	return driver->map_lookup_elem(driver, map_desc, key, value, flags);
+	return driver->map_lookup_elem(driver, map_desc, key, value);
 }
 
 int

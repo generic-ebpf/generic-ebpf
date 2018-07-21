@@ -31,7 +31,7 @@ typedef int(gbpf_map_create_t)(GBPFDriver *self, uint16_t type,
 typedef int(gbpf_map_update_elem_t)(GBPFDriver *self, int map_desc, void *key,
 				    void *value, uint64_t flags);
 typedef int(gbpf_map_lookup_elem_t)(GBPFDriver *self, int map_desc, void *key,
-				    void *value, uint64_t flags);
+				    void *value);
 typedef int(gbpf_map_delete_elem_t)(GBPFDriver *self, int map_desc, void *key);
 typedef int(gbpf_map_get_next_key_t)(GBPFDriver *self, int map_desc, void *key,
 				     void *next_key);
@@ -57,7 +57,7 @@ int gbpf_map_create(GBPFDriver *driver, uint16_t type, uint32_t key_size,
 int gbpf_map_update_elem(GBPFDriver *driver, int map_desc, void *key,
 			 void *value, uint64_t flags);
 int gbpf_map_lookup_elem(GBPFDriver *driver, int map_desc, void *key,
-			 void *value, uint64_t flags);
+			 void *value);
 int gbpf_map_delete_elem(GBPFDriver *driver, int map_desc, void *key);
 int gbpf_map_get_next_key(GBPFDriver *driver, int map_desc, void *key,
 			  void *next_key);

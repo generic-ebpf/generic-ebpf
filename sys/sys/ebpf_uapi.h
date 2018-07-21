@@ -55,6 +55,5 @@ enum ebpf_common_functions {
 // Definitions of common external functions
 static EBPF_FUNC(int, ebpf_map_update_elem, struct ebpf_map_def *, void *,
 		 void *, uint64_t);
-static EBPF_FUNC(void *, ebpf_map_lookup_elem, struct ebpf_map_def *, void *,
-		 uint64_t);
+static EBPF_FUNC(void *, ebpf_map_lookup_elem, struct ebpf_map_def *, void *);
 static EBPF_FUNC(int, ebpf_map_delete_elem, struct ebpf_map_def *, void *);

@@ -87,15 +87,15 @@ ebpf_dev_map_update_elem(GBPFDriver *self, int map_desc, void *key, void *value,
 }
 
 static int
-ebpf_dev_map_lookup_elem(GBPFDriver *self, int map_desc, void *key, void *value,
-			 uint64_t flags)
+ebpf_dev_map_lookup_elem(GBPFDriver *self, int map_desc, void *key, void *value)
 {
 	EBPFDevDriver *driver = (EBPFDevDriver *)self;
+
 	union ebpf_req req;
+	memset(&req, 0, sizeof(req));
 	req.map_fd = map_desc;
 	req.key = key;
 	req.value = value;
-	req.flags = flags;
 
 	return ioctl(driver->ebpf_fd, EBPFIOC_MAP_LOOKUP_ELEM, &req);
 }

@@ -43,7 +43,7 @@ gbpf_null_map_update_elem(GBPFDriver *self, int map_desc, void *key,
 
 static int
 gbpf_null_map_lookup_elem(GBPFDriver *self, int map_desc, void *key,
-			  void *value, uint64_t flags)
+			  void *value)
 {
 	return 0;
 }

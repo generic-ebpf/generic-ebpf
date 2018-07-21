@@ -10,7 +10,7 @@ test_prog(void)
 	int error;
 	uint32_t key = 1, *value;
 
-	value = ebpf_map_lookup_elem(&array, &key, 0);
+	value = ebpf_map_lookup_elem(&array, &key);
 	if (!value) {
 		return UINT64_MAX;
 	}

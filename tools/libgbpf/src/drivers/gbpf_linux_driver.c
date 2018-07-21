@@ -92,7 +92,7 @@ gbpf_linux_map_update_elem(GBPFDriver *self, int map_desc, void *key,
 
 static int
 gbpf_linux_map_lookup_elem(GBPFDriver *self, int map_desc, void *key,
-			   void *value, uint64_t flags)
+			   void *value)
 {
 	union bpf_attr attr;
 
