@@ -28,8 +28,6 @@ struct ebpf_map_hashtable;
  */
 struct hash_elem {
 	EBPF_EPOCH_LIST_ENTRY(hash_elem) elem;
-	ebpf_epoch_context_t ec;
-	struct ebpf_map_hashtable *hash_map;
 	uint8_t key[0];
 	/* uint8_t value[value_size]; Instance of value in normal map case */
 	/* uint8_t **valuep; Pointer to percpu value in percpu map case */
