@@ -92,7 +92,6 @@ ebpf_dev_map_lookup_elem(GBPFDriver *self, int map_desc, void *key, void *value)
 	EBPFDevDriver *driver = (EBPFDevDriver *)self;
 
 	union ebpf_req req;
-	memset(&req, 0, sizeof(req));
 	req.map_fd = map_desc;
 	req.key = key;
 	req.value = value;
