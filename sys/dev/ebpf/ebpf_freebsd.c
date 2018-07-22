@@ -47,7 +47,7 @@ ebpf_realloc(void *ptr, size_t size)
 void *
 ebpf_exalloc(size_t size)
 {
-	return malloc(size, M_EBPFBUF, M_NOWAIT);
+	return malloc(size, M_EBPFBUF, M_NOWAIT | M_EXEC);
 }
 
 void
