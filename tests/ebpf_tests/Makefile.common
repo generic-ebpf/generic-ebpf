@@ -12,6 +12,6 @@ ${PROG}: ${OBJS} ${LIBEBPF}
 	$(CC) -o $@ ${LDFLAGS} ${OBJS} ${LIBS}
 
 check:
-	env LD_LIBRARY_PATH=$(LIBEBPFDIR) PYTHONPATH=${BASE}/tools ./${PROG}
+	env LD_LIBRARY_PATH=$(LIBEBPFDIR) PYTHONPATH=${BASE}/tools nosetests
 
 CLEANFILES=	$(PROG) $(OBJS) *.gcno *.gcda
