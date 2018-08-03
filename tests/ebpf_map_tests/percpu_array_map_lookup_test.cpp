@@ -16,11 +16,12 @@ class PercpuArrayMapLookupTest : public ::testing::Test {
 	SetUp()
 	{
 		int error;
-		uint32_t gkey = 50, gval = 100;
+		uint32_t gkey = 50;
+		uint64_t gval = 100;
 
 		error =
 		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPU_ARRAY,
-				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
+				  sizeof(uint32_t), sizeof(uint64_t), 100, 0);
 		ASSERT_TRUE(!error);
 
 		error = ebpf_map_update_elem_from_user(&map, &gkey, &gval, 0);
@@ -38,7 +39,7 @@ TEST_F(PercpuArrayMapLookupTest, LookupMaxEntryPlusOne)
 {
 	int error;
 	uint32_t key = 100;
-	uint32_t value;
+	uint64_t value;
 
 	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
@@ -49,7 +50,7 @@ TEST_F(PercpuArrayMapLookupTest, LookupOutOfMaxEntry)
 {
 	int error;
 	uint32_t key = 102;
-	uint32_t value;
+	uint64_t value;
 
 	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
 
@@ -60,7 +61,7 @@ TEST_F(PercpuArrayMapLookupTest, CorrectLookup)
 {
 	int error;
 	uint32_t key = 50;
-	uint32_t value[ebpf_ncpus()];
+	uint64_t value[ebpf_ncpus()];
 
 	error = ebpf_map_lookup_elem_from_user(&map, &key, value);
 

@@ -53,7 +53,7 @@ static int
 array_map_init_common(struct ebpf_map_array *array_map, uint32_t key_size,
 		      uint32_t value_size, uint32_t max_entries, uint32_t flags)
 {
-	array_map->array = ebpf_calloc(max_entries, key_size);
+	array_map->array = ebpf_calloc(max_entries, value_size);
 	if (!array_map->array) {
 		return ENOMEM;
 	}
