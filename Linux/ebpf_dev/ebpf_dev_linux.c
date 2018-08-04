@@ -187,6 +187,7 @@ EXPORT_SYMBOL(ebpf_fget);
 EXPORT_SYMBOL(ebpf_fdrop);
 EXPORT_SYMBOL(ebpf_copyin);
 EXPORT_SYMBOL(ebpf_copyout);
+EXPORT_SYMBOL(ebpf_curthread);
 EXPORT_SYMBOL(ebpf_objfile_get_container);
 EXPORT_SYMBOL(ebpf_obj_delete);
 
