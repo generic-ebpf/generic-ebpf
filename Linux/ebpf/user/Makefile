@@ -38,5 +38,8 @@ all: libebpf.so
 libebpf.so:
 	$(CC) $(CFLAGS) -shared -o $@ $(ebpf-src)
 
+install:
+	cp libebpf.so ../../../
+
 clean:
 	rm -f libebpf.so $(ebpf-objs)
