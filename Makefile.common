@@ -5,10 +5,14 @@ SUBDIR=		$(SUBDIR_$(UNAME_s))
 SUBDIR_FreeBSD=	${LIBEBPFDIR} \
 		${EBPFKMODDIR} \
 		${EBPFDEVKMODDIR} \
-		${LIBGBPFDIR}
+		${LIBGBPFDIR} \
+		${TESTDIR} \
+		${BENCHMARKDIR}
 SUBDIR_Linux=	${SUBDIR_FreeBSD}
 SUBDIR_Darwin=	${LIBEBPFDIR} \
-		${LIBGBPFDIR}
+		${LIBGBPFDIR} \
+		${TESTDIR} \
+		${BENCHMARKDIR}
 
 all:
 	for D in ${SUBDIR}; do \
@@ -17,11 +21,11 @@ all:
 CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
 
 tests:
-	cd tests && ${MAKE_CMD} all
+	cd ${TESTDIR} && ${MAKE_CMD} all
 check check-kern:
-	cd tests && ${MAKE_CMD} $@
+	cd ${TESTDIR} && ${MAKE_CMD} $@
 benchmark:
-	cd benchmark && ${MAKE_CMD} all
+	cd ${BENCHMARKDIR} && ${MAKE_CMD} all
 init:
 	rm -rf ${.CURDIR}/extern/googletest
 	git submodule init

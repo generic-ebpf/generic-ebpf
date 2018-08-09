@@ -5,6 +5,8 @@ CXXFLAGS+= \
 	-I $(LIBEBPFDIR) \
 	-I $(GTESTPATH)/googletest/include \
 	-Wno-unused-command-line-argument \
+	-Wno-unused-variable \
+	-Wno-unused-function \
 	-O0 \
 	$(LDFLAGS)
 LDFLAGS+=-coverage
