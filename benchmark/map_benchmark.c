@@ -151,7 +151,7 @@ run_change_benchmark(GBPFDriver *driver, int mapfd, uint32_t nobjs)
 	for (uint32_t i = 0; i < nobjs; i++) {
 		k = search_keys[i];
 
-		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v, 0);
+		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v);
 		if (error) {
 			abort_benchmark("change");
 		}
@@ -179,7 +179,7 @@ run_hit_benchmark(GBPFDriver *driver, int mapfd, uint32_t nobjs)
 	for (uint32_t i = 0; i < nobjs; i++) {
 		k = search_keys[i] + 1;
 
-		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v, 0);
+		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v);
 		if (error) {
 			abort_benchmark("hit");
 		}
@@ -196,7 +196,7 @@ run_miss_benchmark(GBPFDriver *driver, int mapfd, uint32_t nobjs)
 	for (uint32_t i = 0; i < nobjs; i++) {
 		k = search_keys[i];
 
-		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v, 0);
+		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v);
 		if (!error) {
 			abort_benchmark("miss");
 		}
@@ -213,7 +213,7 @@ run_remove_benchmark(GBPFDriver *driver, int mapfd, uint32_t nobjs)
 	for (uint32_t i = 0; i < nobjs; i++) {
 		k = search_keys[i] + 1;
 
-		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v, 0);
+		error = gbpf_map_lookup_elem(driver, mapfd, &k, &v);
 		if (error) {
 			abort_benchmark("remove");
 		}
