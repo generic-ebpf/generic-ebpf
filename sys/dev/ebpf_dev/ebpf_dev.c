@@ -530,7 +530,7 @@ ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 	}
 
 	uint64_t result;
-	error = ebpf_run_test(prog_obj->prog.prog, req->prog_len,
+	error = ebpf_run_test(prog_obj->prog.prog, prog_obj->prog.prog_len,
 			ctx, req->ctx_len, req->jit, &result);
 	if (error) {
 		goto err1;
