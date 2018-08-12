@@ -211,15 +211,16 @@ void
 ebpf_init_map_types(void)
 {
 	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-		ebpf_register_map_type(i, &bad_map_ops);
+		ebpf_register_map_type(i, &bad_map_type);
 	}
 
-	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_ops);
+	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_type);
 	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY,
-			       &percpu_array_map_ops);
-	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE, &hashtable_map_ops);
+			       &percpu_array_map_type);
+	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE,
+			       &hashtable_map_type);
 	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_HASHTABLE,
-			       &percpu_hashtable_map_ops);
+			       &percpu_hashtable_map_type);
 }
 
 static int
