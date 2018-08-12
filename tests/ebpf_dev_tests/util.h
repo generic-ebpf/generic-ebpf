@@ -133,3 +133,13 @@ ebpf_get_map_type_info(int ebpf_fd, uint16_t mt_id, struct ebpf_map_type_info *m
 
 	return ioctl(ebpf_fd, EBPFIOC_GET_MAP_TYPE_INFO, &req);
 }
+
+static int
+ebpf_get_prog_type_info(int ebpf_fd, uint16_t pt_id, struct ebpf_prog_type_info *pt_info)
+{
+	union ebpf_req req;
+	req.pt_id = pt_id;
+	req.pt_info = pt_info;
+
+	return ioctl(ebpf_fd, EBPFIOC_GET_PROG_TYPE_INFO, &req);
+}
