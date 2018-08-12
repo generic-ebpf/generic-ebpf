@@ -73,7 +73,7 @@ union ebpf_req {
 	// Attribute of EBPFIOC_GET_PROG_TYPE_INFO
 	struct {
 		uint16_t pt_id;
-		struct ebpf_map_type_info *pt_info;
+		struct ebpf_prog_type_info *pt_info;
 	};
 };
 
