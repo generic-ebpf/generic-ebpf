@@ -18,6 +18,8 @@ CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
 
 tests:
 	cd tests && ${MAKE_CMD} all
+tests-clean:
+	cd tests && ${MAKE_CMD} clean
 check check-kern:
 	cd tests && ${MAKE_CMD} $@
 benchmark:
