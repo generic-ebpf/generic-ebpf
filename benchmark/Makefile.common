@@ -14,6 +14,8 @@ TARGETS=	$(TARGETS_$(UNAME_s))
 all: $(TARGETS)
 CLEANFILES=	$(TARGETS) $(OBJS)
 
+install:
+
 map_benchmark: map_benchmark.o ${LIBGBPF}
 	$(CC) $(CFLAGS) -o $@ map_benchmark.o ${LIBS}
 map_benchmark_native.o: map_benchmark.c ${LIBGBPF}

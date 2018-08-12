@@ -38,7 +38,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithNullProgFdp)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	union ebpf_req req = {0};
+	union ebpf_req req;
 	req.prog_fdp = NULL;
 	req.prog_type = EBPF_PROG_TYPE_TEST;
 	req.prog = insts;
@@ -56,7 +56,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithInvalidProgType1)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	union ebpf_req req = {0};
+	union ebpf_req req;
 	req.prog_fdp = &fd;
 	req.prog_type = __EBPF_PROG_TYPE_MAX;
 	req.prog = insts;
@@ -74,7 +74,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithInvalidProgType2)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	union ebpf_req req = {0};
+	union ebpf_req req;
 	req.prog_fdp = &fd;
 	req.prog_type = __EBPF_PROG_TYPE_MAX + 1;
 	req.prog = insts;
@@ -90,7 +90,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithNullInsts)
 {
 	int error, fd;
 
-	union ebpf_req req = {0};
+	union ebpf_req req;
 	req.prog_fdp = &fd;
 	req.prog_type = EBPF_PROG_TYPE_TEST;
 	req.prog = NULL;
@@ -108,7 +108,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithZeroProgLen)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	union ebpf_req req = {0};
+	union ebpf_req req;
 	req.prog_fdp = &fd;
 	req.prog_type = EBPF_PROG_TYPE_TEST;
 	req.prog = insts;
@@ -126,7 +126,7 @@ TEST_F(EbpfDevProgLoadTest, CorrectLoad)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	union ebpf_req req = {0};
+	union ebpf_req req;
 	req.prog_fdp = &fd;
 	req.prog_type = EBPF_PROG_TYPE_TEST;
 	req.prog = insts;

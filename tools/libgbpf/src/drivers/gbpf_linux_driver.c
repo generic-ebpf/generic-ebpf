@@ -101,7 +101,6 @@ gbpf_linux_map_lookup_elem(GBPFDriver *self, int map_desc, void *key,
 	attr.map_fd = map_desc;
 	attr.key = (uint64_t)key;
 	attr.value = (uint64_t)value;
-	attr.flags = flags;
 
 	return syscall(321, BPF_MAP_LOOKUP_ELEM, &attr, sizeof(union bpf_attr));
 }
