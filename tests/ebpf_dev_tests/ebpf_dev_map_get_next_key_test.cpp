@@ -15,19 +15,11 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
       protected:
 	int ebpf_fd;
 	int map_fd;
-	uint32_t key1;
-	uint32_t value1;
-	uint32_t key2;
-	uint32_t value2;
 
 	virtual void
 	SetUp()
 	{
 		int error;
-		key1 = 1;
-		value1 = 100;
-		key2 = 3;
-		value2 = 200;
 
 		ebpf_fd = open("/dev/ebpf", O_RDWR);
 		ASSERT_TRUE(ebpf_fd > 0);
@@ -40,24 +32,6 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
 		req1.max_entries = 100;
 
 		error = ioctl(ebpf_fd, EBPFIOC_MAP_CREATE, &req1);
-		ASSERT_TRUE(!error);
-
-		union ebpf_req req2;
-		req2.map_fd = map_fd;
-		req2.key = &key1;
-		req2.value = &value1;
-		req2.flags = 0;
-
-		error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req2);
-		ASSERT_TRUE(!error);
-
-		union ebpf_req req3;
-		req3.map_fd = map_fd;
-		req3.key = &key2;
-		req3.value = &value2;
-		req3.flags = 0;
-
-		error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req3);
 		ASSERT_TRUE(!error);
 	}
 
@@ -72,7 +46,7 @@ class EbpfDevMapGetNextKeyElemTest : public ::testing::Test {
 TEST_F(EbpfDevMapGetNextKeyElemTest, GetNextKeyWithInvalidMapFd)
 {
 	int error;
-	uint32_t k = key1, next_key;
+	uint32_t k = 1, next_key;
 
 	union ebpf_req req;
 	req.map_fd = 0;
@@ -85,35 +59,41 @@ TEST_F(EbpfDevMapGetNextKeyElemTest, GetNextKeyWithInvalidMapFd)
 	EXPECT_EQ(EINVAL, errno);
 }
 
-TEST_F(EbpfDevMapGetNextKeyElemTest, GetFirstKey)
-{
-	int error;
-	uint32_t next_key;
-
-	union ebpf_req req;
-	req.map_fd = map_fd;
-	req.key = NULL;
-	req.next_key = &next_key;
-	req.flags = 0;
-
-	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
-	EXPECT_EQ(0, error);
-	EXPECT_EQ(0, next_key);
-}
-
 TEST_F(EbpfDevMapGetNextKeyElemTest, CorrectGetNextKey)
 {
 	int error;
-	uint32_t k = key1, next_key;
+	bool discovered[100];
 
-	union ebpf_req req;
-	req.map_fd = map_fd;
-	req.key = &k;
-	req.next_key = &next_key;
-	req.flags = 0;
+	union ebpf_req req1;
+	req1.map_fd = map_fd;
+	req1.flags = 0;
 
-	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
-	EXPECT_EQ(0, error);
-	EXPECT_EQ(2, next_key);
+	for (uint32_t i = 0; i < 100; i++) {
+		discovered[i] = false;
+		req1.key = &i;
+		req1.value = &i;
+		error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req1);
+		ASSERT_TRUE(!error);
+	}
+
+	uint32_t next_key;
+	union ebpf_req req2;
+	req2.map_fd = map_fd;
+	req2.key = NULL;
+	req2.next_key = &next_key;
+	req2.flags = 0;
+	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req2);
+	discovered[next_key] = true;
+
+	while (!error) {
+		req2.key = &next_key;
+		req2.next_key = &next_key;
+		error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req2);
+		discovered[next_key] = true;
+	}
+
+	for (uint32_t i = 0; i < 100; i++) {
+		EXPECT_EQ(discovered[i], true);
+	}
 }
 } // namespace

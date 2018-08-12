@@ -188,28 +188,39 @@ TEST_F(EbpfDevHashTableMapTest, GetFirstKey)
 TEST_F(EbpfDevHashTableMapTest, CorrectGetNextKey)
 {
 	int error;
-	uint32_t key1 = 50, key2 = 70, value = 100, next_key = 0;
+	bool discovered[100];
 
 	union ebpf_req req1;
 	req1.map_fd = map_fd;
-	req1.key = &key1;
-	req1.value = &value;
-	req1.flags = EBPF_ANY;
+	req1.flags = 0;
 
-	error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req1);
-	EXPECT_EQ(0, error);
+	for (uint32_t i = 0; i < 100; i++) {
+		discovered[i] = false;
+		req1.key = &i;
+		req1.value = &i;
+		error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req1);
+		ASSERT_TRUE(!error);
+	}
 
-	req1.key = &key2;
-	error = ioctl(ebpf_fd, EBPFIOC_MAP_UPDATE_ELEM, &req1);
-	EXPECT_EQ(0, error);
-
+	uint32_t next_key;
 	union ebpf_req req2;
 	req2.map_fd = map_fd;
-	req2.key = &key2;
+	req2.key = NULL;
 	req2.next_key = &next_key;
-
+	req2.flags = 0;
 	error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req2);
-	EXPECT_EQ(50, next_key);
+	discovered[next_key] = true;
+
+	while (!error) {
+		req2.key = &next_key;
+		req2.next_key = &next_key;
+		error = ioctl(ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req2);
+		discovered[next_key] = true;
+	}
+
+	for (uint32_t i = 0; i < 100; i++) {
+		EXPECT_EQ(discovered[i], true);
+	}
 }
 
 TEST_F(EbpfDevHashTableMapTest, LookupUnexistingEntry)
