@@ -17,7 +17,7 @@ Current support status
 # Installation
 
 ```
-// Pull submoduled googletest
+// Pull submoduled googletest and compile ck
 $ make init
 // Install Python packages
 $ pip install -r requirements.txt
@@ -64,3 +64,5 @@ Our ebpf interpreter and jit codes (and its tests) are based on [ubpf](https://g
 ## Dependency
 
 - BSD style libelf
+- Concurrency Kit
+- Google Test
