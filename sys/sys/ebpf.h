@@ -18,6 +18,9 @@
 
 #pragma once
 
+#define EBPF_NAME_MAX 64
+#define EBPF_DESC_MAX 256
+
 #define __EBPF_MAP_TYPE_MAX 256
 #define __EBPF_PROG_TYPE_MAX 256
 

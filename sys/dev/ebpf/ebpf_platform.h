@@ -72,10 +72,10 @@ extern void ebpf_mtx_destroy(ebpf_mtx_t *mutex);
 extern uint32_t ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash);
 
 /*
- * Prototypes of basic map ops
+ * Prototypes of basic map types
  */
-extern struct ebpf_map_ops bad_map_ops;
-extern struct ebpf_map_ops array_map_ops;
-extern struct ebpf_map_ops percpu_array_map_ops;
-extern struct ebpf_map_ops hashtable_map_ops;
-extern struct ebpf_map_ops percpu_hashtable_map_ops;
+extern struct ebpf_map_type bad_map_type;
+extern struct ebpf_map_type array_map_type;
+extern struct ebpf_map_type percpu_array_map_type;
+extern struct ebpf_map_type hashtable_map_type;
+extern struct ebpf_map_type percpu_hashtable_map_type;

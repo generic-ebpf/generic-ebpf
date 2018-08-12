@@ -41,6 +41,7 @@ int ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td);
 int ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td);
 void test_vm_attach_func(struct ebpf_vm *vm);
 int ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td);
+int ebpf_ioc_get_map_type_info(union ebpf_req *req);
 
 void
 ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
@@ -571,6 +572,31 @@ err0:
 }
 
 int
+ebpf_ioc_get_map_type_info(union ebpf_req *req)
+{
+	int error;
+	if (req->mt_id >= __EBPF_MAP_TYPE_MAX) {
+		return EINVAL;
+	}
+
+	struct ebpf_map_type_info *info = ebpf_malloc(sizeof(*info));
+	if (info == NULL) {
+		return ENOMEM;
+	}
+
+	struct ebpf_map_type *type = ebpf_get_map_type(req->mt_id);
+	ebpf_assert(type);
+
+	memcpy(info->name, type->name, EBPF_NAME_MAX);
+	memcpy(info->description, type->description, EBPF_DESC_MAX);
+
+	error = ebpf_copyout(info, req->mt_info, sizeof(*info));
+	ebpf_free(info);
+
+	return error;
+}
+
+int
 ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
 {
 	int error;
@@ -601,6 +627,9 @@ ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
 		break;
 	case EBPFIOC_RUN_TEST:
 		error = ebpf_ioc_run_test(req, td);
+		break;
+	case EBPFIOC_GET_MAP_TYPE_INFO:
+		error = ebpf_ioc_get_map_type_info(req);
 		break;
 	default:
 		error = EINVAL;

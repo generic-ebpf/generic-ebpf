@@ -62,13 +62,18 @@ bad_map_deinit(struct ebpf_map *self, void *arg)
 	return;
 }
 
-struct ebpf_map_ops bad_map_ops = {
-    .init = bad_map_init,
-    .update_elem = bad_map_update_elem,
-    .lookup_elem = bad_map_lookup_elem,
-    .delete_elem = bad_map_delete_elem,
-    .update_elem_from_user = bad_map_update_elem,
-    .lookup_elem_from_user = bad_map_lookup_elem_from_user,
-    .delete_elem_from_user = bad_map_delete_elem,
-    .get_next_key_from_user = bad_map_get_next_key,
-    .deinit = bad_map_deinit};
+struct ebpf_map_type bad_map_type = {
+	.name = "bad map",
+	.description = "Bad map just for placeholder",
+	.ops = {
+		.init = bad_map_init,
+		.update_elem = bad_map_update_elem,
+		.lookup_elem = bad_map_lookup_elem,
+		.delete_elem = bad_map_delete_elem,
+		.update_elem_from_user = bad_map_update_elem,
+		.lookup_elem_from_user = bad_map_lookup_elem_from_user,
+		.delete_elem_from_user = bad_map_delete_elem,
+		.get_next_key_from_user = bad_map_get_next_key,
+		.deinit = bad_map_deinit
+	}
+};

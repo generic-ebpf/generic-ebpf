@@ -123,3 +123,13 @@ ebpf_run_test(int ebpf_fd, int prog_fd, void *ctx, uint16_t ctx_len, int jit,
 
 	return ioctl(ebpf_fd, EBPFIOC_RUN_TEST, &req);
 }
+
+static int
+ebpf_get_map_type_info(int ebpf_fd, uint16_t mt_id, struct ebpf_map_type_info *mt_info)
+{
+	union ebpf_req req;
+	req.mt_id = mt_id;
+	req.mt_info = mt_info;
+
+	return ioctl(ebpf_fd, EBPFIOC_GET_MAP_TYPE_INFO, &req);
+}

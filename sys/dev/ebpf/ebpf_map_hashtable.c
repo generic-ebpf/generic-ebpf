@@ -567,24 +567,34 @@ get_first_key:
 	return ENOENT;
 }
 
-struct ebpf_map_ops hashtable_map_ops = {
-    .init = hashtable_map_init,
-    .update_elem = hashtable_map_update_elem,
-    .lookup_elem = hashtable_map_lookup_elem,
-    .delete_elem = hashtable_map_delete_elem,
-    .update_elem_from_user = hashtable_map_update_elem,
-    .lookup_elem_from_user = hashtable_map_lookup_elem_from_user,
-    .delete_elem_from_user = hashtable_map_delete_elem,
-    .get_next_key_from_user = hashtable_map_get_next_key,
-    .deinit = hashtable_map_deinit};
+struct ebpf_map_type hashtable_map_type = {
+	.name = "hashtable",
+	.description = "Hashtable map",
+	.ops = {
+		.init = hashtable_map_init,
+		.update_elem = hashtable_map_update_elem,
+		.lookup_elem = hashtable_map_lookup_elem,
+		.delete_elem = hashtable_map_delete_elem,
+		.update_elem_from_user = hashtable_map_update_elem,
+		.lookup_elem_from_user = hashtable_map_lookup_elem_from_user,
+		.delete_elem_from_user = hashtable_map_delete_elem,
+		.get_next_key_from_user = hashtable_map_get_next_key,
+		.deinit = hashtable_map_deinit
+	}
+};
 
-struct ebpf_map_ops percpu_hashtable_map_ops = {
-    .init = hashtable_map_init,
-    .update_elem = hashtable_map_update_elem_percpu,
-    .lookup_elem = hashtable_map_lookup_elem,
-    .delete_elem = hashtable_map_delete_elem,
-    .update_elem_from_user = hashtable_map_update_elem_percpu_from_user,
-    .lookup_elem_from_user = hashtable_map_lookup_elem_percpu_from_user,
-    .delete_elem_from_user = hashtable_map_delete_elem,
-    .get_next_key_from_user = hashtable_map_get_next_key,
-    .deinit = hashtable_map_deinit};
+struct ebpf_map_type percpu_hashtable_map_type = {
+	.name = "percpu hashtable",
+	.description = "Per CPU hashtable map",
+	.ops = {
+		.init = hashtable_map_init,
+		.update_elem = hashtable_map_update_elem_percpu,
+		.lookup_elem = hashtable_map_lookup_elem,
+		.delete_elem = hashtable_map_delete_elem,
+		.update_elem_from_user = hashtable_map_update_elem_percpu_from_user,
+		.lookup_elem_from_user = hashtable_map_lookup_elem_percpu_from_user,
+		.delete_elem_from_user = hashtable_map_delete_elem,
+		.get_next_key_from_user = hashtable_map_get_next_key,
+		.deinit = hashtable_map_deinit
+	}
+};

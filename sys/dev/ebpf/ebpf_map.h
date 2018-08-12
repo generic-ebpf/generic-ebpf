@@ -48,6 +48,12 @@ struct ebpf_map_ops {
 	ebpf_map_deinit_t *deinit;
 };
 
+struct ebpf_map_type {
+	char name[EBPF_NAME_MAX];
+	char description[EBPF_DESC_MAX];
+	struct ebpf_map_ops ops;
+};
+
 struct ebpf_map {
 	uint16_t type;
 	uint32_t key_size;
@@ -59,7 +65,8 @@ struct ebpf_map {
 	void (*deinit)(struct ebpf_map *, void *);
 };
 
-void ebpf_register_map_type(uint16_t id, struct ebpf_map_ops *ops);
+void ebpf_register_map_type(uint16_t id, struct ebpf_map_type *type);
+struct ebpf_map_type *ebpf_get_map_type(uint16_t id);
 int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
 		  uint32_t value_size, uint32_t max_entries,
 		  uint32_t map_flags);

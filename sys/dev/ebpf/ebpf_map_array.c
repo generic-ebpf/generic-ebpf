@@ -289,24 +289,34 @@ array_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	return 0;
 }
 
-struct ebpf_map_ops array_map_ops = {
-    .init = array_map_init,
-    .update_elem = array_map_update_elem,
-    .lookup_elem = array_map_lookup_elem,
-    .delete_elem = array_map_delete_elem,
-    .update_elem_from_user = array_map_update_elem,
-    .lookup_elem_from_user = array_map_lookup_elem_from_user,
-    .delete_elem_from_user = array_map_delete_elem,
-    .get_next_key_from_user = array_map_get_next_key,
-    .deinit = array_map_deinit};
+struct ebpf_map_type array_map_type = {
+	.name = "array",
+	.description = "Array map",
+	.ops = {
+		.init = array_map_init,
+		.update_elem = array_map_update_elem,
+		.lookup_elem = array_map_lookup_elem,
+		.delete_elem = array_map_delete_elem,
+		.update_elem_from_user = array_map_update_elem,
+		.lookup_elem_from_user = array_map_lookup_elem_from_user,
+		.delete_elem_from_user = array_map_delete_elem,
+		.get_next_key_from_user = array_map_get_next_key,
+		.deinit = array_map_deinit
+	}
+};
 
-struct ebpf_map_ops percpu_array_map_ops = {
-    .init = array_map_init_percpu,
-    .update_elem = array_map_update_elem_percpu,
-    .lookup_elem = array_map_lookup_elem_percpu,
-    .delete_elem = array_map_delete_elem, // delete is anyway invalid
-    .update_elem_from_user = array_map_update_elem_percpu_from_user,
-    .lookup_elem_from_user = array_map_lookup_elem_percpu_from_user,
-    .delete_elem_from_user = array_map_delete_elem, // delete is anyway invalid
-    .get_next_key_from_user = array_map_get_next_key,
-    .deinit = array_map_deinit_percpu};
+struct ebpf_map_type percpu_array_map_type = {
+	.name = "percpu array",
+	.description = "Per CPU array map",
+	.ops = {
+		.init = array_map_init_percpu,
+		.update_elem = array_map_update_elem_percpu,
+		.lookup_elem = array_map_lookup_elem_percpu,
+		.delete_elem = array_map_delete_elem, // delete is anyway invalid
+		.update_elem_from_user = array_map_update_elem_percpu_from_user,
+		.lookup_elem_from_user = array_map_lookup_elem_percpu_from_user,
+		.delete_elem_from_user = array_map_delete_elem, // delete is anyway invalid
+		.get_next_key_from_user = array_map_get_next_key,
+		.deinit = array_map_deinit_percpu
+	}
+};
