@@ -33,7 +33,20 @@
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <ck_queue.h>
 
 typedef pthread_rwlock_t ebpf_rwlock_t;
 typedef void *ebpf_epoch_context_t;
 typedef pthread_mutex_t ebpf_mtx_t;
+
+#define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
+#define EBPF_EPOCH_LIST_EMPTY(_type) CK_LIST_EMPTY(_type)
+#define EBPF_EPOCH_LIST_FIRST(_headp, _type, _name) CK_LIST_FIRST(_headp)
+#define EBPF_EPOCH_LIST_HEAD(_name, _type) CK_LIST_HEAD(_name, _type)
+#define EBPF_EPOCH_LIST_INIT(_headp) CK_LIST_INIT(_headp)
+#define EBPF_EPOCH_LIST_FOREACH(_var, _head, _name)                            \
+	CK_LIST_FOREACH(_var, _head, _name)
+#define EBPF_EPOCH_LIST_INSERT_HEAD(_head, _elem, _name)                       \
+	CK_LIST_INSERT_HEAD(_head, _elem, _name)
+#define EBPF_EPOCH_LIST_REMOVE(_elem, _name) CK_LIST_REMOVE(_elem, _name)
+#define EBPF_EPOCH_LIST_NEXT(_elem, _name) CK_LIST_NEXT(_elem, _name)

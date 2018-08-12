@@ -8,9 +8,10 @@ ebpf-src += ebpf_prog_test.c
 ebpf-src += ebpf_map.c
 ebpf-src += ebpf_map_bad.c
 ebpf-src += ebpf_map_array.c
+ebpf-src += ebpf_map_hashtable.c
 
 SRCS=	${ebpf-src} ${JITSRC}
-OBJS=	$(SRCS:%.c=%.o)
+OBJS=	$(SRCS:%.c=%.o) $(CKOBJS)
 
 CPPFLAGS= \
 	-Ofast \
@@ -18,6 +19,7 @@ CPPFLAGS= \
 	-I $(BASE)/dev/ebpf \
 	-I $(BASE)/sys \
 	-I $(BASE) \
+	-I $(CKPATH)/include \
 	-I $(.CURDIR) \
 	-Wall \
 	-Wno-declaration-after-statement \
