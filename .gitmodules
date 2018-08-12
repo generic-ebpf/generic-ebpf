@@ -1,3 +1,6 @@
 [submodule "extern/googletest"]
 	path = extern/googletest
 	url = https://github.com/google/googletest
+[submodule "extern/ck"]
+	path = extern/ck
+	url = https://github.com/concurrencykit/ck.git
