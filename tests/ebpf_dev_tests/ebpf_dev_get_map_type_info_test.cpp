@@ -50,13 +50,17 @@ TEST_F(EbpfDevGetMapTypeInfoTest, CheckBasicMapInfo)
 	int error;
 	struct ebpf_map_type_info info;
 
+	error = ebpf_get_map_type_info(ebpf_fd, EBPF_MAP_TYPE_BAD, &info);
+	EXPECT_EQ(0, error);
+	EXPECT_EQ(0, strcmp(info.name, "bad"));
+
 	error = ebpf_get_map_type_info(ebpf_fd, EBPF_MAP_TYPE_ARRAY, &info);
 	EXPECT_EQ(0, error);
 	EXPECT_EQ(0, strcmp(info.name, "array"));
 
 	error = ebpf_get_map_type_info(ebpf_fd, EBPF_MAP_TYPE_PERCPU_ARRAY, &info);
 	EXPECT_EQ(0, error);
-	EXPECT_EQ(0, strcmp(info.name, "percpu array"));
+	EXPECT_EQ(0, strcmp(info.name, "percpu_array"));
 
 	error = ebpf_get_map_type_info(ebpf_fd, EBPF_MAP_TYPE_HASHTABLE, &info);
 	EXPECT_EQ(0, error);
@@ -64,6 +68,6 @@ TEST_F(EbpfDevGetMapTypeInfoTest, CheckBasicMapInfo)
 
 	error = ebpf_get_map_type_info(ebpf_fd, EBPF_MAP_TYPE_PERCPU_HASHTABLE, &info);
 	EXPECT_EQ(0, error);
-	EXPECT_EQ(0, strcmp(info.name, "percpu hashtable"));
+	EXPECT_EQ(0, strcmp(info.name, "percpu_hashtable"));
 }
 }

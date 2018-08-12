@@ -306,7 +306,7 @@ struct ebpf_map_type array_map_type = {
 };
 
 struct ebpf_map_type percpu_array_map_type = {
-	.name = "percpu array",
+	.name = "percpu_array",
 	.description = "Per CPU array map",
 	.ops = {
 		.init = array_map_init_percpu,

@@ -584,7 +584,7 @@ struct ebpf_map_type hashtable_map_type = {
 };
 
 struct ebpf_map_type percpu_hashtable_map_type = {
-	.name = "percpu hashtable",
+	.name = "percpu_hashtable",
 	.description = "Per CPU hashtable map",
 	.ops = {
 		.init = hashtable_map_init,
