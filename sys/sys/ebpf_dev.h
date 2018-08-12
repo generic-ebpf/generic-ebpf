@@ -25,6 +25,11 @@ struct ebpf_map_type_info {
 	char description[EBPF_DESC_MAX];
 };
 
+struct ebpf_prog_type_info {
+	char name[EBPF_NAME_MAX];
+	char description[EBPF_DESC_MAX];
+};
+
 union ebpf_req {
 	// Attribute of EBPFIOC_LOAD_PROG
 	struct {
@@ -65,6 +70,11 @@ union ebpf_req {
 		uint16_t mt_id;
 		struct ebpf_map_type_info *mt_info;
 	};
+	// Attribute of EBPFIOC_GET_PROG_TYPE_INFO
+	struct {
+		uint16_t pt_id;
+		struct ebpf_map_type_info *pt_info;
+	};
 };
 
 #define EBPFIOC_LOAD_PROG _IOWR('i', 151, union ebpf_req)
@@ -75,3 +85,4 @@ union ebpf_req {
 #define EBPFIOC_MAP_GET_NEXT_KEY _IOWR('i', 156, union ebpf_req)
 #define EBPFIOC_RUN_TEST _IOWR('i', 157, union ebpf_req)
 #define EBPFIOC_GET_MAP_TYPE_INFO _IOWR('i', 158, union ebpf_req)
+#define EBPFIOC_GET_PROG_TYPE_INFO _IOWR('i', 159, union ebpf_req)

@@ -23,12 +23,15 @@ MAPS += ebpf_map_bad.c
 MAPS += ebpf_map_array.c
 MAPS += ebpf_map_hashtable.c
 
+PROGS += ebpf_prog_bad.c
+
 .if $(MACHINE) == "amd64"
 CORES += ../../amd64/amd64/ebpf_jit_x86_64.c
 .endif
 
 SRCS += $(CORES)
 SRCS += $(MAPS)
+SRCS += $(PROGS)
 
 realinstall:
 	install ebpf.ko $(DESTDIR)

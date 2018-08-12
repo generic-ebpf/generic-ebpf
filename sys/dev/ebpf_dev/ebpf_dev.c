@@ -42,6 +42,7 @@ int ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td);
 void test_vm_attach_func(struct ebpf_vm *vm);
 int ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td);
 int ebpf_ioc_get_map_type_info(union ebpf_req *req);
+int ebpf_ioc_get_prog_type_info(union ebpf_req *req);
 
 void
 ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
@@ -507,6 +508,11 @@ test_vm_attach_func(struct ebpf_vm *vm)
 	ebpf_register(vm, 3, "ebpf_map_delete_elem", ebpf_map_delete_elem);
 }
 
+struct ebpf_prog_type test_prog_type = {
+	.name = "test",
+	.description = "For testing by EBPFIOC_RUN_TEST"
+};
+
 int
 ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 {
@@ -597,6 +603,31 @@ ebpf_ioc_get_map_type_info(union ebpf_req *req)
 }
 
 int
+ebpf_ioc_get_prog_type_info(union ebpf_req *req)
+{
+	int error;
+	if (req->pt_id >= __EBPF_PROG_TYPE_MAX) {
+		return EINVAL;
+	}
+
+	struct ebpf_prog_type_info *info = ebpf_malloc(sizeof(*info));
+	if (info == NULL) {
+		return ENOMEM;
+	}
+
+	struct ebpf_prog_type *type = ebpf_get_prog_type(req->pt_id);
+	ebpf_assert(type);
+
+	memcpy(info->name, type->name, EBPF_NAME_MAX);
+	memcpy(info->description, type->description, EBPF_DESC_MAX);
+
+	error = ebpf_copyout(info, req->pt_info, sizeof(*info));
+	ebpf_free(info);
+
+	return error;
+}
+
+int
 ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
 {
 	int error;
@@ -630,6 +661,9 @@ ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
 		break;
 	case EBPFIOC_GET_MAP_TYPE_INFO:
 		error = ebpf_ioc_get_map_type_info(req);
+		break;
+	case EBPFIOC_GET_PROG_TYPE_INFO:
+		error = ebpf_ioc_get_prog_type_info(req);
 		break;
 	default:
 		error = EINVAL;

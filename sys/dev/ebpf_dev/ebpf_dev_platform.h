@@ -40,3 +40,5 @@ int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
 int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);
 ebpf_thread_t *ebpf_curthread(void);
 int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td);
+
+extern struct ebpf_prog_type test_prog_type;

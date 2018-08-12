@@ -240,8 +240,17 @@ ebpf_init_map_types(void)
 			       &percpu_hashtable_map_type);
 }
 
+void
+ebpf_init_prog_types(void)
+{
+	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
+		ebpf_register_prog_type(i, &bad_prog_type);
+	}
+}
+
 __attribute__((constructor)) void
 ebpf_init(void)
 {
+	ebpf_init_prog_types();
 	ebpf_init_map_types();
 }

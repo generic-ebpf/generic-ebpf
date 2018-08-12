@@ -19,6 +19,7 @@
 #include <sys/ebpf.h>
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_prog.h>
 
 MALLOC_DECLARE(M_EBPFBUF);
 MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");
@@ -220,10 +221,19 @@ ebpf_init_map_types(void)
 			       &percpu_hashtable_map_type);
 }
 
+static void
+ebpf_init_prog_types(void)
+{
+	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
+		ebpf_register_prog_type(i, &bad_prog_type);
+	}
+}
+
 static int
 ebpf_init(void)
 {
 	ebpf_epoch = epoch_alloc(0);
+	ebpf_init_prog_types();
 	ebpf_init_map_types();
 	printf("ebpf loaded\n");
 	return 0;

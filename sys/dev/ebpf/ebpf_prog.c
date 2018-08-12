@@ -16,8 +16,23 @@
  * limitations under the License.
  */
 
-#include "ebpf_platform.h"
 #include "ebpf_prog.h"
+
+struct ebpf_prog_type *ebpf_prog_types[__EBPF_PROG_TYPE_MAX];
+
+void
+ebpf_register_prog_type(uint16_t id, struct ebpf_prog_type *type)
+{
+	if (id < __EBPF_PROG_TYPE_MAX && type) {
+		ebpf_prog_types[id] = type;
+	}
+}
+
+struct ebpf_prog_type *
+ebpf_get_prog_type(uint16_t id)
+{
+	return id > __EBPF_PROG_TYPE_MAX ? NULL : ebpf_prog_types[id];
+}
 
 int
 ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
