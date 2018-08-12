@@ -4,6 +4,7 @@ CXXFLAGS+= \
 	-I $(BASE)/sys \
 	-I $(LIBEBPFDIR) \
 	-I $(GTESTPATH)/googletest/include \
+	-I $(CKPATH)/include \
 	-Wno-unused-command-line-argument \
 	-Wno-unused-variable \
 	-O0 \

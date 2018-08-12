@@ -30,7 +30,7 @@ LIBS=	-lpthread
 all: libebpf.so
 
 libebpf.so: $(OBJS)
-	$(CC) $(LDFLAGS) -shared -o $@ ${OBJS} ${LIBS}
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ ${OBJS} ${LIBS}
 
 install:
 	cp libebpf.so $(DESTDIR)
