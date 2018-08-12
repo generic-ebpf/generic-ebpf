@@ -18,6 +18,7 @@
 
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_prog.h>
 #include <sys/ebpf.h>
 
 void *
@@ -222,30 +223,6 @@ ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
 	assert(!error);
-}
-
-void
-ebpf_init_map_types(void)
-{
-	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-		ebpf_register_map_type(i, &bad_map_type);
-	}
-
-	ebpf_register_map_type(EBPF_MAP_TYPE_ARRAY, &array_map_type);
-	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_ARRAY,
-			       &percpu_array_map_type);
-	ebpf_register_map_type(EBPF_MAP_TYPE_HASHTABLE,
-			       &hashtable_map_type);
-	ebpf_register_map_type(EBPF_MAP_TYPE_PERCPU_HASHTABLE,
-			       &percpu_hashtable_map_type);
-}
-
-void
-ebpf_init_prog_types(void)
-{
-	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
-		ebpf_register_prog_type(i, &bad_prog_type);
-	}
 }
 
 __attribute__((constructor)) void

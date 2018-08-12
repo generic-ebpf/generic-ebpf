@@ -19,21 +19,44 @@
 #include "ebpf_map.h"
 
 struct ebpf_map_type *ebpf_map_types[__EBPF_MAP_TYPE_MAX];
-#define EBPF_MAP_OPS(id) (ebpf_map_types[id]->ops)
 
-void
-ebpf_register_map_type(uint16_t id, struct ebpf_map_type *type)
+int
+ebpf_register_map_type(struct ebpf_map_type *type)
 {
-	if (id < __EBPF_MAP_TYPE_MAX && type) {
-		ebpf_map_types[id] = type;
+	for (uint16_t i = __EBPF_BASIC_MAP_TYPE_MAX;
+			i < __EBPF_MAP_TYPE_MAX; i++) {
+		if (ebpf_map_types[i] == &bad_map_type) {
+			ebpf_map_types[i] = type;
+			return 0;
+		}
 	}
+	return EBUSY;
 }
 
 struct ebpf_map_type *
 ebpf_get_map_type(uint16_t id)
 {
-	return id > __EBPF_MAP_TYPE_MAX ? NULL : ebpf_map_types[id];
+	ebpf_assert(ebpf_map_types[id] != NULL);
+	return ebpf_map_types[id];
 }
+
+void
+ebpf_init_map_types(void)
+{
+	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+		ebpf_map_types[i] = &bad_map_type;
+	}
+
+	/*
+	 * Register basic map types
+	 */
+	ebpf_map_types[EBPF_MAP_TYPE_ARRAY] = &array_map_type;
+	ebpf_map_types[EBPF_MAP_TYPE_PERCPU_ARRAY] = &percpu_array_map_type;
+	ebpf_map_types[EBPF_MAP_TYPE_HASHTABLE] = &hashtable_map_type;
+	ebpf_map_types[EBPF_MAP_TYPE_PERCPU_HASHTABLE] = &percpu_hashtable_map_type;
+}
+
+#define EBPF_MAP_OPS(id) (ebpf_map_types[id]->ops)
 
 int
 ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,

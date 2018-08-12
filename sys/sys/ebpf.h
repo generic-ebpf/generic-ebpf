@@ -33,7 +33,11 @@ enum ebpf_basic_map_types {
 	__EBPF_BASIC_MAP_TYPE_MAX
 };
 
-enum ebpf_basic_prog_types { EBPF_PROG_TYPE_TEST, __EBPF_BASIC_PROG_TYPE_MAX };
+enum ebpf_basic_prog_types {
+	EBPF_PROG_TYPE_BAD,
+	EBPF_PROG_TYPE_TEST,
+	__EBPF_BASIC_PROG_TYPE_MAX
+};
 
 enum ebpf_map_update_flags {
 	EBPF_ANY = 0,

@@ -20,18 +20,37 @@
 
 struct ebpf_prog_type *ebpf_prog_types[__EBPF_PROG_TYPE_MAX];
 
-void
-ebpf_register_prog_type(uint16_t id, struct ebpf_prog_type *type)
+int
+ebpf_register_prog_type(struct ebpf_prog_type *type)
 {
-	if (id < __EBPF_PROG_TYPE_MAX && type) {
-		ebpf_prog_types[id] = type;
+	for (uint16_t i = __EBPF_BASIC_PROG_TYPE_MAX;
+			i < __EBPF_PROG_TYPE_MAX; i++) {
+		if (ebpf_prog_types[i] == &bad_prog_type) {
+			ebpf_prog_types[i] = type;
+			return 0;
+		}
 	}
+	return EBUSY;
 }
 
 struct ebpf_prog_type *
 ebpf_get_prog_type(uint16_t id)
 {
-	return id > __EBPF_PROG_TYPE_MAX ? NULL : ebpf_prog_types[id];
+	ebpf_assert(ebpf_prog_types[id] != NULL);
+	return ebpf_prog_types[id];
+}
+
+void
+ebpf_init_prog_types(void)
+{
+	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
+		ebpf_prog_types[i] = &bad_prog_type;
+	}
+
+	/*
+	 * Register basic prog types
+	 */
+	ebpf_prog_types[EBPF_PROG_TYPE_TEST] = &test_prog_type;
 }
 
 int

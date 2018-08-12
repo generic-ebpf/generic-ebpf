@@ -65,7 +65,8 @@ struct ebpf_map {
 	void (*deinit)(struct ebpf_map *, void *);
 };
 
-void ebpf_register_map_type(uint16_t id, struct ebpf_map_type *type);
+void ebpf_init_map_types(void);
+int ebpf_register_map_type(struct ebpf_map_type *type);
 struct ebpf_map_type *ebpf_get_map_type(uint16_t id);
 int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
 		  uint32_t value_size, uint32_t max_entries,

@@ -34,7 +34,8 @@ struct ebpf_prog_type {
 	char description[EBPF_DESC_MAX];
 };
 
-void ebpf_register_prog_type(uint16_t id, struct ebpf_prog_type *type);
+void ebpf_init_prog_types(void);
+int ebpf_register_prog_type(struct ebpf_prog_type *type);
 struct ebpf_prog_type *ebpf_get_prog_type(uint16_t id);
 int ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
 		   struct ebpf_inst *prog, uint32_t prog_len);
