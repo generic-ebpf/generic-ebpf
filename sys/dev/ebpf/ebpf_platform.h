@@ -84,3 +84,4 @@ extern struct ebpf_map_type percpu_hashtable_map_type;
  * Prototypes of basic prog types
  */
 extern struct ebpf_prog_type bad_prog_type;
+extern struct ebpf_prog_type test_prog_type;

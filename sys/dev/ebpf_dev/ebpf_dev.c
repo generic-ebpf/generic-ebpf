@@ -18,6 +18,7 @@
 
 #include "ebpf_dev_platform.h"
 #include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_prog_test.h>
 
 #include <sys/ebpf.h>
 #include <sys/ebpf_vm.h>
@@ -500,80 +501,47 @@ err0:
 	return error;
 }
 
-void
-test_vm_attach_func(struct ebpf_vm *vm)
-{
-	ebpf_register(vm, 1, "ebpf_map_update_elem", ebpf_map_update_elem);
-	ebpf_register(vm, 2, "ebpf_map_lookup_elem", ebpf_map_lookup_elem);
-	ebpf_register(vm, 3, "ebpf_map_delete_elem", ebpf_map_delete_elem);
-}
-
-struct ebpf_prog_type test_prog_type = {
-	.name = "test",
-	.description = "For testing by EBPFIOC_RUN_TEST"
-};
-
 int
 ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
-	struct ebpf_vm *vm;
-
-	vm = ebpf_create();
-	if (vm == NULL) {
-		return ENOMEM;
-	}
-	test_vm_attach_func(vm);
 
 	ebpf_file_t *f;
 	error = ebpf_fget(td, req->prog_fd, &f);
 	if (error) {
-		goto err0;
+		return error;
 	}
 
 	struct ebpf_obj_prog *prog_obj = ebpf_objfile_get_container(f);
 	if (!prog_obj) {
 		error = EINVAL;
-		goto err1;
-	}
-
-	error = ebpf_load(vm, prog_obj->prog.prog, prog_obj->prog.prog_len);
-	if (error < 0) {
-		error = EINVAL;
-		goto err1;
+		goto err0;
 	}
 
 	void *ctx = ebpf_calloc(req->ctx_len, 1);
 	if (ctx == NULL) {
 		error = ENOMEM;
-		goto err1;
+		goto err0;
 	}
 
 	error = ebpf_copyin(req->ctx, ctx, req->ctx_len);
 	if (error) {
-		goto err2;
+		goto err1;
 	}
 
 	uint64_t result;
-	if (req->jit) {
-		ebpf_jit_fn fn = ebpf_compile(vm);
-		if (!fn) {
-			error = EINVAL;
-			goto err2;
-		}
-		result = fn(ctx, req->ctx_len);
-	} else {
-		result = ebpf_exec(vm, ctx, req->ctx_len);
+	error = ebpf_run_test(prog_obj->prog.prog, req->prog_len,
+			ctx, req->ctx_len, req->jit, &result);
+	if (error) {
+		goto err1;
 	}
 
 	error = ebpf_copyout(&result, req->test_result, sizeof(uint64_t));
 
-err2:
-	ebpf_free(ctx);
 err1:
-	ebpf_fdrop(f, td);
+	ebpf_free(ctx);
 err0:
-	ebpf_destroy(vm);
+	ebpf_fdrop(f, td);
 	return error;
 }
 
