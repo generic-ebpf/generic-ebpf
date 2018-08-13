@@ -80,12 +80,6 @@ ebpf_error(const char *fmt, ...)
 	return ret;
 }
 
-void
-ebpf_assert(bool expr)
-{
-	assert(expr);
-}
-
 uint16_t
 ebpf_ncpus(void)
 {

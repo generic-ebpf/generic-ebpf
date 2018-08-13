@@ -76,12 +76,6 @@ ebpf_error(const char *fmt, ...)
 	return ret;
 }
 
-void
-ebpf_assert(bool expr)
-{
-	KASSERT(expr, "");
-}
-
 uint16_t
 ebpf_ncpus(void)
 {

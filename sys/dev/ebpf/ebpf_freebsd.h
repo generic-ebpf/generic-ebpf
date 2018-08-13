@@ -48,6 +48,8 @@ typedef struct rwlock ebpf_rwlock_t;
 typedef struct epoch_context ebpf_epoch_context_t;
 typedef struct mtx ebpf_mtx_t;
 
+#define ebpf_assert(expr) KASSERT(expr, "")
+
 #define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
 #define EBPF_EPOCH_LIST_EMPTY(_type) CK_LIST_EMPTY(_type)
 #define EBPF_EPOCH_LIST_FIRST(_headp, _type, _name) CK_LIST_FIRST(_headp)
