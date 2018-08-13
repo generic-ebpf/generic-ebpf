@@ -9,6 +9,7 @@ ebpf-src += ebpf_map.c
 ebpf-src += ebpf_map_bad.c
 ebpf-src += ebpf_map_array.c
 ebpf-src += ebpf_map_hashtable.c
+ebpf-src += ebpf_epoch.c
 
 SRCS=	${ebpf-src} ${JITSRC}
 OBJS=	$(SRCS:%.c=%.o) $(CKOBJS)

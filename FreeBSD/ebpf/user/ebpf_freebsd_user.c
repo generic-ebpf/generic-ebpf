@@ -19,6 +19,7 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
 #include <dev/ebpf/ebpf_prog.h>
+#include <dev/ebpf/ebpf_epoch.h>
 #include <sys/ebpf.h>
 
 void *
@@ -145,36 +146,6 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 	assert(!error);
 }
 
-/*
- * FIXME Below epoch and refcount~ things are just a stub and doesn't work
- * correctly. In future version, replace them to correct one.
- */
-
-void
-ebpf_epoch_enter(void)
-{
-	return;
-}
-
-void
-ebpf_epoch_exit(void)
-{
-	return;
-}
-
-void
-ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-		void (*callback)(ebpf_epoch_context_t *))
-{
-	return;
-}
-
-void
-ebpf_epoch_wait(void)
-{
-	return;
-}
-
 void
 ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
 {
@@ -228,6 +199,13 @@ ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 __attribute__((constructor)) void
 ebpf_init(void)
 {
+	ebpf_epoch_init();
 	ebpf_init_prog_types();
 	ebpf_init_map_types();
+}
+
+__attribute__((destructor)) void
+ebpf_deinit(void)
+{
+	ebpf_epoch_deinit();
 }

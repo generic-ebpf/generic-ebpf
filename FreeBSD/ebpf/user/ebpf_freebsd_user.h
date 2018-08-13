@@ -28,16 +28,21 @@
 #include <sys/types.h>
 #include <sys/endian.h>
 #include <sys/stddef.h>
+#include <sys/cpuset.h>
 #include <elf.h>
 #include <assert.h>
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <pthread_np.h>
 #include <ck_queue.h>
+#include <ck_epoch.h>
 
 typedef pthread_rwlock_t ebpf_rwlock_t;
-typedef void *ebpf_epoch_context_t;
+typedef ck_epoch_entry_t ebpf_epoch_context_t;
 typedef pthread_mutex_t ebpf_mtx_t;
+
+#define ebpf_assert(expr) assert(expr)
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
 #define EBPF_EPOCH_LIST_EMPTY(_type) CK_LIST_EMPTY(_type)
