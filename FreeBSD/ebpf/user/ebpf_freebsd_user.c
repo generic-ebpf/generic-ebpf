@@ -89,7 +89,32 @@ ebpf_ncpus(void)
 uint16_t
 ebpf_curcpu(void)
 {
-	return 0; // This makes no sense. Just for testing.
+	int error;
+	cpuset_t cpus;
+
+	error = pthread_getaffinity_np(pthread_self(), sizeof(cpus), &cpus);
+	ebpf_assert(!error);
+
+	/*
+	 * Return first CPU founded from affinity set.
+	 * If the program pinned the thread to single
+	 * CPU, this function returns pinned CPU.
+	 *
+	 * Note that the epoch never works correctly
+	 * unless the running thread is pinned to
+	 * single CPU.
+	 */
+	for (uint16_t i = 0; i < CPU_MAXSIZE; i++) {
+		if (CPU_ISSET(i, &cpus)) {
+			return i;
+		}
+	}
+
+	/*
+	 * Should not reach to here
+	 */
+	ebpf_assert(false);
+	return 0;
 }
 
 long
