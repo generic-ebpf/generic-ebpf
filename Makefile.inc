@@ -18,7 +18,7 @@ GTESTPATH?=	${BASE}/extern/googletest
 GTESTOBJS?=	${GTESTPATH}/googletest/make/gtest_main.o \
 		${GTESTPATH}/googletest/make/gtest-all.o
 
-CKPATH?=	${BASE}/extern/ck
+CKPATH?=	${BASE}/extern/ck-0.6.0
 CKOBJS?=	${CKPATH}/src/libck.a
 
 LIBEBPFDIR?=	${BASE}/${UNAME_s}/ebpf/user

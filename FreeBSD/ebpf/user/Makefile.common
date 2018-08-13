@@ -12,7 +12,7 @@ ebpf-src += ebpf_map_hashtable.c
 ebpf-src += ebpf_epoch.c
 
 SRCS=	${ebpf-src} ${JITSRC}
-OBJS=	$(SRCS:%.c=%.o) $(CKOBJS)
+OBJS=	$(CKOBJS) $(SRCS:%.c=%.o)
 
 CPPFLAGS= \
 	-Ofast \
