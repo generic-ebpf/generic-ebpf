@@ -35,8 +35,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, GetNextKeyWithMaxKey)
 
 	error = ebpf_map_get_next_key_from_user(&map, &key, &next_key);
 
-	EXPECT_EQ(0, error);
-	EXPECT_EQ(0, next_key);
+	EXPECT_EQ(ENOENT, error);
 }
 
 TEST_F(PercpuArrayMapGetNextKeyTest, GetFirstKey)
