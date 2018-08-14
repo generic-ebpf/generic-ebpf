@@ -8,7 +8,8 @@ extern "C" {
 }
 
 namespace {
-class HashTableMapLookupTest : public ::testing::Test {
+
+class PercpuHashTableMapDeleteTest : public ::testing::Test {
       protected:
 	struct ebpf_map map;
 
@@ -16,10 +17,11 @@ class HashTableMapLookupTest : public ::testing::Test {
 	SetUp()
 	{
 		int error;
-		uint32_t gkey = 50, gval = 100;
+		uint32_t gkey = 50;
+		uint32_t gval = 100;
 
 		error =
-		    ebpf_map_init(&map, EBPF_MAP_TYPE_HASHTABLE,
+		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPU_HASHTABLE,
 				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 
@@ -34,26 +36,12 @@ class HashTableMapLookupTest : public ::testing::Test {
 	}
 };
 
-TEST_F(HashTableMapLookupTest, LookupUnexistingEntry)
-{
-	int error;
-	uint32_t key = 51;
-	uint32_t value;
-
-	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
-
-	EXPECT_EQ(ENOENT, error);
-}
-
-TEST_F(HashTableMapLookupTest, CorrectLookup)
+TEST_F(PercpuHashTableMapDeleteTest, CorrectDelete)
 {
 	int error;
 	uint32_t key = 50;
-	uint32_t value;
 
-	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
-
+	error = ebpf_map_delete_elem_from_user(&map, &key);
 	EXPECT_EQ(0, error);
-	EXPECT_EQ(100, value);
 }
 } // namespace

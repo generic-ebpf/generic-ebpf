@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace {
-class HashTableMapGetNextKeyTest : public ::testing::Test {
+class PercpuHashTableMapGetNextKeyTest : public ::testing::Test {
       protected:
 	struct ebpf_map map;
 
@@ -30,7 +30,7 @@ class HashTableMapGetNextKeyTest : public ::testing::Test {
 	}
 };
 
-TEST_F(HashTableMapGetNextKeyTest, GetFirstKey)
+TEST_F(PercpuHashTableMapGetNextKeyTest, GetFirstKey)
 {
 	int error;
 	uint32_t key = 100, value = 200, next_key = 0;
@@ -43,7 +43,7 @@ TEST_F(HashTableMapGetNextKeyTest, GetFirstKey)
 	EXPECT_EQ(100, next_key);
 }
 
-TEST_F(HashTableMapGetNextKeyTest, CorrectGetNextKey)
+TEST_F(PercpuHashTableMapGetNextKeyTest, CorrectGetNextKey)
 {
 	int error;
 	bool discovered[100];

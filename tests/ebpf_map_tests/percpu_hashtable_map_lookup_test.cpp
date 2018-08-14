@@ -8,7 +8,7 @@ extern "C" {
 }
 
 namespace {
-class HashTableMapLookupTest : public ::testing::Test {
+class PercpuHashTableMapLookupTest : public ::testing::Test {
       protected:
 	struct ebpf_map map;
 
@@ -34,7 +34,7 @@ class HashTableMapLookupTest : public ::testing::Test {
 	}
 };
 
-TEST_F(HashTableMapLookupTest, LookupUnexistingEntry)
+TEST_F(PercpuHashTableMapLookupTest, LookupUnexistingEntry)
 {
 	int error;
 	uint32_t key = 51;
@@ -45,15 +45,18 @@ TEST_F(HashTableMapLookupTest, LookupUnexistingEntry)
 	EXPECT_EQ(ENOENT, error);
 }
 
-TEST_F(HashTableMapLookupTest, CorrectLookup)
+TEST_F(PercpuHashTableMapLookupTest, CorrectLookup)
 {
 	int error;
 	uint32_t key = 50;
-	uint32_t value;
+	uint16_t ncpus = sysconf(_SC_NPROCESSORS_ONLN);
+	uint32_t value[ncpus];
 
-	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
-
+	error = ebpf_map_lookup_elem_from_user(&map, &key, value);
 	EXPECT_EQ(0, error);
-	EXPECT_EQ(100, value);
+
+	for (uint32_t i = 0; i < ncpus; i++) {
+		EXPECT_EQ(100, value[i]);
+	}
 }
 } // namespace
