@@ -50,6 +50,7 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_vm.h>
 #include <dev/ebpf/ebpf_prog.h>
+#include <dev/ebpf/ebpf_prog_test.h>
 #include <dev/ebpf/ebpf_map.h>
 
 void *
@@ -276,6 +277,9 @@ EXPORT_SYMBOL(ebpf_map_get_next_key_from_user);
 EXPORT_SYMBOL(ebpf_map_init);
 EXPORT_SYMBOL(ebpf_map_deinit_default);
 EXPORT_SYMBOL(ebpf_map_deinit);
+EXPORT_SYMBOL(ebpf_run_test);
+EXPORT_SYMBOL(ebpf_get_prog_type);
+EXPORT_SYMBOL(ebpf_get_map_type);
 
 module_init(ebpf_init);
 module_exit(ebpf_fini);

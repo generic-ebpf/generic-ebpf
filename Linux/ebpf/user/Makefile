@@ -1,12 +1,15 @@
-TOP_DIR:=../../../sys
-SRC_DIR:=$(TOP_DIR)/dev/ebpf
+BASE=	../../..
+include $(BASE)/Makefile.inc
+
+SRC_DIR:=$(BASE)/sys/dev/ebpf
 
 ebpf-src += $(SRC_DIR)/ebpf_vm.c
 ebpf-src += $(SRC_DIR)/ebpf_loader.c
 ebpf-src += $(SRC_DIR)/ebpf_verifer.c
+ebpf-src += $(SRC_DIR)/ebpf_allocator.c
 ebpf-src += $(SRC_DIR)/ebpf_map.c
 ebpf-src += $(SRC_DIR)/ebpf_prog.c
-ebpf-src += $(SRC_DIR)ebpf_prog_bad.c
+ebpf-src += $(SRC_DIR)/ebpf_prog_bad.c
 ebpf-src += $(SRC_DIR)/ebpf_prog_test.c
 ebpf-src += $(SRC_DIR)/ebpf_map_bad.c
 ebpf-src += $(SRC_DIR)/ebpf_map_array.c
