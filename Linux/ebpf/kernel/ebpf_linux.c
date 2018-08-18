@@ -277,6 +277,8 @@ EXPORT_SYMBOL(ebpf_map_get_next_key_from_user);
 EXPORT_SYMBOL(ebpf_map_init);
 EXPORT_SYMBOL(ebpf_map_deinit_default);
 EXPORT_SYMBOL(ebpf_map_deinit);
+EXPORT_SYMBOL(ebpf_init_prog_types);
+EXPORT_SYMBOL(ebpf_init_map_types);
 EXPORT_SYMBOL(ebpf_run_test);
 EXPORT_SYMBOL(ebpf_get_prog_type);
 EXPORT_SYMBOL(ebpf_get_map_type);
