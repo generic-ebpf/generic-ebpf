@@ -271,7 +271,7 @@ run_benchmark(GBPFDriver *driver, int mapfd, int map_type, int mode,
 int
 main(void)
 {
-	uint16_t type_array, type_hashtable;
+	uint16_t type_hashtable;
 	GBPFDriver *driver;
 
 #ifdef linux
@@ -280,14 +280,12 @@ main(void)
 	if (!driver) {
 		die("gbpf_linux_driver_create");
 	}
-	type_array = BPF_MAP_TYPE_ARRAY;
 	type_hashtable = BPF_MAP_TYPE_HASH;
 #else
 	driver = (GBPFDriver *)ebpf_dev_driver_create();
 	if (!driver) {
 		die("ebpf_dev_driver_create");
 	}
-	type_array = EBPF_MAP_TYPE_ARRAY;
 	type_hashtable = EBPF_MAP_TYPE_HASHTABLE;
 #endif
 #elif defined(__FreeBSD__)
@@ -295,7 +293,6 @@ main(void)
 	if (!driver) {
 		die("ebpf_dev_driver_create");
 	}
-	type_array = EBPF_MAP_TYPE_ARRAY;
 	type_hashtable = EBPF_MAP_TYPE_HASHTABLE;
 #else
 #error Unsupported platform

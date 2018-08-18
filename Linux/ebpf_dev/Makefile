@@ -17,6 +17,7 @@ EXTRA_CFLAGS:= \
 	-I$(CURDIR)/../ebpf/kernel \
 	-Wall \
 	-Wno-declaration-after-statement \
+	-Wno-pointer-to-int-cast \
 	-std=gnu99
 
 EXTRA_SYMBOLS:= \

@@ -35,6 +35,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, GetNextKeyWithMaxKey)
 
 	error = ebpf_map_get_next_key_from_user(&map, &key, &next_key);
 
+	EXPECT_EQ(0, error);
 	EXPECT_EQ(0, next_key);
 }
 
@@ -45,6 +46,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, GetFirstKey)
 
 	error = ebpf_map_get_next_key_from_user(&map, NULL, &next_key);
 
+	EXPECT_EQ(0, error);
 	EXPECT_EQ(0, next_key);
 }
 
@@ -55,6 +57,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, CorrectGetNextKey)
 
 	error = ebpf_map_get_next_key_from_user(&map, &key, &next_key);
 
+	EXPECT_EQ(0, error);
 	EXPECT_EQ(51, next_key);
 }
 } // namespace

@@ -64,6 +64,7 @@ TEST_F(PercpuArrayMapLookupTest, CorrectLookup)
 	uint64_t value[ebpf_ncpus()];
 
 	error = ebpf_map_lookup_elem_from_user(&map, &key, value);
+	EXPECT_EQ(0, error);
 
 	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
 		EXPECT_EQ(100, value[i]);

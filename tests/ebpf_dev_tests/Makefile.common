@@ -7,6 +7,7 @@ CXXFLAGS+= \
 	-Wno-unused-command-line-argument \
 	-Wno-unused-variable \
 	-Wno-unused-function \
+	-Wno-sign-compare \
 	-O0 \
 	$(LDFLAGS)
 LDFLAGS+=-coverage

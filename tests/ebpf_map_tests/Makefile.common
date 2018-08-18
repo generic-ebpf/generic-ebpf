@@ -7,6 +7,7 @@ CXXFLAGS+= \
 	-I $(CKPATH)/include \
 	-Wno-unused-command-line-argument \
 	-Wno-unused-variable \
+	-Wno-sign-compare \
 	-O0 \
 	$(LDFLAGS)
 LDFLAGS+=-coverage

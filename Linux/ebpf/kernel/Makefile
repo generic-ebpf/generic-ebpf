@@ -33,6 +33,7 @@ EXTRA_CFLAGS:= \
 	-std=gnu99
 
 all:
+	- rm -f $(ebpf-objs)
 	make -C $(LINUX_SRC) M=$(CURDIR) EXTRA_CFLAGS='$(EXTRA_CFLAGS)' modules
 
 install:
