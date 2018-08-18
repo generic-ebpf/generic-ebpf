@@ -50,3 +50,5 @@ ${GTESTPATH}/googletest/make/gtest_main.o:
 	cd $(GTESTPATH)/googletest/make && ${MAKE_CMD} gtest_main.o
 ${GTESTPATH}/googletest/make/gtest-all.o:
 	cd $(GTESTPATH)/googletest/make && ${MAKE_CMD} gtest-all.o
+${CKOBJS}:
+	cd $(CKPATH) && ./configure && ${MAKE_CMD}

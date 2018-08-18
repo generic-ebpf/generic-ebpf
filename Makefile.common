@@ -33,7 +33,6 @@ init:
 	rm -rf ${.CURDIR}/extern/ck
 	git submodule init
 	git submodule update
-	cd ${.CURDIR}/extern/ck && ./configure && make
 format::
 	clang-format -i */**/*.{c,h,cpp}
 load::
