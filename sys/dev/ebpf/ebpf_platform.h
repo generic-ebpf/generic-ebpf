@@ -34,7 +34,7 @@
 #ifdef _KERNEL
 #error Kernel space code is not supported
 #else
-#include <ebpf_osx_user.h>
+#include <ebpf_darwin_user.h>
 #endif
 #else
 #error Unsupported platform

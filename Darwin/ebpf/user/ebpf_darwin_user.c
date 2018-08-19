@@ -18,18 +18,9 @@
 
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_prog.h>
+#include <dev/ebpf/ebpf_jhash.h>
 #include <sys/ebpf.h>
-
-/*
- * Define what kind of maps this platform can use.
- * Need to sync with enum ebpf_map_types in <platform>_types.h
- */
-extern struct ebpf_map_ops array_map_ops;
-extern struct ebpf_map_ops hashtable_map_ops;
-
-const struct ebpf_map_ops *ebpf_map_ops[__EBPF_MAP_TYPE_MAX] = {
-    [EBPF_MAP_TYPE_ARRAY] = &array_map_ops,
-    [EBPF_MAP_TYPE_HASHTABLE] = &hashtable_map_ops};
 
 void *
 ebpf_malloc(size_t size)
@@ -41,12 +32,6 @@ void *
 ebpf_calloc(size_t number, size_t size)
 {
 	return calloc(number, size);
-}
-
-void *
-ebpf_realloc(void *ptr, size_t size)
-{
-	return realloc(ptr, size);
 }
 
 void *
@@ -95,6 +80,24 @@ ebpf_assert(bool expr)
 	assert(expr);
 }
 
+uint16_t
+ebpf_ncpus(void)
+{
+	return sysconf(_SC_NPROCESSORS_ONLN);
+}
+
+uint16_t
+ebpf_curcpu(void)
+{
+	return 0; // This makes no sense. Just for testing.
+}
+
+long
+ebpf_getpagesize(void)
+{
+	return sysconf(_SC_PAGESIZE);
+}
+
 void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {
@@ -135,4 +138,97 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 {
 	int error = pthread_rwlock_destroy(rw);
 	assert(!error);
+}
+
+/*
+ * FIXME Below epoch and refcount~ things are just a stub and doesn't work
+ * correctly. In future version, replace them to correct one.
+ */
+
+void
+ebpf_epoch_enter(void)
+{
+	return;
+}
+
+void
+ebpf_epoch_exit(void)
+{
+	return;
+}
+
+void
+ebpf_epoch_call(ebpf_epoch_context_t *ctx,
+		void (*callback)(ebpf_epoch_context_t *))
+{
+	return;
+}
+
+void
+ebpf_epoch_wait(void)
+{
+	return;
+}
+
+void
+ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
+{
+	*count = val;
+}
+
+void
+ebpf_refcount_acquire(volatile uint32_t *count)
+{
+	*count++;
+}
+
+int
+ebpf_refcount_release(volatile uint32_t *count)
+{
+	*count--;
+	if (count == 0) {
+		return 1;
+	}
+	return 0;
+}
+
+void
+ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+{
+	int error = pthread_mutex_init(mutex, NULL);
+	assert(!error);
+}
+
+void
+ebpf_mtx_lock(ebpf_mtx_t *mutex)
+{
+	int error = pthread_mutex_lock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+{
+	int error = pthread_mutex_unlock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+{
+	int error = pthread_mutex_destroy(mutex);
+	assert(!error);
+}
+
+uint32_t
+ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
+{
+  return jenkins_hash(buf, len, hash);
+}
+
+__attribute__((constructor)) void
+ebpf_init(void)
+{
+	ebpf_init_map_types();
+	ebpf_init_prog_types();
 }

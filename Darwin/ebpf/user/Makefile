@@ -1,43 +1,50 @@
-TOP_DIR:=../../../sys
-SRC_DIR:=$(TOP_DIR)/dev/ebpf
+BASE=	../../..
+include $(BASE)/Makefile.inc
 
-ebpf-src += ./ebpf_osx_user.c
-ebpf-src += $(SRC_DIR)/ebpf_vm.c
-ebpf-src += $(SRC_DIR)/ebpf_loader.c
-ebpf-src += $(SRC_DIR)/ebpf_verifer.c
-ebpf-src += $(SRC_DIR)/ebpf_map.c
-ebpf-src += $(SRC_DIR)/ebpf_prog.c
-ebpf-src += $(SRC_DIR)/ebpf_allocator.c
-ebpf-src += $(SRC_DIR)/ebpf_map_bad.c
-ebpf-src += $(SRC_DIR)/ebpf_map_array.c
-ebpf-src += $(SRC_DIR)/ebpf_map_hashtable.c
+SRC_DIR:=	$(BASE)/sys/dev/ebpf
 
-ARCH:=$(shell arch)
-ifeq ($(ARCH), i386)
-	ebpf-src += $(TOP_DIR)/amd64/amd64/ebpf_jit_x86_64.c
+ebpf-objs+=	$(SRC_DIR)/ebpf_allocator.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_loader.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_map.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_map_bad.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_map_array.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_map_hashtable.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_prog.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_prog_bad.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_prog_test.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_verifer.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_vm.o
+ebpf-objs+=	./ebpf_darwin_user.o
+
+ifeq ($(shell arch), i386)
+ebpf-objs+=	$(BASE)/sys/amd64/amd64/ebpf_jit_x86_64.o
 endif
 
-ebpf-objs = $(ebpf-src:%.c=%.o)
+OBJS=	$(CKOBJS) $(ebpf-objs)
 
 CFLAGS += \
 	-Ofast \
 	-fPIC \
 	-I $(SRC_DIR) \
-	-I $(TOP_DIR) \
+	-I $(BASE)/sys \
+	-I $(BASE) \
+	-I $(CKPATH)/include \
 	-I $(CURDIR) \
-	-Wall \
-	-Duser \
 	-Wno-declaration-after-statement \
-	-std=c99
+	-std=gnu99
+LIBS = -lpthread
 
-ifeq ($(COVERAGE), 1)
-	CFLAGS += -coverage
+ifeq ($(COVERAGE), "1")
+CFLAGS+=	-coverage
+LDFLAGS+=	-coverage
 endif
 
 all: libebpf.dylib
 
-libebpf.dylib:
-	$(CC) $(CFLAGS) -shared -o $@ $(ebpf-src) -lpthread
+libebpf.dylib: $(OBJS)
+	$(CC) $(CFLAGS) -shared -o $@ $(OBJS)
 
-clean:
-	rm -f libebpf.dylib $(ebpf-objs)
+install:
+	cp libebpf.dylib $(DESTDIR)
+
+CLEANFILES=▸libebpf.dylib $(OBJS)
