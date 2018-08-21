@@ -45,7 +45,6 @@
  */
 extern void *ebpf_malloc(size_t size);
 extern void *ebpf_calloc(size_t number, size_t size);
-extern void *ebpf_realloc(void *ptr, size_t size);
 extern void ebpf_free(void *mem);
 extern void *ebpf_exalloc(size_t size);
 extern void ebpf_exfree(void *mem, size_t size);

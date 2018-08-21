@@ -1,7 +1,7 @@
 /*-
  * SPDX-License-Identifier: Apache License 2.0
  *
- * Copyright 2017-2018 Yutaro Hayakawa
+ * Copyright 2018 Yutaro Hayakawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 #include <dev/ebpf/ebpf_map.h>
 #include <dev/ebpf/ebpf_prog.h>
 #include <dev/ebpf/ebpf_jhash.h>
+#include <dev/ebpf/ebpf_epoch.h>
 #include <sys/ebpf.h>
 
 void *
@@ -74,12 +75,6 @@ ebpf_error(const char *fmt, ...)
 	return ret;
 }
 
-void
-ebpf_assert(bool expr)
-{
-	assert(expr);
-}
-
 uint16_t
 ebpf_ncpus(void)
 {
@@ -89,13 +84,38 @@ ebpf_ncpus(void)
 uint16_t
 ebpf_curcpu(void)
 {
-	return 0; // This makes no sense. Just for testing.
+	int error;
+	cpuset_t cpus;
+
+	error = pthread_getaffinity_np(pthread_self(), sizeof(cpus), &cpus);
+	ebpf_assert(!error);
+
+	/*
+	 * Return first CPU founded from affinity set.
+	 * If the program pinned the thread to single
+	 * CPU, this function returns pinned CPU.
+	 *
+	 * Note that the epoch never works correctly
+	 * unless the running thread is pinned to
+	 * single CPU.
+	 */
+	for (uint16_t i = 0; i < CPU_MAXSIZE; i++) {
+		if (CPU_ISSET(i, &cpus)) {
+			return i;
+		}
+	}
+
+	/*
+	 * Should not reach to here
+	 */
+	ebpf_assert(false);
+	return 0;
 }
 
 long
 ebpf_getpagesize(void)
 {
-	return sysconf(_SC_PAGESIZE);
+	return sysconf(_SC_PAGE_SIZE);
 }
 
 void
@@ -233,6 +253,21 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 __attribute__((constructor)) void
 ebpf_init(void)
 {
-	ebpf_init_map_types();
+	ebpf_epoch_init();
 	ebpf_init_prog_types();
+	ebpf_init_map_types();
+}
+
+__attribute__((destructor)) void
+ebpf_deinit(void)
+{
+	int error;
+
+	error = ebpf_deinit_map_types();
+	assert(!error);
+
+	error = ebpf_deinit_prog_types();
+	assert(!error);
+
+	ebpf_epoch_deinit();
 }

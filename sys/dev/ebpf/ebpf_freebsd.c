@@ -40,12 +40,6 @@ ebpf_calloc(size_t number, size_t size)
 }
 
 void *
-ebpf_realloc(void *ptr, size_t size)
-{
-	return realloc(ptr, size, M_EBPFBUF, M_NOWAIT);
-}
-
-void *
 ebpf_exalloc(size_t size)
 {
 	return malloc(size, M_EBPFBUF, M_NOWAIT | M_EXEC);
@@ -232,10 +226,26 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 /*
  * Kernel module operations
  */
-static void
-ebpf_fini(void)
+static int
+ebpf_deinit(void)
 {
+	int error;
+
+	error = ebpf_deinit_map_types();
+	if (error) {
+		return error;
+	}
+
+	error = ebpf_deinit_prog_types();
+	if (error) {
+		return error;
+	}
+
+	epoch_free(ebpf_epoch);
+
 	printf("ebpf unloaded\n");
+
+	return 0;
 }
 
 static int
@@ -258,7 +268,7 @@ ebpf_loader(__unused struct module *module, int event, __unused void *arg)
 		error = ebpf_init();
 		break;
 	case MOD_UNLOAD:
-		ebpf_fini();
+		error = ebpf_deinit();
 		break;
 	default:
 		error = EOPNOTSUPP;

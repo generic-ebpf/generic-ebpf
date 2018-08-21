@@ -30,12 +30,6 @@ ebpf_malloc(size_t size)
 }
 
 void *
-ebpf_realloc(void *ptr, size_t size)
-{
-	return realloc(ptr, size);
-}
-
-void *
 ebpf_calloc(size_t number, size_t size)
 {
 	return calloc(number, size);
@@ -167,25 +161,31 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 }
 
 void
-ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
+ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
-	*count = val;
+	*count = value;
 }
 
 void
-ebpf_refcount_acquire(volatile uint32_t *count)
+ebpf_refcount_acquire(uint32_t *count)
 {
-	*count++;
+	ebpf_assert(*count < UINT32_MAX);
+	ck_pr_inc_32(count);
 }
 
 int
-ebpf_refcount_release(volatile uint32_t *count)
+ebpf_refcount_release(uint32_t *count)
 {
-	*count--;
-	if (count == 0) {
-		return 1;
+	uint32_t old;
+
+	old = ck_pr_faa_32(count, -1);
+	ebpf_assert(old > 0);
+
+	if (old > 1) {
+		return 0;
 	}
-	return 0;
+
+	return 1;
 }
 
 void
@@ -261,5 +261,13 @@ ebpf_init(void)
 __attribute__((destructor)) void
 ebpf_deinit(void)
 {
+	int error;
+
+	error = ebpf_deinit_map_types();
+	assert(!error);
+
+	error = ebpf_deinit_prog_types();
+	assert(!error);
+
 	ebpf_epoch_deinit();
 }
