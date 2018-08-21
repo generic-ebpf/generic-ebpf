@@ -558,14 +558,19 @@ ebpf_ioc_get_map_type_info(union ebpf_req *req)
 		return ENOMEM;
 	}
 
-	struct ebpf_map_type *type = ebpf_get_map_type(req->mt_id);
-	ebpf_assert(type);
+	struct ebpf_map_type *type;
+	error = ebpf_acquire_map_type(req->mt_id, &type);
+	if (error) {
+		return error;
+	}
 
 	memcpy(info->name, type->name, EBPF_NAME_MAX);
 	memcpy(info->description, type->description, EBPF_DESC_MAX);
 
 	error = ebpf_copyout(info, req->mt_info, sizeof(*info));
 	ebpf_free(info);
+
+	ebpf_release_map_type(req->mt_id);
 
 	return error;
 }
@@ -583,14 +588,19 @@ ebpf_ioc_get_prog_type_info(union ebpf_req *req)
 		return ENOMEM;
 	}
 
-	struct ebpf_prog_type *type = ebpf_get_prog_type(req->pt_id);
-	ebpf_assert(type);
+	struct ebpf_prog_type *type;
+	error = ebpf_acquire_prog_type(req->pt_id, &type);
+	if (error) {
+		return error;
+	}
 
 	memcpy(info->name, type->name, EBPF_NAME_MAX);
 	memcpy(info->description, type->description, EBPF_DESC_MAX);
 
 	error = ebpf_copyout(info, req->pt_info, sizeof(*info));
 	ebpf_free(info);
+
+	ebpf_release_prog_type(req->pt_id);
 
 	return error;
 }

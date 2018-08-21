@@ -30,13 +30,17 @@ struct ebpf_prog {
 };
 
 struct ebpf_prog_type {
+	uint32_t refcount;
 	char name[EBPF_NAME_MAX];
 	char description[EBPF_DESC_MAX];
 };
 
 void ebpf_init_prog_types(void);
+int ebpf_deinit_prog_types(void);
+int ebpf_acquire_prog_type(uint16_t id, struct ebpf_prog_type **typep);
+void ebpf_release_prog_type(uint16_t id);
 int ebpf_register_prog_type(struct ebpf_prog_type *type);
-struct ebpf_prog_type *ebpf_get_prog_type(uint16_t id);
+int ebpf_unregister_prog_type(struct ebpf_prog_type *type);
 int ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
 		   struct ebpf_inst *prog, uint32_t prog_len);
 void ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg);
