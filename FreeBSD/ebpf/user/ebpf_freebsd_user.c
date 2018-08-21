@@ -19,6 +19,7 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
 #include <dev/ebpf/ebpf_prog.h>
+#include <dev/ebpf/ebpf_jhash.h>
 #include <dev/ebpf/ebpf_epoch.h>
 #include <sys/ebpf.h>
 
@@ -213,6 +214,12 @@ ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
 	assert(!error);
+}
+
+uint32_t
+ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
+{
+  return jenkins_hash(buf, len, hash);
 }
 
 __attribute__((constructor)) void
