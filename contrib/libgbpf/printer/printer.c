@@ -19,7 +19,7 @@ void
 printer_on_map(GBPFElfWalker *walker, const char *name, int desc,
 	       struct ebpf_map_def *map)
 {
-	printf("Find Map!\nname: %s desc: %d type: %d key_size: %u value_size: "
+	printf("Find Map!\nname: %s desc: %d type: %s key_size: %u value_size: "
 	       "%u max_entries: %u\n",
 	       name, desc, map->type, map->key_size, map->value_size,
 	       map->max_entries);

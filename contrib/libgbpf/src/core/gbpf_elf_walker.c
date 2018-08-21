@@ -94,7 +94,7 @@ resolve_relocations(struct elf_refs *refs)
 			    (struct ebpf_map_def *)(mapdata + sym.st_value);
 
 			D("Found map relocation entry. It's definition is\n"
-			  "  Type: %u KeySize: %u ValueSize: %u MaxEntries: %u "
+			  "  Type: %s KeySize: %u ValueSize: %u MaxEntries: %u "
 			  "Flags: %u",
 			  map_def->type, map_def->key_size, map_def->value_size,
 			  map_def->max_entries, map_def->flags);
@@ -102,9 +102,16 @@ resolve_relocations(struct elf_refs *refs)
 			int found =
 			    find_map_entry(discovered_maps, num_maps, symname);
 			if (!found) {
+				int32_t type_id =
+					refs->driver->get_map_type_by_name(refs->driver,
+							map_def->type);
+				if (type_id < 0) {
+					return -1;
+				}
+
 				if (num_maps != EBPF_PROG_MAX_ATTACHED_MAPS) {
 					map_desc = refs->driver->map_create(
-					    refs->driver, map_def->type,
+					    refs->driver, type_id,
 					    map_def->key_size,
 					    map_def->value_size,
 					    map_def->max_entries,

@@ -23,7 +23,7 @@
 #define SECTION(name) __attribute__((section(name)))
 
 struct ebpf_map_def {
-	uint32_t type;
+	char type[EBPF_NAME_MAX];
 	uint32_t key_size;
 	uint32_t value_size;
 	uint32_t max_entries;
@@ -33,7 +33,7 @@ struct ebpf_map_def {
 #define EBPF_DEFINE_MAP(_name, _type, _key_size, _value_size, _max_entries,    \
 			_flags)                                                \
 	SECTION("maps")                                                        \
-	struct ebpf_map_def _name = {.type = EBPF_MAP_TYPE_##_type,            \
+	struct ebpf_map_def _name = {.type = _type,            \
 				     .key_size = _key_size,                    \
 				     .value_size = _value_size,                \
 				     .max_entries = _max_entries,              \

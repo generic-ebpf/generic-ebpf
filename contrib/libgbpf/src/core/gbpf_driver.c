@@ -59,6 +59,18 @@ gbpf_map_get_next_key(GBPFDriver *driver, int map_desc, void *key,
 	return driver->map_get_next_key(driver, map_desc, key, next_key);
 }
 
+int32_t
+gbpf_get_map_type_by_name(GBPFDriver *driver, const char *name)
+{
+	return driver->get_map_type_by_name(driver, name);
+}
+
+int32_t
+gbpf_get_prog_type_by_name(GBPFDriver *driver, const char *name)
+{
+	return driver->get_prog_type_by_name(driver, name);
+}
+
 void
 gbpf_close_prog_desc(GBPFDriver *driver, int prog_desc)
 {

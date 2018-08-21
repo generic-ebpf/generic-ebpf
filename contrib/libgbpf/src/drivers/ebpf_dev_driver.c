@@ -18,6 +18,7 @@
 
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/ioctl.h>
@@ -123,6 +124,54 @@ ebpf_dev_map_get_next_key(GBPFDriver *self, int map_desc, void *key,
 	return ioctl(driver->ebpf_fd, EBPFIOC_MAP_GET_NEXT_KEY, &req);
 }
 
+static int32_t
+ebpf_dev_get_map_type_by_name(GBPFDriver *self, const char *name)
+{
+	int error;
+	EBPFDevDriver *driver = (EBPFDevDriver *)self;
+	struct ebpf_map_type_info info;
+	union ebpf_req req;
+
+	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+		req.mt_id = i;
+		req.mt_info = &info;
+		error = ioctl(driver->ebpf_fd, EBPFIOC_GET_MAP_TYPE_INFO, &req);
+		if (error) {
+			return -1;
+		}
+
+		if (strcmp(name, info.name) == 0) {
+			return i;
+		}
+	}
+
+	return -1;
+}
+
+static int32_t
+ebpf_dev_get_prog_type_by_name(GBPFDriver *self, const char *name)
+{
+	int error;
+	EBPFDevDriver *driver = (EBPFDevDriver *)self;
+	struct ebpf_prog_type_info info;
+	union ebpf_req req;
+
+	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
+		req.pt_id = i;
+		req.pt_info = &info;
+		error = ioctl(driver->ebpf_fd, EBPFIOC_GET_MAP_TYPE_INFO, &req);
+		if (error) {
+			return -1;
+		}
+
+		if (strcmp(name, info.name) == 0) {
+			return (int32_t)i;
+		}
+	}
+
+	return -1;
+}
+
 static void
 ebpf_dev_close_prog_desc(GBPFDriver *self, int prog_desc)
 {
@@ -155,6 +204,8 @@ ebpf_dev_driver_create(void)
 	driver->base.map_lookup_elem = ebpf_dev_map_lookup_elem;
 	driver->base.map_delete_elem = ebpf_dev_map_delete_elem;
 	driver->base.map_get_next_key = ebpf_dev_map_get_next_key;
+	driver->base.get_map_type_by_name = ebpf_dev_get_map_type_by_name;
+	driver->base.get_prog_type_by_name = ebpf_dev_get_prog_type_by_name;
 	driver->base.close_prog_desc = ebpf_dev_close_prog_desc;
 	driver->base.close_map_desc = ebpf_dev_close_map_desc;
 
