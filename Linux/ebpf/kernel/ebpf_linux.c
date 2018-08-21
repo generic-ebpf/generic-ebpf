@@ -191,25 +191,67 @@ ebpf_epoch_wait(void)
 void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
-  raw_spin_lock_init(mutex);
+	mutex_init(mutex);
 }
 
 void
 ebpf_mtx_lock(ebpf_mtx_t *mutex)
 {
-  raw_spin_lock(mutex);
+	mutex_lock(mutex);
 }
 
 void
 ebpf_mtx_unlock(ebpf_mtx_t *mutex)
 {
-  raw_spin_unlock(mutex);
+	mutex_unlock(mutex);
 }
 
 void
 ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+{
+	mtx_destroy(mutex);
+}
+
+void
+ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+{
+  raw_spin_lock_init(mutex);
+}
+
+void
+ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+{
+  raw_spin_lock(mutex);
+}
+
+void
+ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+{
+  raw_spin_unlock(mutex);
+}
+
+void
+ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
 { 
   return;
+}
+
+void
+ebpf_refcount_init(uint32_t *count, uint32_t value)
+{
+	atomic_set(count, value);
+}
+
+void
+ebpf_refcount_acquire(uint32_t *count)
+{
+	atomic_inc(count);
+}
+
+int
+ebpf_refcount_release(uint32_t *count)
+{
+	return atomic_sub_and_test(1, count);
 }
 
 uint32_t

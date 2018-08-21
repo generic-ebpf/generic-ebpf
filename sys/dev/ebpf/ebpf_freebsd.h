@@ -47,6 +47,7 @@
 typedef struct rwlock ebpf_rwlock_t;
 typedef struct epoch_context ebpf_epoch_context_t;
 typedef struct mtx ebpf_mtx_t;
+typedef struct mtx ebpf_spinmtx_t;
 
 #define ebpf_assert(expr) KASSERT(expr, "")
 

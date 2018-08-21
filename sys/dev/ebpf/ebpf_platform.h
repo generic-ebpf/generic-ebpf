@@ -68,7 +68,14 @@ extern void ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name);
 extern void ebpf_mtx_lock(ebpf_mtx_t *mutex);
 extern void ebpf_mtx_unlock(ebpf_mtx_t *mutex);
 extern void ebpf_mtx_destroy(ebpf_mtx_t *mutex);
+extern void ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name);
+extern void ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex);
+extern void ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex);
+extern void ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex);
 extern uint32_t ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash);
+extern void ebpf_refcount_init(uint32_t *count, uint32_t value);
+extern void ebpf_refcount_acquire(uint32_t *count);
+extern int ebpf_refcount_release(uint32_t *count);
 
 /*
  * Prototypes of basic map types

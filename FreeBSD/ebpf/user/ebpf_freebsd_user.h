@@ -37,10 +37,12 @@
 #include <pthread_np.h>
 #include <ck_queue.h>
 #include <ck_epoch.h>
+#include <ck_pr.h>
 
 typedef pthread_rwlock_t ebpf_rwlock_t;
 typedef ck_epoch_entry_t ebpf_epoch_context_t;
 typedef pthread_mutex_t ebpf_mtx_t;
+typedef pthread_spinlock_t ebpf_spinmtx_t;
 
 #define ebpf_assert(expr) assert(expr)
 

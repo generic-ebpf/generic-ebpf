@@ -35,7 +35,7 @@ struct hash_elem {
 
 struct hash_bucket {
 	EBPF_EPOCH_LIST_HEAD(, hash_elem) head;
-	ebpf_mtx_t lock;
+	ebpf_spinmtx_t lock;
 };
 
 struct ebpf_map_hashtable {
@@ -54,8 +54,8 @@ struct ebpf_map_hashtable {
 	 (_hash_mapp)->value_size * (_cpuid))
 #define HASH_ELEM_CURCPU_VALUE(_hash_mapp, _elemp)                             \
 	HASH_ELEM_PERCPU_VALUE(_hash_mapp, _elemp, ebpf_curcpu())
-#define HASH_BUCKET_LOCK(_bucketp) ebpf_mtx_lock(&_bucketp->lock);
-#define HASH_BUCKET_UNLOCK(_bucketp) ebpf_mtx_unlock(&_bucketp->lock);
+#define HASH_BUCKET_LOCK(_bucketp) ebpf_spinmtx_lock(&_bucketp->lock);
+#define HASH_BUCKET_UNLOCK(_bucketp) ebpf_spinmtx_unlock(&_bucketp->lock);
 
 static struct hash_bucket *
 get_hash_bucket(struct ebpf_map_hashtable *hash_map, uint32_t hash)
@@ -194,7 +194,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
 		EBPF_EPOCH_LIST_INIT(&hash_map->buckets[i].head);
-		ebpf_mtx_init(&hash_map->buckets[i].lock,
+		ebpf_spinmtx_init(&hash_map->buckets[i].lock,
 			      "ebpf_hashtable_map bucket lock");
 	}
 
@@ -284,7 +284,7 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 			      map->percpu ? hash_map : NULL);
 
 	for (uint32_t i = 0; i < hash_map->nbuckets; i++) {
-		ebpf_mtx_destroy(&hash_map->buckets[i].lock);
+		ebpf_spinmtx_destroy(&hash_map->buckets[i].lock);
 	}
 
 	if (!map->percpu) {

@@ -33,10 +33,15 @@
 #include <unistd.h>
 #include <pthread.h>
 #include <ck_queue.h>
+#include <ck_epoch.h>
+#include <ck_pr.h>
 
 typedef pthread_rwlock_t ebpf_rwlock_t;
 typedef void *ebpf_epoch_context_t;
 typedef pthread_mutex_t ebpf_mtx_t;
+typedef pthread_spinlock_t ebpf_spinmtx_t;
+
+#define ebpf_assert(expr) assert(expr)
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) CK_LIST_ENTRY(_type)
 #define EBPF_EPOCH_LIST_EMPTY(_type) CK_LIST_EMPTY(_type)

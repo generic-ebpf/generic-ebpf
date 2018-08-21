@@ -216,6 +216,34 @@ ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 	assert(!error);
 }
 
+void
+ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+{
+	int error = pthread_spin_init(mutex, 0);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+{
+	int error = pthread_spin_lock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+{
+	int error = pthread_spin_unlock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+{
+	int error = pthread_spin_destroy(mutex);
+	assert(!error);
+}
+
 uint32_t
 ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 {

@@ -140,56 +140,32 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 	assert(!error);
 }
 
-/*
- * FIXME Below epoch and refcount~ things are just a stub and doesn't work
- * correctly. In future version, replace them to correct one.
- */
-
 void
-ebpf_epoch_enter(void)
+ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
-	return;
+	*count = value;
 }
 
 void
-ebpf_epoch_exit(void)
+ebpf_refcount_acquire(uint32_t *count)
 {
-	return;
-}
-
-void
-ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-		void (*callback)(ebpf_epoch_context_t *))
-{
-	return;
-}
-
-void
-ebpf_epoch_wait(void)
-{
-	return;
-}
-
-void
-ebpf_refcount_init(volatile uint32_t *count, uint32_t val)
-{
-	*count = val;
-}
-
-void
-ebpf_refcount_acquire(volatile uint32_t *count)
-{
-	*count++;
+	ebpf_assert(*count < UINT32_MAX);
+	ck_pr_inc_32(count);
 }
 
 int
-ebpf_refcount_release(volatile uint32_t *count)
+ebpf_refcount_release(uint32_t *count)
 {
-	*count--;
-	if (count == 0) {
-		return 1;
+	uint32_t old;
+
+	old = ck_pr_faa_32(count, -1);
+	ebpf_assert(old > 0);
+
+	if (old > 1) {
+		return 0;
 	}
-	return 0;
+
+	return 1;
 }
 
 void
@@ -217,6 +193,34 @@ void
 ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+{
+	int error = pthread_spin_init(mutex, 0);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+{
+	int error = pthread_spin_lock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+{
+	int error = pthread_spin_unlock(mutex);
+	assert(!error);
+}
+
+void
+ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+{
+	int error = pthread_spin_destroy(mutex);
 	assert(!error);
 }
 

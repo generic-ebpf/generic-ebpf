@@ -160,25 +160,67 @@ ebpf_epoch_wait(void)
 void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
-	mtx_init(mutex, name, NULL, MTX_SPIN);
+	mtx_init(mutex, name, NULL, MTX_DEF);
 }
 
 void
 ebpf_mtx_lock(ebpf_mtx_t *mutex)
 {
-	mtx_lock_spin(mutex);
+	mtx_lock(mutex);
 }
 
 void
 ebpf_mtx_unlock(ebpf_mtx_t *mutex)
 {
-	mtx_unlock_spin(mutex);
+	mtx_unlock(mutex);
 }
 
 void
 ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 {
 	mtx_destroy(mutex);
+}
+
+void
+ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+{
+	mtx_init(mutex, name, NULL, MTX_SPIN);
+}
+
+void
+ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+{
+	mtx_lock_spin(mutex);
+}
+
+void
+ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+{
+	mtx_unlock_spin(mutex);
+}
+
+void
+ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+{
+	mtx_destroy(mutex);
+}
+
+void
+ebpf_refcount_init(uint32_t *count, uint32_t value)
+{
+	refcount_init(count, value);
+}
+
+void
+ebpf_refcount_acquire(uint32_t *count)
+{
+	refcount_acquire(count);
+}
+
+int
+ebpf_refcount_release(uint32_t *count)
+{
+	return refcount_release(count);
 }
 
 uint32_t

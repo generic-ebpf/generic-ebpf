@@ -39,7 +39,7 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
 	alloc->nblocks = nblocks;
 	alloc->block_size = block_size;
 	alloc->count = nblocks;
-	ebpf_mtx_init(&alloc->lock, "ebpf_allocator lock");
+	ebpf_spinmtx_init(&alloc->lock, "ebpf_allocator lock");
 	return ebpf_allocator_prealloc(alloc, nblocks, ctor, arg);
 }
 
@@ -72,7 +72,7 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc, void (*dtor)(void *, void *),
 		}
 	}
 
-	ebpf_mtx_destroy(&alloc->lock);
+	ebpf_spinmtx_destroy(&alloc->lock);
 }
 
 static int
@@ -140,13 +140,13 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 {
 	void *ret = NULL;
 
-	ebpf_mtx_lock(&alloc->lock);
+	ebpf_spinmtx_lock(&alloc->lock);
 	if (alloc->count > 0) {
 		ret = SLIST_FIRST(&alloc->free_block);
 		SLIST_REMOVE_HEAD(&alloc->free_block, entry);
 		alloc->count--;
 	}
-	ebpf_mtx_unlock(&alloc->lock);
+	ebpf_spinmtx_unlock(&alloc->lock);
 
 	return ret;
 }
@@ -154,9 +154,9 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 void
 ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
 {
-	ebpf_mtx_lock(&alloc->lock);
+	ebpf_spinmtx_lock(&alloc->lock);
 	SLIST_INSERT_HEAD(&alloc->free_block, (ebpf_allocator_entry_t *)ptr,
 			  entry);
 	alloc->count++;
-	ebpf_mtx_unlock(&alloc->lock);
+	ebpf_spinmtx_unlock(&alloc->lock);
 }
