@@ -27,31 +27,31 @@ MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");
 /*
  * Platform dependent function implementations
  */
-void *
+__inline void *
 ebpf_malloc(size_t size)
 {
 	return malloc(size, M_EBPFBUF, M_NOWAIT);
 }
 
-void *
+__inline void *
 ebpf_calloc(size_t number, size_t size)
 {
 	return malloc(number * size, M_EBPFBUF, M_NOWAIT | M_ZERO);
 }
 
-void *
+__inline void *
 ebpf_exalloc(size_t size)
 {
 	return malloc(size, M_EBPFBUF, M_NOWAIT | M_EXEC);
 }
 
-void
+__inline void
 ebpf_exfree(void *mem, size_t size)
 {
 	free(mem, M_EBPFBUF);
 }
 
-void
+__inline void
 ebpf_free(void *mem)
 {
 	free(mem, M_EBPFBUF);
@@ -70,55 +70,55 @@ ebpf_error(const char *fmt, ...)
 	return ret;
 }
 
-uint16_t
+__inline uint16_t
 ebpf_ncpus(void)
 {
 	return mp_maxid + 1;
 }
 
-uint16_t
+__inline uint16_t
 ebpf_curcpu(void)
 {
 	return curcpu;
 }
 
-long
+__inline long
 ebpf_getpagesize(void)
 {
 	return PAGE_SIZE;
 }
 
-void
+__inline void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {
 	rw_init(rw, name);
 }
 
-void
+__inline void
 ebpf_rw_rlock(ebpf_rwlock_t *rw)
 {
 	rw_rlock(rw);
 }
 
-void
+__inline void
 ebpf_rw_runlock(ebpf_rwlock_t *rw)
 {
 	rw_runlock(rw);
 }
 
-void
+__inline void
 ebpf_rw_wlock(ebpf_rwlock_t *rw)
 {
 	rw_wlock(rw);
 }
 
-void
+__inline void
 ebpf_rw_wunlock(ebpf_rwlock_t *rw)
 {
 	rw_wunlock(rw);
 }
 
-void
+__inline void
 ebpf_rw_destroy(ebpf_rwlock_t *rw)
 {
 	rw_destroy(rw);
@@ -126,98 +126,98 @@ ebpf_rw_destroy(ebpf_rwlock_t *rw)
 
 static epoch_t ebpf_epoch;
 
-void
+__inline void
 ebpf_epoch_enter(void)
 {
 	epoch_enter(ebpf_epoch);
 }
 
-void
+__inline void
 ebpf_epoch_exit(void)
 {
 	epoch_exit(ebpf_epoch);
 }
 
-void
+__inline void
 ebpf_epoch_call(ebpf_epoch_context_t *ctx,
 		void (*callback)(ebpf_epoch_context_t *))
 {
 	epoch_call(ebpf_epoch, ctx, callback);
 }
 
-void
+__inline void
 ebpf_epoch_wait(void)
 {
 	epoch_wait(ebpf_epoch);
 }
 
-void
+__inline void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
 	mtx_init(mutex, name, NULL, MTX_DEF);
 }
 
-void
+__inline void
 ebpf_mtx_lock(ebpf_mtx_t *mutex)
 {
 	mtx_lock(mutex);
 }
 
-void
+__inline void
 ebpf_mtx_unlock(ebpf_mtx_t *mutex)
 {
 	mtx_unlock(mutex);
 }
 
-void
+__inline void
 ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 {
 	mtx_destroy(mutex);
 }
 
-void
+__inline void
 ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
 {
 	mtx_init(mutex, name, NULL, MTX_SPIN);
 }
 
-void
+__inline void
 ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
 {
 	mtx_lock_spin(mutex);
 }
 
-void
+__inline void
 ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
 {
 	mtx_unlock_spin(mutex);
 }
 
-void
+__inline void
 ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
 {
 	mtx_destroy(mutex);
 }
 
-void
+__inline void
 ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
 	refcount_init(count, value);
 }
 
-void
+__inline void
 ebpf_refcount_acquire(uint32_t *count)
 {
 	refcount_acquire(count);
 }
 
-int
+__inline int
 ebpf_refcount_release(uint32_t *count)
 {
 	return refcount_release(count);
 }
 
-uint32_t
+__inline uint32_t
 ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 {
 	return jenkins_hash(buf, len, hash);

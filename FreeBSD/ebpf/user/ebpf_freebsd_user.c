@@ -23,19 +23,21 @@
 #include <dev/ebpf/ebpf_epoch.h>
 #include <sys/ebpf.h>
 
-void *
+#define __inline __attribute__((always_inline))
+
+__inline void *
 ebpf_malloc(size_t size)
 {
 	return malloc(size);
 }
 
-void *
+__inline void *
 ebpf_calloc(size_t number, size_t size)
 {
 	return calloc(number, size);
 }
 
-void *
+__inline void *
 ebpf_exalloc(size_t size)
 {
 	void *ret = NULL;
@@ -50,13 +52,13 @@ ebpf_exalloc(size_t size)
 	return ret;
 }
 
-void
+__inline void
 ebpf_exfree(void *mem, size_t size)
 {
 	munmap(mem, size);
 }
 
-void
+__inline void
 ebpf_free(void *mem)
 {
 	free(mem);
@@ -75,13 +77,13 @@ ebpf_error(const char *fmt, ...)
 	return ret;
 }
 
-uint16_t
+__inline uint16_t
 ebpf_ncpus(void)
 {
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
-uint16_t
+__inline uint16_t
 ebpf_curcpu(void)
 {
 	int error;
@@ -112,68 +114,68 @@ ebpf_curcpu(void)
 	return 0;
 }
 
-long
+__inline long
 ebpf_getpagesize(void)
 {
 	return sysconf(_SC_PAGE_SIZE);
 }
 
-void
+__inline void
 ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
 {
 	int error = pthread_rwlock_init(rw, NULL);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_rw_rlock(ebpf_rwlock_t *rw)
 {
 	int error = pthread_rwlock_rdlock(rw);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_rw_runlock(ebpf_rwlock_t *rw)
 {
 	int error = pthread_rwlock_unlock(rw);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_rw_wlock(ebpf_rwlock_t *rw)
 {
 	int error = pthread_rwlock_wrlock(rw);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_rw_wunlock(ebpf_rwlock_t *rw)
 {
 	int error = pthread_rwlock_unlock(rw);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_rw_destroy(ebpf_rwlock_t *rw)
 {
 	int error = pthread_rwlock_destroy(rw);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
 	*count = value;
 }
 
-void
+__inline void
 ebpf_refcount_acquire(uint32_t *count)
 {
 	ebpf_assert(*count < UINT32_MAX);
 	ck_pr_inc_32(count);
 }
 
-int
+__inline int
 ebpf_refcount_release(uint32_t *count)
 {
 	uint32_t old;
@@ -188,63 +190,63 @@ ebpf_refcount_release(uint32_t *count)
 	return 1;
 }
 
-void
+__inline void
 ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
 {
 	int error = pthread_mutex_init(mutex, NULL);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_mtx_lock(ebpf_mtx_t *mutex)
 {
 	int error = pthread_mutex_lock(mutex);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_mtx_unlock(ebpf_mtx_t *mutex)
 {
 	int error = pthread_mutex_unlock(mutex);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_mtx_destroy(ebpf_mtx_t *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
 {
 	int error = pthread_spin_init(mutex, 0);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
 {
 	int error = pthread_spin_lock(mutex);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
 {
 	int error = pthread_spin_unlock(mutex);
 	assert(!error);
 }
 
-void
+__inline void
 ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
 {
 	int error = pthread_spin_destroy(mutex);
 	assert(!error);
 }
 
-uint32_t
+__inline uint32_t
 ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 {
   return jenkins_hash(buf, len, hash);
