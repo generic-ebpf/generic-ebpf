@@ -41,7 +41,7 @@ union ebpf_req {
 	// Attribute of EBPFIOC_MAP_CREATE
 	struct {
 		int *map_fdp;
-		uint32_t map_type;
+		uint16_t map_type;
 		uint32_t key_size;
 		uint32_t value_size;
 		uint32_t max_entries;
