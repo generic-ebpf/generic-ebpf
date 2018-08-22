@@ -24,28 +24,7 @@
 #include <sys/ebpf_vm.h>
 #include <sys/ebpf_dev.h>
 
-/*
- * Don't make functions static for now, because we want to see it by tracing
- * tools
- * like DTrace.
- *
- * TODO Make them static
- */
-void ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg);
-void ebpf_dev_map_deinit(struct ebpf_map *self, void *arg);
-int ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td);
-int ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td);
-int ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td);
-int ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td);
-int ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td);
-int ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td);
-int ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td);
-void test_vm_attach_func(struct ebpf_vm *vm);
-int ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td);
-int ebpf_ioc_get_map_type_info(union ebpf_req *req);
-int ebpf_ioc_get_prog_type_info(union ebpf_req *req);
-
-void
+static void
 ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
 {
 	struct ebpf_obj_prog *prog = (struct ebpf_obj_prog *)self;
@@ -53,7 +32,7 @@ ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
 	ebpf_fdrop(prog->obj.f, td);
 }
 
-void
+static void
 ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
 {
 	struct ebpf_obj_map *map = (struct ebpf_obj_map *)self;
@@ -61,7 +40,7 @@ ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
 	ebpf_fdrop(map->obj.f, td);
 }
 
-int
+static int
 ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td)
 {
 	int error;
@@ -145,7 +124,7 @@ err0:
 	return error;
 }
 
-int
+static int
 ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -219,7 +198,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 	return 0;
 }
 
-int
+static int
 ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -267,7 +246,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 	return 0;
 }
 
-int
+static int
 ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -336,7 +315,7 @@ err0:
 	return error;
 }
 
-int
+static int
 ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -399,7 +378,7 @@ err0:
 	return error;
 }
 
-int
+static int
 ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -440,7 +419,7 @@ err0:
 	return error;
 }
 
-int
+static int
 ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -501,7 +480,7 @@ err0:
 	return error;
 }
 
-int
+static int
 ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
 {
 	int error;
@@ -545,7 +524,7 @@ err0:
 	return error;
 }
 
-int
+static int
 ebpf_ioc_get_map_type_info(union ebpf_req *req)
 {
 	int error;
@@ -575,7 +554,7 @@ ebpf_ioc_get_map_type_info(union ebpf_req *req)
 	return error;
 }
 
-int
+static int
 ebpf_ioc_get_prog_type_info(union ebpf_req *req)
 {
 	int error;
