@@ -19,7 +19,7 @@ class PercpuHashTableMapLookupTest : public ::testing::Test {
 		uint32_t gkey = 50, gval = 100;
 
 		error =
-		    ebpf_map_init(&map, EBPF_MAP_TYPE_HASHTABLE,
+		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPU_HASHTABLE,
 				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 
