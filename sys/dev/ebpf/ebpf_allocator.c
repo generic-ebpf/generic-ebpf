@@ -27,11 +27,11 @@
  * time.
  */
 
-static int ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
+static int ebpf_allocator_prealloc(struct ebpf_allocator *alloc, uint32_t nblocks,
 				   int (*ctor)(void *, void *), void *arg);
 
 int
-ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
+ebpf_allocator_init(struct ebpf_allocator *alloc, uint32_t block_size,
 		    uint32_t nblocks, int (*ctor)(void *, void *), void *arg)
 {
 	SLIST_INIT(&alloc->free_block);
@@ -50,10 +50,10 @@ ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
  * allocator before calling this function.
  */
 void
-ebpf_allocator_deinit(ebpf_allocator_t *alloc, void (*dtor)(void *, void *),
+ebpf_allocator_deinit(struct ebpf_allocator *alloc, void (*dtor)(void *, void *),
 		      void *arg)
 {
-	ebpf_allocator_entry_t *tmp;
+	struct ebpf_allocator_entry *tmp;
 
 	ebpf_assert(alloc->count == alloc->nblocks);
 
@@ -76,7 +76,7 @@ ebpf_allocator_deinit(ebpf_allocator_t *alloc, void (*dtor)(void *, void *),
 }
 
 static int
-ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
+ebpf_allocator_prealloc(struct ebpf_allocator *alloc, uint32_t nblocks,
 			int (*ctor)(void *, void *), void *arg)
 {
 	uint32_t count = 0;
@@ -85,7 +85,7 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 	while (true) {
 		uint32_t size;
 		uint8_t *data;
-		ebpf_allocator_entry_t *segment;
+		struct ebpf_allocator_entry *segment;
 
 		size = ebpf_getpagesize();
 
@@ -99,7 +99,7 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 		if (data == NULL) {
 			return ENOMEM;
 		}
-		segment = (ebpf_allocator_entry_t *)data;
+		segment = (struct ebpf_allocator_entry *)data;
 		SLIST_INSERT_HEAD(&alloc->used_segment, segment, entry);
 		data += sizeof(*segment);
 		size -= sizeof(*segment);
@@ -121,7 +121,7 @@ ebpf_allocator_prealloc(ebpf_allocator_t *alloc, uint32_t nblocks,
 				}
 			}
 			SLIST_INSERT_HEAD(&alloc->free_block,
-					  (ebpf_allocator_entry_t *)data,
+					  (struct ebpf_allocator_entry *)data,
 					  entry);
 			data += alloc->block_size;
 			size -= alloc->block_size;
@@ -136,7 +136,7 @@ finish:
 }
 
 void *
-ebpf_allocator_alloc(ebpf_allocator_t *alloc)
+ebpf_allocator_alloc(struct ebpf_allocator *alloc)
 {
 	void *ret = NULL;
 
@@ -152,11 +152,11 @@ ebpf_allocator_alloc(ebpf_allocator_t *alloc)
 }
 
 void
-ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr)
+ebpf_allocator_free(struct ebpf_allocator *alloc, void *ptr)
 {
 	ebpf_spinmtx_lock(&alloc->lock);
-	SLIST_INSERT_HEAD(&alloc->free_block, (ebpf_allocator_entry_t *)ptr,
-			  entry);
+	SLIST_INSERT_HEAD(&alloc->free_block,
+			(struct ebpf_allocator_entry *)ptr, entry);
 	alloc->count++;
 	ebpf_spinmtx_unlock(&alloc->lock);
 }

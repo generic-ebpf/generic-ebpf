@@ -21,23 +21,23 @@
 #include "ebpf_platform.h"
 #include "ebpf_queue.h"
 
-typedef struct ebpf_allocator_entry_s {
-	SLIST_ENTRY(ebpf_allocator_entry_s) entry;
-} ebpf_allocator_entry_t;
+struct ebpf_allocator_entry {
+	SLIST_ENTRY(ebpf_allocator_entry) entry;
+};
 
-typedef struct ebpf_allocator_s {
-	SLIST_HEAD(, ebpf_allocator_entry_s) free_block;
-	SLIST_HEAD(, ebpf_allocator_entry_s) used_segment;
+struct ebpf_allocator {
+	SLIST_HEAD(, ebpf_allocator_entry) free_block;
+	SLIST_HEAD(, ebpf_allocator_entry) used_segment;
 	ebpf_spinmtx_t lock;
 	uint32_t nblocks;
 	uint32_t block_size;
 	uint32_t count;
-} ebpf_allocator_t;
+};
 
-int ebpf_allocator_init(ebpf_allocator_t *alloc, uint32_t block_size,
+int ebpf_allocator_init(struct ebpf_allocator *alloc, uint32_t block_size,
 			uint32_t nblocks, int (*ctor)(void *, void *),
 			void *arg);
-void ebpf_allocator_deinit(ebpf_allocator_t *alloc,
+void ebpf_allocator_deinit(struct ebpf_allocator *alloc,
 			   void (*dtor)(void *, void *), void *arg);
-void *ebpf_allocator_alloc(ebpf_allocator_t *alloc);
-void ebpf_allocator_free(ebpf_allocator_t *alloc, void *ptr);
+void *ebpf_allocator_alloc(struct ebpf_allocator *alloc);
+void ebpf_allocator_free(struct ebpf_allocator *alloc, void *ptr);

@@ -45,7 +45,7 @@ struct ebpf_map_hashtable {
 	uint32_t nbuckets;
 	struct hash_bucket *buckets;
 	struct hash_elem **pcpu_extra_elems;
-	ebpf_allocator_t allocator;
+	struct ebpf_allocator allocator;
 };
 
 #define HASH_ELEM_VALUE(_hash_mapp, _elemp) ((_elemp)->key + (_hash_mapp)->key_size)
