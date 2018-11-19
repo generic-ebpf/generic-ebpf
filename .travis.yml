@@ -10,7 +10,7 @@ install:
   - pip install --user -r requirements.txt
   - pip install --user cpp-coveralls
 script:
-  - COVERAGE=1 make tests
+  - COVERAGE=1 make
   - make check
 after_success:
   - coveralls --exclude tests --exclude extern --exclude sys/dev/ebpf/tommyds/ --gcov-options '\-lp'
