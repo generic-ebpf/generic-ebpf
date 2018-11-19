@@ -31,14 +31,14 @@ struct ebpf_obj;
 /*
  * Prototypes of platform dependent functions.
  */
-bool is_ebpf_objfile(ebpf_file_t *fp);
-int ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd,
+bool is_ebpf_objfile(ebpf_file *fp);
+int ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd,
 	       struct ebpf_obj *data);
-int ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f);
-int ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td);
+int ebpf_fget(ebpf_thread *td, int fd, ebpf_file **f);
+int ebpf_fdrop(ebpf_file *f, ebpf_thread *td);
 int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);
 int ebpf_copyout(const void *kaddr, void *uaddr, size_t len);
-ebpf_thread_t *ebpf_curthread(void);
-int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td);
+ebpf_thread *ebpf_curthread(void);
+int ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread *td);
 
 extern struct ebpf_prog_type test_prog_type;

@@ -119,48 +119,6 @@ ebpf_getpagesize(void)
 }
 
 void
-ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
-{
-	int error = pthread_rwlock_init(rw, NULL);
-	assert(!error);
-}
-
-void
-ebpf_rw_rlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_rdlock(rw);
-	assert(!error);
-}
-
-void
-ebpf_rw_runlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_unlock(rw);
-	assert(!error);
-}
-
-void
-ebpf_rw_wlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_wrlock(rw);
-	assert(!error);
-}
-
-void
-ebpf_rw_wunlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_unlock(rw);
-	assert(!error);
-}
-
-void
-ebpf_rw_destroy(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_destroy(rw);
-	assert(!error);
-}
-
-void
 ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
 	*count = value;

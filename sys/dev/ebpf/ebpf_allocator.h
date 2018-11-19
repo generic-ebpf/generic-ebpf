@@ -28,7 +28,7 @@ struct ebpf_allocator_entry {
 struct ebpf_allocator {
 	SLIST_HEAD(, ebpf_allocator_entry) free_block;
 	SLIST_HEAD(, ebpf_allocator_entry) used_segment;
-	ebpf_spinmtx_t lock;
+	ebpf_spinmtx lock;
 	uint32_t nblocks;
 	uint32_t block_size;
 	uint32_t count;

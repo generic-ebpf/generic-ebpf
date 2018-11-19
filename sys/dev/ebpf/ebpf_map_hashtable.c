@@ -35,7 +35,7 @@ struct hash_elem {
 
 struct hash_bucket {
 	EBPF_EPOCH_LIST_HEAD(, hash_elem) head;
-	ebpf_spinmtx_t lock;
+	ebpf_spinmtx lock;
 };
 
 struct ebpf_map_hashtable {

@@ -38,7 +38,7 @@ ebpf_objfile_close(struct file *fp, struct thread *td)
 }
 
 bool
-is_ebpf_objfile(ebpf_file_t *fp)
+is_ebpf_objfile(ebpf_file *fp)
 {
 	if (!fp) {
 		return false;
@@ -47,7 +47,7 @@ is_ebpf_objfile(ebpf_file_t *fp)
 }
 
 int
-ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
+ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 {
 	int error;
 
@@ -81,7 +81,7 @@ ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
 }
 
 int
-ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
+ebpf_fget(ebpf_thread *td, int fd, ebpf_file **f)
 {
 #if __FreeBSD_version >= 1200062
 	return fget(td, fd, &cap_ioctl_rights, f);
@@ -92,7 +92,7 @@ ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
 }
 
 int
-ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td)
+ebpf_fdrop(ebpf_file *f, ebpf_thread *td)
 {
 	return fdrop(f, td);
 }
@@ -109,7 +109,7 @@ ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
 	return copyout(kaddr, uaddr, len);
 }
 
-ebpf_thread_t *
+ebpf_thread *
 ebpf_curthread(void)
 {
 	return curthread;

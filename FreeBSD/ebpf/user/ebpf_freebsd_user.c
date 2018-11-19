@@ -121,48 +121,6 @@ ebpf_getpagesize(void)
 }
 
 __inline void
-ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
-{
-	int error = pthread_rwlock_init(rw, NULL);
-	assert(!error);
-}
-
-__inline void
-ebpf_rw_rlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_rdlock(rw);
-	assert(!error);
-}
-
-__inline void
-ebpf_rw_runlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_unlock(rw);
-	assert(!error);
-}
-
-__inline void
-ebpf_rw_wlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_wrlock(rw);
-	assert(!error);
-}
-
-__inline void
-ebpf_rw_wunlock(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_unlock(rw);
-	assert(!error);
-}
-
-__inline void
-ebpf_rw_destroy(ebpf_rwlock_t *rw)
-{
-	int error = pthread_rwlock_destroy(rw);
-	assert(!error);
-}
-
-__inline void
 ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
 	*count = value;
@@ -191,56 +149,56 @@ ebpf_refcount_release(uint32_t *count)
 }
 
 __inline void
-ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+ebpf_mtx_init(ebpf_mtx *mutex, const char *name)
 {
 	int error = pthread_mutex_init(mutex, NULL);
 	assert(!error);
 }
 
 __inline void
-ebpf_mtx_lock(ebpf_mtx_t *mutex)
+ebpf_mtx_lock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_lock(mutex);
 	assert(!error);
 }
 
 __inline void
-ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+ebpf_mtx_unlock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_unlock(mutex);
 	assert(!error);
 }
 
 __inline void
-ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+ebpf_mtx_destroy(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
 	assert(!error);
 }
 
 __inline void
-ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+ebpf_spinmtx_init(ebpf_spinmtx *mutex, const char *name)
 {
 	int error = pthread_spin_init(mutex, 0);
 	assert(!error);
 }
 
 __inline void
-ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_lock(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_lock(mutex);
 	assert(!error);
 }
 
 __inline void
-ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_unlock(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_unlock(mutex);
 	assert(!error);
 }
 
 __inline void
-ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_destroy(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_destroy(mutex);
 	assert(!error);

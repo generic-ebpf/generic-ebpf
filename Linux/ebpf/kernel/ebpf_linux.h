@@ -56,7 +56,6 @@
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/cpumask.h>
-#include <linux/rwsem.h>
 #include <linux/spinlock.h>
 #include <linux/mutex.h>
 #include <linux/jhash.h>
@@ -79,10 +78,9 @@
 
 #define ENOTSUP EOPNOTSUPP
 
-typedef struct rw_semaphore ebpf_rwlock_t;
-typedef struct rcu_head ebpf_epoch_context_t;
-typedef struct mutex ebpf_mtx_t;
-typedef struct raw_spinlock_t ebpf_spinmtx_t;
+typedef struct rcu_head ebpf_epoch_context;
+typedef struct mutex ebpf_mtx;
+typedef struct raw_spinlock_t ebpf_spinmtx;
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) struct hlist_node
 #define EBPF_EPOCH_LIST_EMPTY(_type) hlist_empty(_type)

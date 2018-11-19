@@ -53,8 +53,8 @@
 #include <linux/cpumask.h>
 #include <asm/byteorder.h>
 
-typedef struct task_struct ebpf_thread_t;
-typedef struct file ebpf_file_t;
+typedef struct task_struct ebpf_thread;
+typedef struct file ebpf_file;
 
 #include <dev/ebpf_dev/ebpf_obj.h>
 

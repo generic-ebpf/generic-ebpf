@@ -35,8 +35,8 @@
 #include <sys/capsicum.h>
 #include <machine/stdarg.h>
 
-typedef struct thread ebpf_thread_t;
-typedef struct file ebpf_file_t;
+typedef struct thread ebpf_thread;
+typedef struct file ebpf_file;
 
 #include <dev/ebpf_dev/ebpf_obj.h>
 

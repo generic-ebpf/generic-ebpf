@@ -48,7 +48,7 @@ ebpf_epoch_deinit(void)
 	return pthread_key_delete(ebpf_epoch_key);
 }
 
-int
+static int
 ebpf_epoch_get_record(ck_epoch_record_t **record)
 {
 	int error;
@@ -96,8 +96,8 @@ ebpf_epoch_exit(void)
 }
 
 void
-ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-		void (*callback)(ebpf_epoch_context_t *))
+ebpf_epoch_call(ebpf_epoch_context *ctx,
+		void (*callback)(ebpf_epoch_context *))
 {
 	int error;
 	ck_epoch_record_t *record;

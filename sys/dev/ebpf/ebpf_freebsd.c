@@ -88,42 +88,6 @@ ebpf_getpagesize(void)
 	return PAGE_SIZE;
 }
 
-__inline void
-ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
-{
-	rw_init(rw, name);
-}
-
-__inline void
-ebpf_rw_rlock(ebpf_rwlock_t *rw)
-{
-	rw_rlock(rw);
-}
-
-__inline void
-ebpf_rw_runlock(ebpf_rwlock_t *rw)
-{
-	rw_runlock(rw);
-}
-
-__inline void
-ebpf_rw_wlock(ebpf_rwlock_t *rw)
-{
-	rw_wlock(rw);
-}
-
-__inline void
-ebpf_rw_wunlock(ebpf_rwlock_t *rw)
-{
-	rw_wunlock(rw);
-}
-
-__inline void
-ebpf_rw_destroy(ebpf_rwlock_t *rw)
-{
-	rw_destroy(rw);
-}
-
 static epoch_t ebpf_epoch;
 
 __inline void
@@ -139,8 +103,8 @@ ebpf_epoch_exit(void)
 }
 
 __inline void
-ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-		void (*callback)(ebpf_epoch_context_t *))
+ebpf_epoch_call(ebpf_epoch_context *ctx,
+		void (*callback)(ebpf_epoch_context *))
 {
 	epoch_call(ebpf_epoch, ctx, callback);
 }
@@ -152,49 +116,49 @@ ebpf_epoch_wait(void)
 }
 
 __inline void
-ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+ebpf_mtx_init(ebpf_mtx *mutex, const char *name)
 {
 	mtx_init(mutex, name, NULL, MTX_DEF);
 }
 
 __inline void
-ebpf_mtx_lock(ebpf_mtx_t *mutex)
+ebpf_mtx_lock(ebpf_mtx *mutex)
 {
 	mtx_lock(mutex);
 }
 
 __inline void
-ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+ebpf_mtx_unlock(ebpf_mtx *mutex)
 {
 	mtx_unlock(mutex);
 }
 
 __inline void
-ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+ebpf_mtx_destroy(ebpf_mtx *mutex)
 {
 	mtx_destroy(mutex);
 }
 
 __inline void
-ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+ebpf_spinmtx_init(ebpf_spinmtx *mutex, const char *name)
 {
 	mtx_init(mutex, name, NULL, MTX_SPIN);
 }
 
 __inline void
-ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_lock(ebpf_spinmtx *mutex)
 {
 	mtx_lock_spin(mutex);
 }
 
 __inline void
-ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_unlock(ebpf_spinmtx *mutex)
 {
 	mtx_unlock_spin(mutex);
 }
 
 __inline void
-ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_destroy(ebpf_spinmtx *mutex)
 {
 	mtx_destroy(mutex);
 }

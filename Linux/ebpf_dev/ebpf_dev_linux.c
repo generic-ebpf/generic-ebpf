@@ -59,7 +59,7 @@ static const struct file_operations ebpf_objf_ops = {.release =
 							 ebpf_objfile_release};
 
 bool
-is_ebpf_objfile(ebpf_file_t *fp)
+is_ebpf_objfile(ebpf_file *fp)
 {
 	if (!fp) {
 		return false;
@@ -68,7 +68,7 @@ is_ebpf_objfile(ebpf_file_t *fp)
 }
 
 int
-ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
+ebpf_fopen(ebpf_thread_t *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 {
 	*fd = anon_inode_getfd("ebpf-map", &ebpf_objf_ops, data, O_RDWR);
 
@@ -83,7 +83,7 @@ ebpf_fopen(ebpf_thread_t *td, ebpf_file_t **fp, int *fd, struct ebpf_obj *data)
 }
 
 int
-ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
+ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file **f)
 {
 	*f = fget(fd);
 	if (!f) {
@@ -93,7 +93,7 @@ ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file_t **f)
 }
 
 int
-ebpf_fdrop(ebpf_file_t *f, ebpf_thread_t *td)
+ebpf_fdrop(ebpf_file *f, ebpf_thread_t *td)
 {
 	fput(f);
 	return 0;

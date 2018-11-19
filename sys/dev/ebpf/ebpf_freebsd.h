@@ -38,16 +38,14 @@
 #include <sys/mutex.h>
 #include <sys/proc.h>
 #include <sys/refcount.h>
-#include <sys/rwlock.h>
 #include <sys/smp.h>
 #include <sys/stddef.h>
 #include <sys/systm.h>
 #include <machine/stdarg.h>
 
-typedef struct rwlock ebpf_rwlock_t;
-typedef struct epoch_context ebpf_epoch_context_t;
-typedef struct mtx ebpf_mtx_t;
-typedef struct mtx ebpf_spinmtx_t;
+typedef struct epoch_context ebpf_epoch_context;
+typedef struct mtx ebpf_mtx;
+typedef struct mtx ebpf_spinmtx;
 
 #define ebpf_assert(expr) KASSERT(expr, "")
 

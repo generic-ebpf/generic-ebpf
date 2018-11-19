@@ -19,7 +19,7 @@
 #include "ebpf_prog.h"
 
 struct ebpf_prog_type *ebpf_prog_types[__EBPF_MAP_TYPE_MAX];
-ebpf_mtx_t ebpf_prog_types_mutex;
+ebpf_mtx ebpf_prog_types_mutex;
 
 int
 ebpf_register_prog_type(struct ebpf_prog_type *type)

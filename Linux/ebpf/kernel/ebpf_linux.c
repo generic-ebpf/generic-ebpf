@@ -128,42 +128,6 @@ ebpf_getpagesize(void)
 }
 
 void
-ebpf_rw_init(ebpf_rwlock_t *rw, char *name)
-{
-	init_rwsem(rw);
-}
-
-void
-ebpf_rw_rlock(ebpf_rwlock_t *rw)
-{
-	down_read(rw);
-}
-
-void
-ebpf_rw_runlock(ebpf_rwlock_t *rw)
-{
-	up_read(rw);
-}
-
-void
-ebpf_rw_wlock(ebpf_rwlock_t *rw)
-{
-	down_write(rw);
-}
-
-void
-ebpf_rw_wunlock(ebpf_rwlock_t *rw)
-{
-	up_write(rw);
-}
-
-void
-ebpf_rw_destroy(ebpf_rwlock_t *rw)
-{
-	return;
-}
-
-void
 ebpf_epoch_enter(void)
 {
   rcu_read_lock();
@@ -309,12 +273,6 @@ EXPORT_SYMBOL(ebpf_error);
 EXPORT_SYMBOL(ebpf_ncpus);
 EXPORT_SYMBOL(ebpf_curcpu);
 EXPORT_SYMBOL(ebpf_getpagesize);
-EXPORT_SYMBOL(ebpf_rw_init);
-EXPORT_SYMBOL(ebpf_rw_rlock);
-EXPORT_SYMBOL(ebpf_rw_runlock);
-EXPORT_SYMBOL(ebpf_rw_wlock);
-EXPORT_SYMBOL(ebpf_rw_wunlock);
-EXPORT_SYMBOL(ebpf_rw_destroy);
 EXPORT_SYMBOL(ebpf_epoch_enter);
 EXPORT_SYMBOL(ebpf_epoch_exit);
 EXPORT_SYMBOL(ebpf_epoch_call);

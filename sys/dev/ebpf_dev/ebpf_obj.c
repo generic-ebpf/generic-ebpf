@@ -38,7 +38,7 @@ ebpf_obj_container_of(struct ebpf_obj *obj)
 }
 
 void *
-ebpf_objfile_get_container(ebpf_file_t *fp)
+ebpf_objfile_get_container(ebpf_file *fp)
 {
 	if (!fp) {
 		return NULL;
@@ -57,7 +57,7 @@ ebpf_objfile_get_container(ebpf_file_t *fp)
 }
 
 void
-ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread_t *td)
+ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread *td)
 {
 	if (!obj) {
 		return;

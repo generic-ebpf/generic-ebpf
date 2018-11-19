@@ -39,10 +39,9 @@
 #include "elf.h"
 #include "endian.h"
 
-typedef pthread_rwlock_t ebpf_rwlock_t;
-typedef void *ebpf_epoch_context_t;
-typedef pthread_mutex_t ebpf_mtx_t;
-typedef pthread_spinlock_t ebpf_spinmtx_t;
+typedef void *ebpf_epoch_context;
+typedef pthread_mutex_t ebpf_mtx;
+typedef pthread_spinlock_t ebpf_spinmtx;
 
 #define ebpf_assert(expr) assert(expr)
 

@@ -32,7 +32,7 @@ enum ebpf_obj_type {
 
 struct ebpf_obj {
 	uint16_t type;
-	ebpf_file_t *f;
+	ebpf_file *f;
 };
 
 struct ebpf_obj_map {
@@ -49,5 +49,5 @@ struct ebpf_obj_prog {
 };
 
 void *ebpf_obj_container_of(struct ebpf_obj *obj);
-void *ebpf_objfile_get_container(ebpf_file_t *fp);
-void ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread_t *td);
+void *ebpf_objfile_get_container(ebpf_file *fp);
+void ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread *td);

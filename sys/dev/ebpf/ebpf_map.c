@@ -19,7 +19,7 @@
 #include "ebpf_map.h"
 
 struct ebpf_map_type *ebpf_map_types[__EBPF_MAP_TYPE_MAX];
-ebpf_mtx_t ebpf_map_types_mutex;
+ebpf_mtx ebpf_map_types_mutex;
 
 int
 ebpf_register_map_type(struct ebpf_map_type *type)

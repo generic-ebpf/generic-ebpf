@@ -28,7 +28,7 @@ static void
 ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
 {
 	struct ebpf_obj_prog *prog = (struct ebpf_obj_prog *)self;
-	ebpf_thread_t *td = (ebpf_thread_t *)arg;
+	ebpf_thread *td = (ebpf_thread *)arg;
 	ebpf_fdrop(prog->obj.f, td);
 }
 
@@ -36,17 +36,17 @@ static void
 ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
 {
 	struct ebpf_obj_map *map = (struct ebpf_obj_map *)self;
-	ebpf_thread_t *td = (ebpf_thread_t *)arg;
+	ebpf_thread *td = (ebpf_thread *)arg;
 	ebpf_fdrop(map->obj.f, td);
 }
 
 static int
-ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread_t *td)
+ebpf_prog_mapfd_to_addr(struct ebpf_obj_prog *prog_obj, ebpf_thread *td)
 {
 	int error;
 	struct ebpf_inst *prog = prog_obj->prog.prog, *cur;
 	uint16_t num_insts = prog_obj->prog.prog_len / sizeof(struct ebpf_inst);
-	ebpf_file_t *f;
+	ebpf_file *f;
 	struct ebpf_obj_map *map;
 
 	for (uint32_t i = 0; i < num_insts; i++) {
@@ -125,7 +125,7 @@ err0:
 }
 
 static int
-ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_load_prog(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
 	struct ebpf_obj_prog *prog;
@@ -170,7 +170,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 	}
 
 	int fd;
-	ebpf_file_t *f;
+	ebpf_file *f;
 
 	error = ebpf_fopen(td, &f, &fd, &prog->obj);
 	if (error) {
@@ -199,7 +199,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread_t *td)
 }
 
 static int
-ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_map_create(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
 	struct ebpf_obj_map *map;
@@ -222,7 +222,7 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 	}
 
 	int fd;
-	ebpf_file_t *f;
+	ebpf_file *f;
 
 	error = ebpf_fopen(td, &f, &fd, &map->obj);
 	if (error) {
@@ -247,10 +247,10 @@ ebpf_map_create(union ebpf_req *req, ebpf_thread_t *td)
 }
 
 static int
-ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_ioc_map_lookup_elem(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
-	ebpf_file_t *f;
+	ebpf_file *f;
 
 	if (!req || !td || !(void *)req->key || !(void *)req->value) {
 		return EINVAL;
@@ -316,10 +316,10 @@ err0:
 }
 
 static int
-ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_ioc_map_update_elem(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
-	ebpf_file_t *f;
+	ebpf_file *f;
 
 	if (!req || !td || !(void *)req->key || !(void *)req->value) {
 		return EINVAL;
@@ -379,10 +379,10 @@ err0:
 }
 
 static int
-ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_ioc_map_delete_elem(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
-	ebpf_file_t *f;
+	ebpf_file *f;
 
 	if (!req || !td || !(void *)req->key) {
 		return EINVAL;
@@ -420,10 +420,10 @@ err0:
 }
 
 static int
-ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_ioc_map_get_next_key(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
-	ebpf_file_t *f;
+	ebpf_file *f;
 
 	/*
 	 * key == NULL is valid, because it means "give me a first key"
@@ -481,11 +481,11 @@ err0:
 }
 
 static int
-ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread_t *td)
+ebpf_ioc_run_test(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
 
-	ebpf_file_t *f;
+	ebpf_file *f;
 	error = ebpf_fget(td, req->prog_fd, &f);
 	if (error) {
 		return error;
@@ -585,7 +585,7 @@ ebpf_ioc_get_prog_type_info(union ebpf_req *req)
 }
 
 int
-ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread_t *td)
+ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread *td)
 {
 	int error;
 	union ebpf_req *req = (union ebpf_req *)data;
