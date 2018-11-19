@@ -52,6 +52,7 @@
 #include <dev/ebpf/ebpf_prog.h>
 #include <dev/ebpf/ebpf_prog_test.h>
 #include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_allocator.h>
 
 void *
 ebpf_malloc(size_t size)
@@ -103,12 +104,6 @@ ebpf_error(const char *fmt, ...)
 	return ret;
 }
 
-void
-ebpf_assert(bool expr)
-{
-	BUG_ON(!(expr));
-}
-
 uint16_t
 ebpf_ncpus(void)
 {
@@ -140,8 +135,8 @@ ebpf_epoch_exit(void)
 }
 
 void
-ebpf_epoch_call(ebpf_epoch_context_t *ctx,
-    void (*callback)(ebpf_epoch_context_t *))
+ebpf_epoch_call(ebpf_epoch_context *ctx,
+    void (*callback)(ebpf_epoch_context *))
 {
   call_rcu(ctx, callback);
 }
@@ -153,49 +148,49 @@ ebpf_epoch_wait(void)
 }
 
 void
-ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+ebpf_mtx_init(ebpf_mtx *mutex, const char *name)
 {
 	mutex_init(mutex);
 }
 
 void
-ebpf_mtx_lock(ebpf_mtx_t *mutex)
+ebpf_mtx_lock(ebpf_mtx *mutex)
 {
 	mutex_lock(mutex);
 }
 
 void
-ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+ebpf_mtx_unlock(ebpf_mtx *mutex)
 {
 	mutex_unlock(mutex);
 }
 
 void
-ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+ebpf_mtx_destroy(ebpf_mtx *mutex)
 {
-	mtx_destroy(mutex);
+	mutex_destroy(mutex);
 }
 
 void
-ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+ebpf_spinmtx_init(ebpf_spinmtx *mutex, const char *name)
 {
   raw_spin_lock_init(mutex);
 }
 
 void
-ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_lock(ebpf_spinmtx *mutex)
 {
   raw_spin_lock(mutex);
 }
 
 void
-ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_unlock(ebpf_spinmtx *mutex)
 {
   raw_spin_unlock(mutex);
 }
 
 void
-ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_destroy(ebpf_spinmtx *mutex)
 { 
   return;
 }
@@ -203,19 +198,28 @@ ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
 void
 ebpf_refcount_init(uint32_t *count, uint32_t value)
 {
-	atomic_set(count, value);
+  *count = value;
 }
 
 void
 ebpf_refcount_acquire(uint32_t *count)
 {
-	atomic_inc(count);
+  __sync_fetch_and_add(count, 1);
 }
 
 int
 ebpf_refcount_release(uint32_t *count)
 {
-	return atomic_sub_and_test(1, count);
+	uint32_t old;
+
+	old = __sync_fetch_and_add(count, -1);
+	ebpf_assert(old > 0);
+
+	if (old > 1) {
+		return 0;
+	}
+
+	return 1;
 }
 
 uint32_t
@@ -297,7 +301,6 @@ EXPORT_SYMBOL(ebpf_acquire_prog_type);
 EXPORT_SYMBOL(ebpf_release_prog_type);
 EXPORT_SYMBOL(ebpf_register_prog_type);
 EXPORT_SYMBOL(ebpf_unregister_prog_type);
-EXPORT_SYMBOL(ebpf_deinit_prog_types);
 EXPORT_SYMBOL(ebpf_prog_init);
 EXPORT_SYMBOL(ebpf_prog_deinit_default);
 EXPORT_SYMBOL(ebpf_prog_deinit);

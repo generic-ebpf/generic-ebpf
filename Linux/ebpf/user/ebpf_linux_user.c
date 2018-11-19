@@ -16,6 +16,7 @@
  * limitations under the License.
  */
 
+#define _GNU_SOURCE
 #include <dev/ebpf/ebpf_platform.h>
 #include <dev/ebpf/ebpf_map.h>
 #include <dev/ebpf/ebpf_prog.h>
@@ -85,7 +86,7 @@ uint16_t
 ebpf_curcpu(void)
 {
 	int error;
-	cpuset_t cpus;
+	cpu_set_t cpus;
 
 	error = pthread_getaffinity_np(pthread_self(), sizeof(cpus), &cpus);
 	ebpf_assert(!error);
@@ -147,56 +148,56 @@ ebpf_refcount_release(uint32_t *count)
 }
 
 void
-ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+ebpf_mtx_init(ebpf_mtx *mutex, const char *name)
 {
 	int error = pthread_mutex_init(mutex, NULL);
 	assert(!error);
 }
 
 void
-ebpf_mtx_lock(ebpf_mtx_t *mutex)
+ebpf_mtx_lock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_lock(mutex);
 	assert(!error);
 }
 
 void
-ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+ebpf_mtx_unlock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_unlock(mutex);
 	assert(!error);
 }
 
 void
-ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+ebpf_mtx_destroy(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
 	assert(!error);
 }
 
 void
-ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+ebpf_spinmtx_init(ebpf_spinmtx *mutex, const char *name)
 {
 	int error = pthread_spin_init(mutex, 0);
 	assert(!error);
 }
 
 void
-ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_lock(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_lock(mutex);
 	assert(!error);
 }
 
 void
-ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_unlock(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_unlock(mutex);
 	assert(!error);
 }
 
 void
-ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_destroy(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_destroy(mutex);
 	assert(!error);

@@ -25,6 +25,7 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <string.h>
+#include <sched.h>
 #include <sys/mman.h>
 #include <sys/types.h>
 #include <elf.h>
@@ -35,6 +36,9 @@
 #include <ck_queue.h>
 #include <ck_epoch.h>
 #include <ck_pr.h>
+
+/* Alternative of FreeBSD's one */
+#define CPU_MAXSIZE 256
 
 typedef void *ebpf_epoch_context;
 typedef pthread_mutex_t ebpf_mtx;

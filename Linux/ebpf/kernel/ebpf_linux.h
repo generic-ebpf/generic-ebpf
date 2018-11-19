@@ -80,7 +80,9 @@
 
 typedef struct rcu_head ebpf_epoch_context;
 typedef struct mutex ebpf_mtx;
-typedef struct raw_spinlock_t ebpf_spinmtx;
+typedef raw_spinlock_t ebpf_spinmtx;
+
+#define ebpf_assert(_expr) BUG_ON(!(_expr));
 
 #define EBPF_EPOCH_LIST_ENTRY(_type) struct hlist_node
 #define EBPF_EPOCH_LIST_EMPTY(_type) hlist_empty(_type)

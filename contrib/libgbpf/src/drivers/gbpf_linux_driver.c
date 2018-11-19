@@ -59,7 +59,6 @@ gbpf_linux_map_create(GBPFDriver *self, uint16_t type, uint32_t key_size,
 	attr.key_size = key_size;
 	attr.value_size = value_size;
 	attr.max_entries = max_entries;
-	attr.map_flags = map_flags;
 
 	struct rlimit rl = {};
 	if (getrlimit(RLIMIT_MEMLOCK, &rl) == 0) {

@@ -68,7 +68,7 @@ is_ebpf_objfile(ebpf_file *fp)
 }
 
 int
-ebpf_fopen(ebpf_thread_t *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
+ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 {
 	*fd = anon_inode_getfd("ebpf-map", &ebpf_objf_ops, data, O_RDWR);
 
@@ -83,7 +83,7 @@ ebpf_fopen(ebpf_thread_t *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 }
 
 int
-ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file **f)
+ebpf_fget(ebpf_thread *td, int fd, ebpf_file **f)
 {
 	*f = fget(fd);
 	if (!f) {
@@ -93,7 +93,7 @@ ebpf_fget(ebpf_thread_t *td, int fd, ebpf_file **f)
 }
 
 int
-ebpf_fdrop(ebpf_file *f, ebpf_thread_t *td)
+ebpf_fdrop(ebpf_file *f, ebpf_thread *td)
 {
 	fput(f);
 	return 0;
@@ -111,7 +111,7 @@ ebpf_copyout(const void *kaddr, void *uaddr, size_t len)
 	return copy_to_user(uaddr, kaddr, len);
 }
 
-ebpf_thread_t *
+ebpf_thread *
 ebpf_curthread(void)
 {
 	return current;

@@ -14,13 +14,14 @@ ebpf-objs+=	$(SRC_DIR)/ebpf_prog_bad.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog_test.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_verifer.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_vm.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_epoch.o
 ebpf-objs+=	./ebpf_linux_user.o
 
 ifeq ($(shell arch), x86_64)
 ebpf-objs+=	$(BASE)/sys/amd64/amd64/ebpf_jit_x86_64.o
 endif
 
-OBJS=	$(CKOBJS) $(ebpf-objs)
+OBJS=	$(ebpf-objs) $(CKOBJS)
 
 CFLAGS += \
 	-Ofast \
