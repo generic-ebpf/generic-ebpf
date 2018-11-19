@@ -1,4 +1,6 @@
-os: linux
+os:
+  - linux
+  - osx
 language: cpp
 compiler:
   - gcc
