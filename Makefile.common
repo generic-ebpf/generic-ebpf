@@ -1,5 +1,5 @@
 MAKE_ENV+=	UNAME_s="${UNAME_s}"
-MAKE_ARGS+=	DESTDIR="${.CURDIR}"
+MAKE_ARGS+=	DESTDIR="${CURDIR}"
 
 SUBDIR=		$(SUBDIR_$(UNAME_s))
 SUBDIR_FreeBSD=	${LIBEBPFDIR} \
@@ -29,15 +29,15 @@ check check-kern:
 benchmark:
 	cd ${BENCHMARKDIR} && ${MAKE_CMD} all
 init:
-	rm -rf ${.CURDIR}/extern/googletest
-	rm -rf ${.CURDIR}/extern/ck
+	rm -rf ${CURDIR}/extern/googletest
+	rm -rf ${CURDIR}/extern/ck
 	git submodule init
 	git submodule update
 format::
 	clang-format -i */**/*.{c,h,cpp}
 load::
-	${KMODLOAD} ${.CURDIR}/ebpf.ko
-	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
+	${KMODLOAD} ${CURDIR}/ebpf.ko
+	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
 
 unload::
 	${KMODUNLOAD} ebpf-dev
@@ -46,7 +46,7 @@ unload::
 reload::
 	-${KMODUNLOAD} ebpf-dev
 	-${KMODUNLOAD} ebpf
-	${KMODLOAD} ${.CURDIR}/ebpf.ko
-	${KMODLOAD} ${.CURDIR}/ebpf-dev.ko
+	${KMODLOAD} ${CURDIR}/ebpf.ko
+	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
 
 .PHONY: default tests check check-kern benchmark init format

@@ -1,5 +1,5 @@
-.CURDIR?=	$(PWD)
-UNAME_s!=	uname -s
+CURDIR?=	$(PWD)
+UNAME_s!=	uname
 SHLIB_FreeBSD=	.so
 SHLIB_Linux=	.so
 SHLIB_Darwin=	.dylib
