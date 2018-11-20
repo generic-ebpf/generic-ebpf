@@ -12,7 +12,7 @@ DRIVERS=gbpf_null_driver.c \
 
 CFLAGS+=-Ofast \
 	-I ${BASE}/sys \
-	-I ${.CURDIR}/include \
+	-I ${CURDIR}/include \
 	-Wall \
 	-Wextra \
 	-Wno-unused-parameter

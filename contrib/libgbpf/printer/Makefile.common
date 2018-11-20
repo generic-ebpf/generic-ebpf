@@ -5,7 +5,7 @@ LIBS=	${LIBGBPF} -lelf
 CPPFLAGS= \
 	-O3 \
 	-I ${BASE}/sys \
-	-I ${.CURDIR}/../include \
+	-I ${CURDIR}/../include \
 	-Wall
 CFLAGS+=$(CPPFLAGS)
 

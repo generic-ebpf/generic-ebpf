@@ -20,6 +20,9 @@ all:
 	done
 CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
 
+user:
+	cd ${UNAME_s}/ebpf/user && ${MAKE_CMD} && ${MAKE_CMD} install
+
 tests:
 	cd tests && ${MAKE_CMD} all
 tests-clean:
