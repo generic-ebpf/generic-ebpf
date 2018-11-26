@@ -14,7 +14,7 @@ Current support status
 |FreeBSD User   |Yes                            |-                  |
 |Linux Kernel   |Yes                            |Yes                |
 |Linux User     |Yes                            |-                  |
-|MacOSX User    |Broken                         |-                  |
+|MacOSX User    |Yes                            |-                  |
 
 # Build
 
