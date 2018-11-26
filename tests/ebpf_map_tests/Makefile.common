@@ -41,6 +41,6 @@ $(PROG): $(OBJS) ${LIBEBPF}
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) $(LIBS)
 
 check:
-	-LD_LIBRARY_PATH=$(LIBEBPFDIR) ./$(PROG)
+	-$(SHLIB_VAL)=$(LIBEBPFDIR) ./$(PROG)
 
 CLEANFILES=	$(PROG) $(OBJS) *.gcda *.gcno

@@ -1,5 +1,5 @@
 CURDIR?=	$(PWD)
-UNAME_s!=	uname
+UNAME_s!=	uname -s
 SHLIB_FreeBSD=	.so
 SHLIB_Linux=	.so
 SHLIB_Darwin=	.dylib
@@ -11,6 +11,10 @@ KMODLOAD_Linux=		insmod
 KMODUNLOAD_Linux=	rmmod
 KMODLOAD=	$(KMODLOAD_$(UNAME_s))
 KMODUNLOAD=	$(KMODUNLOAD_$(UNAME_s))
+SHLIB_VAL_FreeBSD=	LD_LIBRARY_PATH
+SHLIB_VAL_Linux=	LD_LIBRARY_PATH
+SHLIB_VAL_Darwin=	DYLD_LIBRARY_PATH
+SHLIB_VAL= $(SHLIB_VAL_$(UNAME_s))
 
 CC?=		cc
 

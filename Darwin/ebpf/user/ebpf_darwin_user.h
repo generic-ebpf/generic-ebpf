@@ -32,6 +32,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <ck_spinlock.h>
 #include <ck_queue.h>
 #include <ck_epoch.h>
 #include <ck_pr.h>
@@ -41,7 +42,7 @@
 
 typedef void *ebpf_epoch_context;
 typedef pthread_mutex_t ebpf_mtx;
-typedef pthread_spinlock_t ebpf_spinmtx;
+typedef ck_spinlock_t ebpf_spinmtx;
 
 #define ebpf_assert(expr) assert(expr)
 

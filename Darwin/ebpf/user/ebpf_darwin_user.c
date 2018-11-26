@@ -81,34 +81,21 @@ ebpf_ncpus(void)
 	return sysconf(_SC_NPROCESSORS_ONLN);
 }
 
+/*
+ * FIXME: macOS has no pthread_getaffinity_np wrapper.
+ * Currently always print warning and returns zero.
+ */
 uint16_t
 ebpf_curcpu(void)
 {
-	int error;
-	cpuset_t cpus;
+	static int warned = 0;
 
-	error = pthread_getaffinity_np(pthread_self(), sizeof(cpus), &cpus);
-	ebpf_assert(!error);
-
-	/*
-	 * Return first CPU founded from affinity set.
-	 * If the program pinned the thread to single
-	 * CPU, this function returns pinned CPU.
-	 *
-	 * Note that the epoch never works correctly
-	 * unless the running thread is pinned to
-	 * single CPU.
-	 */
-	for (uint16_t i = 0; i < CPU_MAXSIZE; i++) {
-		if (CPU_ISSET(i, &cpus)) {
-			return i;
-		}
+	if (warned == 0) {
+		fprintf(stderr, "Warning: ebpf_curcpu doesn't work"
+				"correctly on this platform\n");
+		warned++;
 	}
 
-	/*
-	 * Should not reach to here
-	 */
-	ebpf_assert(false);
 	return 0;
 }
 
@@ -147,59 +134,55 @@ ebpf_refcount_release(uint32_t *count)
 }
 
 void
-ebpf_mtx_init(ebpf_mtx_t *mutex, const char *name)
+ebpf_mtx_init(ebpf_mtx *mutex, const char *name)
 {
 	int error = pthread_mutex_init(mutex, NULL);
 	assert(!error);
 }
 
 void
-ebpf_mtx_lock(ebpf_mtx_t *mutex)
+ebpf_mtx_lock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_lock(mutex);
 	assert(!error);
 }
 
 void
-ebpf_mtx_unlock(ebpf_mtx_t *mutex)
+ebpf_mtx_unlock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_unlock(mutex);
 	assert(!error);
 }
 
 void
-ebpf_mtx_destroy(ebpf_mtx_t *mutex)
+ebpf_mtx_destroy(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
 	assert(!error);
 }
 
 void
-ebpf_spinmtx_init(ebpf_spinmtx_t *mutex, const char *name)
+ebpf_spinmtx_init(ebpf_spinmtx *mutex, const char *name)
 {
-	int error = pthread_spin_init(mutex, 0);
-	assert(!error);
+	ck_spinlock_init(mutex);
 }
 
 void
-ebpf_spinmtx_lock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_lock(ebpf_spinmtx *mutex)
 {
-	int error = pthread_spin_lock(mutex);
-	assert(!error);
+	ck_spinlock_lock(mutex);
 }
 
 void
-ebpf_spinmtx_unlock(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_unlock(ebpf_spinmtx *mutex)
 {
-	int error = pthread_spin_unlock(mutex);
-	assert(!error);
+	ck_spinlock_unlock(mutex);
 }
 
 void
-ebpf_spinmtx_destroy(ebpf_spinmtx_t *mutex)
+ebpf_spinmtx_destroy(ebpf_spinmtx *mutex)
 {
-	int error = pthread_spin_destroy(mutex);
-	assert(!error);
+	return;
 }
 
 uint32_t
