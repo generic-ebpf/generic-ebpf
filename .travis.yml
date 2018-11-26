@@ -1,19 +1,15 @@
 os:
   - linux
-language: cpp
-compiler:
-  - gcc
-  - g++
 python:
   - "2.7"
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y libelf-dev
+  - sudo apt-get install -y libelf-dev build-essential
 install:
   - pip install --user -r requirements.txt
   - pip install --user cpp-coveralls
 script:
-  - UNAME_s="Linux" COVERAGE=1 make
-  - make check
+  - CFLAGS="-std=gnu99" UNAME_s="Linux" COVERAGE=1 make
+  - UNAME_s="Linux" make check
 after_success:
   - coveralls --exclude tests --exclude extern --exclude sys/dev/ebpf/tommyds/ --gcov-options '\-lp'
