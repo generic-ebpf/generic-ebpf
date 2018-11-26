@@ -125,7 +125,7 @@ err0:
 }
 
 static int
-ebpf_load_prog(union ebpf_req *req, ebpf_thread *td)
+ebpf_ioc_load_prog(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
 	struct ebpf_obj_prog *prog;
@@ -199,7 +199,7 @@ ebpf_load_prog(union ebpf_req *req, ebpf_thread *td)
 }
 
 static int
-ebpf_map_create(union ebpf_req *req, ebpf_thread *td)
+ebpf_ioc_map_create(union ebpf_req *req, ebpf_thread *td)
 {
 	int error;
 	struct ebpf_obj_map *map;
@@ -596,10 +596,10 @@ ebpf_ioctl(uint32_t cmd, void *data, ebpf_thread *td)
 
 	switch (cmd) {
 	case EBPFIOC_LOAD_PROG:
-		error = ebpf_load_prog(req, td);
+		error = ebpf_ioc_load_prog(req, td);
 		break;
 	case EBPFIOC_MAP_CREATE:
-		error = ebpf_map_create(req, td);
+		error = ebpf_ioc_map_create(req, td);
 		break;
 	case EBPFIOC_MAP_LOOKUP_ELEM:
 		error = ebpf_ioc_map_lookup_elem(req, td);
