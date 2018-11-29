@@ -187,10 +187,27 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
 	return jenkins_hash(buf, len, hash);
 }
 
-/*
- * Kernel module operations
- */
-static int
+int
+ebpf_init(void)
+{
+	int error;
+
+	ebpf_epoch = epoch_alloc(0);
+
+	error = ebpf_init_prog_types();
+	if (error) {
+		return error;
+	}
+
+	error = ebpf_init_map_types();
+	if (error) {
+		return error;
+	}
+
+	return 0;
+}
+
+int
 ebpf_deinit(void)
 {
 	int error;
@@ -207,21 +224,12 @@ ebpf_deinit(void)
 
 	epoch_free(ebpf_epoch);
 
-	printf("ebpf unloaded\n");
-
 	return 0;
 }
 
-static int
-ebpf_init(void)
-{
-	ebpf_epoch = epoch_alloc(0);
-	ebpf_init_prog_types();
-	ebpf_init_map_types();
-	printf("ebpf loaded\n");
-	return 0;
-}
-
+/*
+ * Kernel module operations
+ */
 static int
 ebpf_loader(__unused struct module *module, int event, __unused void *arg)
 {

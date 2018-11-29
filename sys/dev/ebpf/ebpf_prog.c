@@ -18,154 +18,90 @@
 
 #include "ebpf_prog.h"
 
-struct ebpf_prog_type *ebpf_prog_types[__EBPF_MAP_TYPE_MAX];
-ebpf_mtx ebpf_prog_types_mutex;
+static struct ebpf_obj_type_registry prog_type_registry;
 
 int
-ebpf_register_prog_type(struct ebpf_prog_type *type)
+ebpf_register_prog_type(struct ebpf_prog_type *type, uint16_t *idxp)
 {
-	int error = 0;
-	uint16_t available = 0;
-
-	ebpf_mtx_lock(&ebpf_prog_types_mutex);
-
-	for (uint16_t i = __EBPF_BASIC_PROG_TYPE_MAX;
-			i < __EBPF_PROG_TYPE_MAX; i++) {
-		if (ebpf_prog_types[i] == NULL && available == 0) {
-			/*
-			 * Remember available slot, but don't break or assign
-			 * pointer to the slot now. Because we need to iterate
-			 * over all slots to check there is an entry which has
-			 * same name.
-			 */
-			available = i;
-		}
-
-		/*
-		 * Don't allow duplicated name
-		 */
-		if (memcmp(ebpf_prog_types[i]->name, type->name,
-					EBPF_NAME_MAX) == 0) {
-			error = EINVAL;
-			goto end;
-		}
-	}
-
-	/*
-	 * No available slot
-	 */
-	if (available == 0) {
-		error = EBUSY;
-		goto end;
-	}
-
-	ebpf_refcount_init(&type->refcount, 0);
-	ebpf_prog_types[available] = type;
-
-end:
-	ebpf_mtx_unlock(&ebpf_prog_types_mutex);
-	return 0;
+	return ebpf_obj_type_register(&prog_type_registry,
+			(struct ebpf_obj_type *)type, idxp);
 }
 
 int
-ebpf_unregister_prog_type(struct ebpf_prog_type *type)
+ebpf_unregister_prog_type(uint16_t idx)
 {
-	int error = 0;
-
-	ebpf_mtx_lock(&ebpf_prog_types_mutex);
-
-	for (uint16_t i = __EBPF_BASIC_PROG_TYPE_MAX;
-			i < __EBPF_PROG_TYPE_MAX; i++) {
-		if (ebpf_prog_types[i] == type) {
-			if (ebpf_refcount_release(&ebpf_prog_types[i]->refcount) == 0) {
-				error = EBUSY;
-			} else {
-				ebpf_prog_types[i] = NULL;
-			}
-			goto end;
-		}
-	}
-
-	error = ENOENT;
-
-end:
-	ebpf_mtx_unlock(&ebpf_prog_types_mutex);
-	return error;
+	return ebpf_obj_type_unregister(&prog_type_registry, idx);
 }
 
 int
-ebpf_acquire_prog_type(uint16_t id, struct ebpf_prog_type **typep)
+ebpf_acquire_prog_type(uint16_t idx, struct ebpf_prog_type **typep)
 {
-	int error = 0;
-
-	if (id >= __EBPF_MAP_TYPE_MAX || typep == NULL) {
-		return EINVAL;
-	}
-
-	ebpf_mtx_lock(&ebpf_prog_types_mutex);
-
-	if (ebpf_prog_types[id] == NULL) {
-		error = ENOENT;
-		goto end;
-	}
-
-	ebpf_refcount_acquire(&ebpf_prog_types[id]->refcount);
-	*typep = ebpf_prog_types[id];
-
-end:
-	ebpf_mtx_unlock(&ebpf_prog_types_mutex);
-	return 0;
+	return ebpf_obj_type_acquire(&prog_type_registry, idx,
+			(struct ebpf_obj_type **)typep);
 }
 
-void
-ebpf_release_prog_type(uint16_t id)
+int
+ebpf_release_prog_type(struct ebpf_prog_type *type)
 {
-	ebpf_mtx_lock(&ebpf_prog_types_mutex);
-	ebpf_refcount_release(&ebpf_prog_types[id]->refcount);
-	ebpf_mtx_unlock(&ebpf_prog_types_mutex);
+	return ebpf_obj_type_release((struct ebpf_obj_type *)type);
+}
+
+static void
+register_basic_prog(struct ebpf_prog_type *type, uint16_t *idxp, uint16_t expect)
+{
+	int error;
+	ebpf_refcount_init(&type->ept_type.eot_refcount, 0);
+	error = ebpf_register_prog_type(type, idxp);
+	ebpf_assert(error == 0 && *idxp == expect);
+}
+
+static void
+unregister_basic_prog(uint16_t idx)
+{
+	int error;
+	error = ebpf_unregister_prog_type(idx);
+	ebpf_assert(error == 0);
+}
+
+static bool
+prog_type_is_used(struct ebpf_prog_type *type)
+{
+	return type->ept_type.eot_refcount != 0;
 }
 
 void
 ebpf_init_prog_types(void)
 {
-	ebpf_mtx_init(&ebpf_prog_types_mutex, "ebpf_prog_types_mutex");
+	int error;
+	uint16_t idx;
 
-	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
-		ebpf_prog_types[i] = NULL;
-	}
+	error = ebpf_obj_type_registry_init(&prog_type_registry);
+	ebpf_assert(error == 0);
 
 	/*
 	 * Register basic prog types
 	 */
-	ebpf_prog_types[EBPF_PROG_TYPE_BAD] = &bad_prog_type;
-	ebpf_prog_types[EBPF_PROG_TYPE_TEST] = &test_prog_type;
-
-	ebpf_refcount_init(&bad_prog_type.refcount, 0);
-	ebpf_refcount_init(&test_prog_type.refcount, 0);
+	register_basic_prog(&bad_prog_type, &idx, EBPF_PROG_TYPE_BAD);
+	register_basic_prog(&test_prog_type, &idx, EBPF_PROG_TYPE_TEST);
 }
 
 int
 ebpf_deinit_prog_types(void)
 {
-	int error = 0;
+	static bool basic_prog_unregistered = false;
 
-	ebpf_mtx_lock(&ebpf_prog_types_mutex);
-
-	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-		if (ebpf_prog_types[i] != NULL) {
-			if (ebpf_prog_types[i]->refcount != 0) {
-				error = EBUSY;
-				goto end;
-			}
-
-			ebpf_assert(i < __EBPF_BASIC_MAP_TYPE_MAX);
-			ebpf_prog_types[i] = NULL;
-		}
+	if (basic_prog_unregistered == false) {
+		unregister_basic_prog(EBPF_PROG_TYPE_BAD);
+		unregister_basic_prog(EBPF_PROG_TYPE_TEST);
+		basic_prog_unregistered = true;
 	}
 
-end:
-	ebpf_mtx_unlock(&ebpf_prog_types_mutex);
-	return error;
+	if (prog_type_is_used(&bad_prog_type) ||
+			prog_type_is_used(&test_prog_type)) {
+		return EBUSY;
+	}
+
+	return 0;
 }
 
 int
@@ -182,15 +118,14 @@ ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
 	if (!insts) {
 		return ENOMEM;
 	}
+
 	memcpy(insts, prog, prog_len);
 
-	struct ebpf_prog_type *typep;
-	error = ebpf_acquire_prog_type(type, &typep);
+	error = ebpf_acquire_prog_type(type, &prog_obj->type);
 	if (error) {
 		return error;
 	}
 
-	prog_obj->type = type;
 	prog_obj->prog_len = prog_len;
 	prog_obj->prog = insts;
 	prog_obj->deinit = ebpf_prog_deinit_default;
@@ -201,8 +136,10 @@ ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
 void
 ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg)
 {
+	int error;
 	ebpf_free(prog_obj->prog);
-	ebpf_release_prog_type(prog_obj->type);
+	error = ebpf_release_prog_type(prog_obj->type);
+	ebpf_assert(error == 0);
 }
 
 void

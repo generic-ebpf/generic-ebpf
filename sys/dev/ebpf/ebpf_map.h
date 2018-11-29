@@ -19,7 +19,7 @@
 #pragma once
 
 #include "ebpf_platform.h"
-#include <sys/ebpf.h>
+#include "ebpf_obj.h"
 
 struct ebpf_map;
 
@@ -49,29 +49,28 @@ struct ebpf_map_ops {
 };
 
 struct ebpf_map_type {
-	uint32_t refcount;
-	char name[EBPF_NAME_MAX];
-	char description[EBPF_DESC_MAX];
+	struct ebpf_obj_type emt_type;
 	struct ebpf_map_ops ops;
 };
 
 struct ebpf_map {
-	uint16_t type;
+	struct ebpf_map_type *type;
 	uint32_t key_size;
 	uint32_t value_size;
 	uint32_t map_flags;
 	uint32_t max_entries;
 	bool percpu;
 	void *data;
+	void *priv_data;
 	void (*deinit)(struct ebpf_map *, void *);
 };
 
-void ebpf_init_map_types(void);
+int ebpf_init_map_types(void);
 int ebpf_deinit_map_types(void);
-int ebpf_register_map_type(struct ebpf_map_type *type);
-int ebpf_unregister_map_type(struct ebpf_map_type *type);
-int ebpf_acquire_map_type(uint16_t id, struct ebpf_map_type **typep);
-void ebpf_release_map_type(uint16_t id);
+int ebpf_register_map_type(struct ebpf_map_type *type, uint16_t *idxp);
+int ebpf_unregister_map_type(uint16_t idx);
+int ebpf_acquire_map_type(uint16_t idx, struct ebpf_map_type **typep);
+int ebpf_release_map_type(struct ebpf_map_type *type);
 int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
 		  uint32_t value_size, uint32_t max_entries,
 		  uint32_t map_flags);
@@ -89,11 +88,10 @@ int ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key,
 
 /*
  * Users can extend (make subclass of) struct ebpf_map, so the destructor of
- * struct ebpf_map might be
- * overwritten. ebpf_map_deinit just calls map_object->dtor and its default
- * value is
- * ebpf_map_deinit_default. This is useful for managing external reference count
- * or locking etc.
+ * struct ebpf_map might be overwritten. ebpf_map_deinit just calls
+ * map_object->dtor and its default value is ebpf_map_deinit_default.
+ *
+ * This is useful for managing external reference count or locking etc.
  */
 void ebpf_map_deinit(struct ebpf_map *mapp, void *arg);
 void ebpf_map_deinit_default(struct ebpf_map *mapp, void *arg);

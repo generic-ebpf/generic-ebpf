@@ -19,28 +19,27 @@
 #pragma once
 
 #include "ebpf_platform.h"
+#include "ebpf_obj.h"
 #include <sys/ebpf.h>
 #include <sys/ebpf_inst.h>
 
+struct ebpf_prog_type {
+	struct ebpf_obj_type ept_type;
+};
+
 struct ebpf_prog {
-	uint16_t type;
+	struct ebpf_prog_type *type;
 	struct ebpf_inst *prog;
 	uint32_t prog_len;
 	void (*deinit)(struct ebpf_prog *, void *);
 };
 
-struct ebpf_prog_type {
-	uint32_t refcount;
-	char name[EBPF_NAME_MAX];
-	char description[EBPF_DESC_MAX];
-};
-
 void ebpf_init_prog_types(void);
 int ebpf_deinit_prog_types(void);
 int ebpf_acquire_prog_type(uint16_t id, struct ebpf_prog_type **typep);
-void ebpf_release_prog_type(uint16_t id);
-int ebpf_register_prog_type(struct ebpf_prog_type *type);
-int ebpf_unregister_prog_type(struct ebpf_prog_type *type);
+int ebpf_release_prog_type(struct ebpf_prog_type *type);
+int ebpf_register_prog_type(struct ebpf_prog_type *type, uint16_t *idxp);
+int ebpf_unregister_prog_type(uint16_t idx);
 int ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
 		   struct ebpf_inst *prog, uint32_t prog_len);
 void ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg);

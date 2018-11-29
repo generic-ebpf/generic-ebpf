@@ -43,6 +43,8 @@
 /*
  * Prototypes of platform dependent functions
  */
+extern int ebpf_init(void);
+extern int ebpf_deinit(void);
 extern void *ebpf_malloc(size_t size);
 extern void *ebpf_calloc(size_t number, size_t size);
 extern void ebpf_free(void *mem);

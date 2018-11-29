@@ -132,7 +132,7 @@ percpu_elem_dtor(void *mem, void *arg)
 static bool
 is_percpu(struct ebpf_map *map)
 {
-	if (map->type == EBPF_MAP_TYPE_PERCPU_HASHTABLE) {
+	if (map->type == &percpu_hashtable_map_type) {
 		return true;
 	}
 	return false;
@@ -568,8 +568,8 @@ get_first_key:
 }
 
 struct ebpf_map_type hashtable_map_type = {
-	.name = "hashtable",
-	.description = "Hashtable map",
+	.emt_type.eot_name = "hashtable",
+	.emt_type.eot_description = "Hashtable map",
 	.ops = {
 		.init = hashtable_map_init,
 		.update_elem = hashtable_map_update_elem,
@@ -584,8 +584,8 @@ struct ebpf_map_type hashtable_map_type = {
 };
 
 struct ebpf_map_type percpu_hashtable_map_type = {
-	.name = "percpu_hashtable",
-	.description = "Per CPU hashtable map",
+	.emt_type.eot_name = "percpu_hashtable",
+	.emt_type.eot_description = "Per CPU hashtable map",
 	.ops = {
 		.init = hashtable_map_init,
 		.update_elem = hashtable_map_update_elem_percpu,

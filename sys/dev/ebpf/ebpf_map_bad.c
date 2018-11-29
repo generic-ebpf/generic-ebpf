@@ -63,8 +63,8 @@ bad_map_deinit(struct ebpf_map *self, void *arg)
 }
 
 struct ebpf_map_type bad_map_type = {
-	.name = "bad",
-	.description = "Bad map just for placeholder",
+	.emt_type.eot_name = "bad",
+	.emt_type.eot_description = "Bad map just for placeholder",
 	.ops = {
 		.init = bad_map_init,
 		.update_elem = bad_map_update_elem,

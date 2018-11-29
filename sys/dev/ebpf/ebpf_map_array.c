@@ -290,8 +290,8 @@ array_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 }
 
 struct ebpf_map_type array_map_type = {
-	.name = "array",
-	.description = "Array map",
+	.emt_type.eot_name = "array",
+	.emt_type.eot_description = "Array map",
 	.ops = {
 		.init = array_map_init,
 		.update_elem = array_map_update_elem,
@@ -306,8 +306,8 @@ struct ebpf_map_type array_map_type = {
 };
 
 struct ebpf_map_type percpu_array_map_type = {
-	.name = "percpu_array",
-	.description = "Per CPU array map",
+	.emt_type.eot_name = "percpu_array",
+	.emt_type.eot_description = "Per CPU array map",
 	.ops = {
 		.init = array_map_init_percpu,
 		.update_elem = array_map_update_elem_percpu,

@@ -19,6 +19,6 @@
 #include "ebpf_prog.h"
 
 struct ebpf_prog_type bad_prog_type = {
-	.name = "bad",
-	.description = "Bad prog type just for placeholder"
+	.ept_type.eot_name = "bad",
+	.ept_type.eot_description = "Bad prog type just for placeholder"
 };

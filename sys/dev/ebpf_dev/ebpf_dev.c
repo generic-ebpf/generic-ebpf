@@ -543,13 +543,13 @@ ebpf_ioc_get_map_type_info(union ebpf_req *req)
 		return error;
 	}
 
-	memcpy(info->name, type->name, EBPF_NAME_MAX);
-	memcpy(info->description, type->description, EBPF_DESC_MAX);
+	memcpy(info->name, type->emt_type.eot_name, EBPF_NAME_MAX);
+	memcpy(info->description, type->emt_type.eot_description, EBPF_DESC_MAX);
 
 	error = ebpf_copyout(info, req->mt_info, sizeof(*info));
 	ebpf_free(info);
 
-	ebpf_release_map_type(req->mt_id);
+	ebpf_release_map_type(type);
 
 	return error;
 }
@@ -573,13 +573,13 @@ ebpf_ioc_get_prog_type_info(union ebpf_req *req)
 		return error;
 	}
 
-	memcpy(info->name, type->name, EBPF_NAME_MAX);
-	memcpy(info->description, type->description, EBPF_DESC_MAX);
+	memcpy(info->name, type->ept_type.eot_name, EBPF_NAME_MAX);
+	memcpy(info->description, type->ept_type.eot_description, EBPF_DESC_MAX);
 
 	error = ebpf_copyout(info, req->pt_info, sizeof(*info));
 	ebpf_free(info);
 
-	ebpf_release_prog_type(req->pt_id);
+	ebpf_release_prog_type(type);
 
 	return error;
 }

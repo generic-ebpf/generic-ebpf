@@ -210,24 +210,48 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
   return jenkins_hash(buf, len, hash);
 }
 
-__attribute__((constructor)) void
+int
 ebpf_init(void)
 {
-	ebpf_epoch_init();
-	ebpf_init_prog_types();
-	ebpf_init_map_types();
+	int error;
+
+	error = ebpf_epoch_init();
+	if (error) {
+		return error;
+	}
+
+	error = ebpf_init_prog_types();
+	if (error) {
+		return error;
+	}
+
+	error = ebpf_init_map_types();
+	if (error) {
+		return error;
+	}
+
+	return 0;
 }
 
-__attribute__((destructor)) void
+int
 ebpf_deinit(void)
 {
 	int error;
 
 	error = ebpf_deinit_map_types();
-	assert(!error);
+	if (error) {
+		return error;
+	}
 
 	error = ebpf_deinit_prog_types();
-	assert(!error);
+	if (error) {
+		return error;
+	}
 
-	ebpf_epoch_deinit();
+	error = ebpf_epoch_deinit();
+	if (error) {
+		return error;
+	}
+
+	return 0;
 }

@@ -18,189 +18,132 @@
 
 #include "ebpf_map.h"
 
-struct ebpf_map_type *ebpf_map_types[__EBPF_MAP_TYPE_MAX];
-ebpf_mtx ebpf_map_types_mutex;
+static struct ebpf_obj_type_registry map_type_registry;
 
 int
-ebpf_register_map_type(struct ebpf_map_type *type)
+ebpf_register_map_type(struct ebpf_map_type *type, uint16_t *idxp)
 {
-	int error = 0;
-	uint16_t available = 0;
-
-	ebpf_mtx_lock(&ebpf_map_types_mutex);
-
-	for (uint16_t i = __EBPF_BASIC_MAP_TYPE_MAX;
-			i < __EBPF_MAP_TYPE_MAX; i++) {
-		if (ebpf_map_types[i] == NULL && available == 0) {
-			/*
-			 * Remember available slot, but don't break or assign
-			 * pointer to the slot now. Because we need to iterate
-			 * over all slots to check there is an entry which has
-			 * same name.
-			 */
-			available = i;
-		}
-
-		/*
-		 * Don't allow duplicated name
-		 */
-		if (memcmp(ebpf_map_types[i]->name, type->name,
-					EBPF_NAME_MAX) == 0) {
-			error = EINVAL;
-			goto end;
-		}
-	}
-
-	/*
-	 * No available slot
-	 */
-	if (available == 0) {
-		error = EBUSY;
-		goto end;
-	}
-
-	ebpf_refcount_init(&type->refcount, 0);
-	ebpf_map_types[available] = type;
-
-end:
-	ebpf_mtx_unlock(&ebpf_map_types_mutex);
-	return 0;
+	return ebpf_obj_type_register(&map_type_registry,
+			(struct ebpf_obj_type *)type, idxp);
 }
 
 int
-ebpf_unregister_map_type(struct ebpf_map_type *type)
+ebpf_unregister_map_type(uint16_t idx)
 {
-	int error = 0;
-
-	ebpf_mtx_lock(&ebpf_map_types_mutex);
-
-	for (uint16_t i = __EBPF_BASIC_MAP_TYPE_MAX;
-			i < __EBPF_MAP_TYPE_MAX; i++) {
-		if (ebpf_map_types[i] == type) {
-			if (ebpf_refcount_release(&ebpf_map_types[i]->refcount) == 0) {
-				error = EBUSY;
-			} else {
-				ebpf_map_types[i] = NULL;
-			}
-			goto end;
-		}
-	}
-
-	error = ENOENT;
-
-end:
-	ebpf_mtx_unlock(&ebpf_map_types_mutex);
-	return error;
+	return ebpf_obj_type_unregister(&map_type_registry, idx);
 }
 
 int
-ebpf_acquire_map_type(uint16_t id, struct ebpf_map_type **typep)
+ebpf_acquire_map_type(uint16_t idx, struct ebpf_map_type **typep)
 {
-	int error = 0;
-
-	if (id >= __EBPF_MAP_TYPE_MAX || typep == NULL) {
-		return EINVAL;
-	}
-
-	ebpf_mtx_lock(&ebpf_map_types_mutex);
-
-	if (ebpf_map_types[id] == NULL) {
-		error = ENOENT;
-		goto end;
-	}
-
-	ebpf_refcount_acquire(&ebpf_map_types[id]->refcount);
-	*typep = ebpf_map_types[id];
-
-end:
-	ebpf_mtx_unlock(&ebpf_map_types_mutex);
-	return 0;
+	return ebpf_obj_type_acquire(&map_type_registry, idx,
+			(struct ebpf_obj_type **)typep);
 }
 
-void
-ebpf_release_map_type(uint16_t id)
+int
+ebpf_release_map_type(struct ebpf_map_type *type)
 {
-	ebpf_mtx_lock(&ebpf_map_types_mutex);
-	ebpf_refcount_release(&ebpf_map_types[id]->refcount);
-	ebpf_mtx_unlock(&ebpf_map_types_mutex);
+	return ebpf_obj_type_release((struct ebpf_obj_type *)type);
 }
 
-void
+static void
+register_basic_map(struct ebpf_map_type *type, uint16_t *idxp, uint16_t expect)
+{
+	int error;
+
+	ebpf_refcount_init(&type->emt_type.eot_refcount, 0);
+
+	error = ebpf_register_map_type(type, idxp);
+	if (error != 0) {
+		return error;
+	}
+	
+	ebpf_assert(error == 0 && *idxp == expect);
+}
+
+static void
+unregister_basic_map(uint16_t idx)
+{
+	int error;
+	error = ebpf_unregister_map_type(idx);
+	ebpf_assert(error == 0);
+}
+
+static bool
+map_type_is_used(struct ebpf_map_type *type)
+{
+	return type->emt_type.eot_refcount != 0;
+}
+
+int
 ebpf_init_map_types(void)
 {
-	ebpf_mtx_init(&ebpf_map_types_mutex, "ebpf_map_types_mutex");
+	int error;
+	uint16_t idx;
 
-	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-		ebpf_map_types[i] = NULL;
+	error = ebpf_obj_type_registry_init(&map_type_registry);
+	if (error != 0) {
+		return error;
 	}
 
 	/*
 	 * Register basic map types
 	 */
-	ebpf_map_types[EBPF_MAP_TYPE_BAD] = &bad_map_type;
-	ebpf_map_types[EBPF_MAP_TYPE_ARRAY] = &array_map_type;
-	ebpf_map_types[EBPF_MAP_TYPE_PERCPU_ARRAY] = &percpu_array_map_type;
-	ebpf_map_types[EBPF_MAP_TYPE_HASHTABLE] = &hashtable_map_type;
-	ebpf_map_types[EBPF_MAP_TYPE_PERCPU_HASHTABLE] = &percpu_hashtable_map_type;
-
-	ebpf_refcount_init(&bad_map_type.refcount, 0);
-	ebpf_refcount_init(&array_map_type.refcount, 0);
-	ebpf_refcount_init(&percpu_array_map_type.refcount, 0);
-	ebpf_refcount_init(&hashtable_map_type.refcount, 0);
-	ebpf_refcount_init(&percpu_hashtable_map_type.refcount, 0);
+	register_basic_map(&bad_map_type, &idx, EBPF_MAP_TYPE_BAD);
+	register_basic_map(&array_map_type, &idx, EBPF_MAP_TYPE_ARRAY);
+	register_basic_map(&percpu_array_map_type, &idx, EBPF_MAP_TYPE_PERCPU_ARRAY);
+	register_basic_map(&hashtable_map_type, &idx, EBPF_MAP_TYPE_HASHTABLE);
+	register_basic_map(&percpu_hashtable_map_type, &idx, EBPF_MAP_TYPE_PERCPU_HASHTABLE);
 }
 
 int
 ebpf_deinit_map_types(void)
 {
-	int error = 0;
+	static bool basic_map_unregistered = false;
 
-	ebpf_mtx_lock(&ebpf_map_types_mutex);
-
-	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
-		if (ebpf_map_types[i] != NULL) {
-			if (ebpf_map_types[i]->refcount != 0) {
-				error = EBUSY;
-				goto end;
-			}
-
-			ebpf_assert(i < __EBPF_BASIC_MAP_TYPE_MAX);
-			ebpf_map_types[i] = NULL;
-		}
+	if (basic_map_unregistered == false) {
+		unregister_basic_map(EBPF_MAP_TYPE_BAD);
+		unregister_basic_map(EBPF_MAP_TYPE_ARRAY);
+		unregister_basic_map(EBPF_MAP_TYPE_PERCPU_ARRAY);
+		unregister_basic_map(EBPF_MAP_TYPE_HASHTABLE);
+		unregister_basic_map(EBPF_MAP_TYPE_PERCPU_HASHTABLE);
+		basic_map_unregistered = true;
 	}
 
-end:
-	ebpf_mtx_unlock(&ebpf_map_types_mutex);
-	return error;
+	if (map_type_is_used(&bad_map_type) ||
+			map_type_is_used(&array_map_type) ||
+			map_type_is_used(&percpu_array_map_type) ||
+			map_type_is_used(&hashtable_map_type) ||
+			map_type_is_used(&percpu_hashtable_map_type)) {
+		return EBUSY;
+	}
+
+	return 0;
 }
 
-#define EBPF_MAP_OPS(id) (ebpf_map_types[id]->ops)
-
 int
-ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
+ebpf_map_init(struct ebpf_map *map, uint16_t type, uint32_t key_size,
 	      uint32_t value_size, uint32_t max_entries, uint32_t flags)
 {
 	int error;
 
-	if (!mapp || type >= __EBPF_MAP_TYPE_MAX || !key_size || !value_size ||
+	if (!map || type >= __EBPF_MAP_TYPE_MAX || !key_size || !value_size ||
 	    !max_entries) {
 		return EINVAL;
 	}
 
-	struct ebpf_map_type *typep;
-	error = ebpf_acquire_map_type(type, &typep);
+	error = ebpf_acquire_map_type(type, &map->type);
 	if (error) {
 		return error;
 	}
 
-	mapp->type = type;
-	mapp->key_size = key_size;
-	mapp->value_size = value_size;
-	mapp->max_entries = max_entries;
-	mapp->map_flags = flags;
-	mapp->deinit = ebpf_map_deinit_default;
+	map->key_size = key_size;
+	map->value_size = value_size;
+	map->max_entries = max_entries;
+	map->map_flags = flags;
+	map->deinit = ebpf_map_deinit_default;
 
-	error = EBPF_MAP_OPS(type).init(mapp, key_size, value_size,
+	error = map->type->ops.init(map, key_size, value_size,
 					 max_entries, flags);
 	if (error) {
 		return error;
@@ -216,7 +159,7 @@ ebpf_map_lookup_elem(struct ebpf_map *map, void *key)
 		return NULL;
 	}
 
-	return EBPF_MAP_OPS(map->type).lookup_elem(map, key);
+	return map->type->ops.lookup_elem(map, key);
 }
 
 int
@@ -229,7 +172,7 @@ ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
 	}
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_OPS(map->type).lookup_elem_from_user(map, key, value);
+	error = map->type->ops.lookup_elem_from_user(map, key, value);
 	ebpf_epoch_exit();
 
 	return error;
@@ -243,7 +186,7 @@ ebpf_map_update_elem(struct ebpf_map *map, void *key, void *value,
 		return EINVAL;
 	}
 
-	return EBPF_MAP_OPS(map->type).update_elem(map, key, value, flags);
+	return map->type->ops.update_elem(map, key, value, flags);
 }
 
 int
@@ -253,8 +196,7 @@ ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 	int error;
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_OPS(map->type).update_elem_from_user(map, key, value,
-			flags);
+	error = map->type->ops.update_elem_from_user(map, key, value, flags);
 	ebpf_epoch_exit();
 
 	return error;
@@ -267,7 +209,7 @@ ebpf_map_delete_elem(struct ebpf_map *map, void *key)
 		return EINVAL;
 	}
 
-	return EBPF_MAP_OPS(map->type).delete_elem(map, key);
+	return map->type->ops.delete_elem(map, key);
 }
 
 int
@@ -279,7 +221,7 @@ ebpf_map_delete_elem_from_user(struct ebpf_map *map, void *key)
 	}
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_OPS(map->type).delete_elem_from_user(map, key);
+	error = map->type->ops.delete_elem_from_user(map, key);
 	ebpf_epoch_exit();
 
 	return error;
@@ -299,7 +241,7 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 	}
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_OPS(map->type).get_next_key_from_user(map, key, next_key);
+	error = map->type->ops.get_next_key_from_user(map, key, next_key);
 	ebpf_epoch_exit();
 
 	return error;
@@ -308,8 +250,10 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 void
 ebpf_map_deinit_default(struct ebpf_map *map, void *arg)
 {
-	EBPF_MAP_OPS(map->type).deinit(map, arg);
-	ebpf_release_map_type(map->type);
+	int error;
+	map->type->ops.deinit(map, arg);
+	error = ebpf_release_map_type(map->type);
+	ebpf_assert(error == 0);
 }
 
 void
@@ -318,5 +262,8 @@ ebpf_map_deinit(struct ebpf_map *map, void *arg)
 	if (!map) {
 		return;
 	}
-	map->deinit(map, arg);
+
+	if (map->deinit) {
+		map->deinit(map, arg);
+	}
 }

@@ -20,24 +20,15 @@ all:
 	done
 CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
 
-user:
-	cd ${UNAME_s}/ebpf/user && ${MAKE_CMD} && ${MAKE_CMD} install
-
 tests:
 	cd tests && ${MAKE_CMD} all
-tests-clean:
-	cd tests && ${MAKE_CMD} clean
+
 check check-kern:
 	cd ${TESTDIR} && ${MAKE_CMD} $@
+
 benchmark:
 	cd ${BENCHMARKDIR} && ${MAKE_CMD} all
-init:
-	rm -rf ${CURDIR}/extern/googletest
-	rm -rf ${CURDIR}/extern/ck
-	git submodule init
-	git submodule update
-format::
-	clang-format -i */**/*.{c,h,cpp}
+
 load::
 	${KMODLOAD} ${CURDIR}/ebpf.ko
 	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
@@ -52,4 +43,4 @@ reload::
 	${KMODLOAD} ${CURDIR}/ebpf.ko
 	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
 
-.PHONY: default tests check check-kern benchmark init format
+.PHONY: all tests check check-kern benchmark load unload reload

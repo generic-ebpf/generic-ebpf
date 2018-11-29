@@ -1,4 +1,5 @@
 ebpf-src+=	ebpf_allocator.c
+ebpf-src+=	ebpf_obj.c
 ebpf-src+=	ebpf_map.c
 ebpf-src+=	ebpf_map_bad.c
 ebpf-src+=	ebpf_prog.c
