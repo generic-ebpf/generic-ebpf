@@ -1,4 +1,0 @@
--- pyelf
-rel_shdr.sh_link = 30
--- error
-bad symbol table section index

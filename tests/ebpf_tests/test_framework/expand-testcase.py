@@ -63,10 +63,6 @@ def main():
     elif code:
         writefile('asm', ebpf.disassembler.disassemble(code))
 
-    if 'pyelf' in data:
-        from test_elf import generate_elf
-        elf = generate_elf(data['pyelf'])
-        writefile('elf', elf)
 
 if __name__ == "__main__":
     main()

@@ -27,7 +27,6 @@
 #include <string.h>
 #include <sys/mman.h>
 #include <sys/types.h>
-#include <elf.h>
 #include <assert.h>
 #include <errno.h>
 #include <unistd.h>
@@ -37,7 +36,6 @@
 #include <ck_epoch.h>
 #include <ck_pr.h>
 
-#include "elf.h"
 #include "endian.h"
 
 typedef void *ebpf_epoch_context;

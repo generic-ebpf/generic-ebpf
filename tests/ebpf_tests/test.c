@@ -29,12 +29,6 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_vm.h>
 
-#if defined(__APPLE__)
-#include "../../Darwin/ebpf/user/elf.h"
-#else
-#include <elf.h>
-#endif
-
 /* MaxOSX and FreeBSD doesn't have memfrob */
 #if defined(__APPLE__) || defined(__FreeBSD__)
 void *
@@ -129,18 +123,7 @@ main(int argc, char **argv)
 
 	register_functions(vm);
 
-	/*
-	 * The ELF magic corresponds to an RSH instruction with an offset,
-	 * which is invalid.
-	 */
-	bool elf = code_len >= SELFMAG && !memcmp(code, ELFMAG, SELFMAG);
-
-	int rv;
-	if (elf) {
-		rv = ebpf_load_elf(vm, code, code_len);
-	} else {
-		rv = ebpf_load(vm, code, code_len);
-	}
+	int rv = ebpf_load(vm, code, code_len);
 
 	free(code);
 

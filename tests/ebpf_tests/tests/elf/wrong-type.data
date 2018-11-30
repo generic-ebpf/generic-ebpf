@@ -1,4 +1,0 @@
--- pyelf
-ehdr.e_type = 0
--- error
-wrong type, expected relocatable

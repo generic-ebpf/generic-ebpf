@@ -52,7 +52,6 @@
 #include <linux/module.h>
 #include <linux/types.h>
 #include <linux/string.h>
-#include <linux/elf.h>
 #include <linux/slab.h>
 #include <linux/vmalloc.h>
 #include <linux/cpumask.h>

@@ -4,7 +4,6 @@ include $(BASE)/Makefile.inc
 SRC_DIR:=	$(BASE)/sys/dev/ebpf
 
 ebpf-objs+=	$(SRC_DIR)/ebpf_allocator.o
-ebpf-objs+=	$(SRC_DIR)/ebpf_loader.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_epoch.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_map.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_map_bad.o
@@ -48,4 +47,4 @@ libebpf.dylib: $(OBJS)
 install:
 	cp libebpf.dylib $(DESTDIR)
 
-CLEANFILES=▸libebpf.dylib $(OBJS)
+CLEANFILES=	libebpf.dylib $(OBJS)

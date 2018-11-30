@@ -1,4 +1,0 @@
--- pyelf
-text_shdr.sh_offset = 1024
--- error
-bad section offset or size
