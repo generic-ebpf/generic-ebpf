@@ -173,7 +173,7 @@ ebpf_validate(const struct ebpf_vm *vm, const struct ebpf_inst *insts,
 					   i);
 				return false;
 			}
-			if (!vm->ext_funcs[inst.imm]) {
+			if (vm->ext_funcs[inst.imm] == NULL) {
 				ebpf_error("call to nonexistent function %u at "
 					   "PC %d\n",
 					   inst.imm, i);

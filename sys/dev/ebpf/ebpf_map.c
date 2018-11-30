@@ -44,8 +44,9 @@ ebpf_map_init(struct ebpf_map *map, uint16_t type, uint32_t key_size,
 {
 	int error;
 
-	if (!map || type >= EBPF_MAP_TYPE_MAX || !key_size || !value_size ||
-	    !max_entries) {
+	if (map == NULL || type >= EBPF_MAP_TYPE_MAX ||
+			key_size == 0 || value_size == 0 ||
+	    max_entries == 0) {
 		return EINVAL;
 	}
 
@@ -58,7 +59,7 @@ ebpf_map_init(struct ebpf_map *map, uint16_t type, uint32_t key_size,
 
 	error = EBPF_MAP_TYPE_OPS(type).init(map, key_size, value_size,
 					 max_entries, flags);
-	if (error) {
+	if (error != 0) {
 		return error;
 	}
 
@@ -68,7 +69,7 @@ ebpf_map_init(struct ebpf_map *map, uint16_t type, uint32_t key_size,
 void *
 ebpf_map_lookup_elem(struct ebpf_map *map, void *key)
 {
-	if (!map || !key) {
+	if (map == NULL || key == NULL) {
 		return NULL;
 	}
 
@@ -80,7 +81,7 @@ ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
 {
 	int error;
 
-	if (!map || !key || !value) {
+	if (map == NULL || key == NULL || value == NULL) {
 		return EINVAL;
 	}
 
@@ -95,7 +96,8 @@ int
 ebpf_map_update_elem(struct ebpf_map *map, void *key, void *value,
 		     uint64_t flags)
 {
-	if (!map || !key || !value || flags > EBPF_EXIST) {
+	if (map == NULL || key == NULL ||
+			value == NULL || flags > EBPF_EXIST) {
 		return EINVAL;
 	}
 
@@ -118,7 +120,7 @@ ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
 int
 ebpf_map_delete_elem(struct ebpf_map *map, void *key)
 {
-	if (!map || !key) {
+	if (map == NULL || key == NULL) {
 		return EINVAL;
 	}
 
@@ -129,7 +131,7 @@ int
 ebpf_map_delete_elem_from_user(struct ebpf_map *map, void *key)
 {
 	int error;
-	if (!map || !key) {
+	if (map == NULL || key == NULL) {
 		return EINVAL;
 	}
 
@@ -149,7 +151,7 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 	 * key == NULL is valid, because it means "Give me a
 	 * first key"
 	 */
-	if (!map || !next_key) {
+	if (map == NULL || next_key == NULL) {
 		return EINVAL;
 	}
 
@@ -169,11 +171,11 @@ ebpf_map_deinit_default(struct ebpf_map *map, void *arg)
 void
 ebpf_map_deinit(struct ebpf_map *map, void *arg)
 {
-	if (!map) {
+	if (map == NULL) {
 		return;
 	}
 
-	if (map->deinit) {
+	if (map->deinit != NULL) {
 		map->deinit(map, arg);
 	}
 }

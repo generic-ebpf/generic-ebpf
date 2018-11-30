@@ -54,7 +54,7 @@ array_map_init_common(struct ebpf_map_array *array_map, uint32_t key_size,
 		      uint32_t value_size, uint32_t max_entries, uint32_t flags)
 {
 	array_map->array = ebpf_calloc(max_entries, value_size);
-	if (!array_map->array) {
+	if (array_map->array == NULL) {
 		return ENOMEM;
 	}
 
@@ -69,13 +69,13 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 
 	struct ebpf_map_array *array_map =
 	    ebpf_calloc(1, sizeof(*array_map));
-	if (!array_map) {
+	if (array_map == NULL) {
 		return ENOMEM;
 	}
 
 	error = array_map_init_common(array_map, key_size, value_size,
 				      max_entries, flags);
-	if (error) {
+	if (error != 0) {
 		ebpf_free(array_map);
 		return error;
 	}
@@ -95,7 +95,7 @@ array_map_init_percpu(struct ebpf_map *map, uint32_t key_size,
 
 	struct ebpf_map_array *array_map =
 	    ebpf_calloc(ncpus, sizeof(*array_map));
-	if (!array_map) {
+	if (array_map == NULL) {
 		return ENOMEM;
 	}
 
@@ -103,7 +103,7 @@ array_map_init_percpu(struct ebpf_map *map, uint32_t key_size,
 	for (i = 0; i < ncpus; i++) {
 		error = array_map_init_common(array_map + i, key_size,
 					      value_size, max_entries, flags);
-		if (error) {
+		if (error != 0) {
 			goto err0;
 		}
 	}
@@ -220,7 +220,7 @@ array_map_update_elem(struct ebpf_map *map, void *key, void *value,
 	struct ebpf_map_array *array_map = map->data;
 
 	error = array_map_update_check_attr(map, key, value, flags);
-	if (error) {
+	if (error != 0) {
 		return error;
 	}
 
@@ -236,7 +236,7 @@ array_map_update_elem_percpu(struct ebpf_map *map, void *key, void *value,
 	struct ebpf_map_array *array_map = map->data;
 
 	error = array_map_update_check_attr(map, key, value, flags);
-	if (error) {
+	if (error != 0) {
 		return error;
 	}
 
@@ -252,7 +252,7 @@ array_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key,
 	struct ebpf_map_array *array_map = map->data;
 
 	error = array_map_update_check_attr(map, key, value, flags);
-	if (error) {
+	if (error != 0) {
 		return error;
 	}
 

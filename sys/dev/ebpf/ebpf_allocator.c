@@ -57,16 +57,16 @@ ebpf_allocator_deinit(struct ebpf_allocator *alloc, void (*dtor)(void *, void *)
 
 	ebpf_assert(alloc->count == alloc->nblocks);
 
-	if (dtor) {
+	if (dtor != NULL) {
 		SLIST_FOREACH(tmp, &alloc->free_block, entry)
 		{
 			dtor(tmp, arg);
 		}
 	}
 
-	while (!SLIST_EMPTY(&alloc->used_segment)) {
+	while (SLIST_EMPTY(&alloc->used_segment)) {
 		tmp = SLIST_FIRST(&alloc->used_segment);
-		if (tmp) {
+		if (tmp != NULL) {
 			SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
 			ebpf_free(tmp);
 		}
@@ -114,7 +114,7 @@ ebpf_allocator_prealloc(struct ebpf_allocator *alloc, uint32_t nblocks,
 		}
 
 		do {
-			if (ctor) {
+			if (ctor != NULL) {
 				error = ctor(data, arg);
 				if (error) {
 					return error;

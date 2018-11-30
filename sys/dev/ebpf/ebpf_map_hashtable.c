@@ -202,20 +202,20 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		error = ebpf_allocator_init(&hash_map->allocator,
 					    hash_map->elem_size, max_entries,
 					    percpu_elem_ctor, hash_map);
-		if (error) {
+		if (error != 0) {
 			goto err1;
 		}
 	} else {
 		error = ebpf_allocator_init(
 		    &hash_map->allocator, hash_map->elem_size,
 		    max_entries + ebpf_ncpus(), NULL, NULL);
-		if (error) {
+		if (error != 0) {
 			goto err1;
 		}
 
 		hash_map->pcpu_extra_elems =
 		    ebpf_calloc(ebpf_ncpus(), sizeof(struct hash_elem *));
-		if (!hash_map->pcpu_extra_elems) {
+		if (hash_map->pcpu_extra_elems == NULL) {
 			error = ENOMEM;
 			goto err2;
 		}
@@ -272,7 +272,7 @@ hashtable_map_deinit(struct ebpf_map *map, void *arg)
 			elem =
 			    EBPF_EPOCH_LIST_FIRST(&hash_map->buckets[i].head,
               struct hash_elem, elem);
-			if (elem) {
+			if (elem != NULL) {
 				EBPF_EPOCH_LIST_REMOVE(elem, elem);
 				ebpf_allocator_free(&hash_map->allocator, elem);
 			}
@@ -376,11 +376,11 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key, void *value,
 
 	old_elem = get_hash_elem(bucket, key, map->key_size);
 	error = check_update_flags(hash_map, old_elem, flags);
-	if (error) {
+	if (error != 0) {
 		goto err0;
 	}
 
-	if (old_elem) {
+	if (old_elem != NULL) {
 		/*
 		 * In case of updating existing element, we can
 		 * use percpu extra elements and swap it with old
@@ -399,7 +399,7 @@ hashtable_map_update_elem(struct ebpf_map *map, void *key, void *value,
 	memcpy(HASH_ELEM_VALUE(hash_map, new_elem), value, map->value_size);
 
 	EBPF_EPOCH_LIST_INSERT_HEAD(&bucket->head, new_elem, elem);
-	if (old_elem) {
+	if (old_elem != NULL) {
 		EBPF_EPOCH_LIST_REMOVE(old_elem, elem);
 	}
 
@@ -424,16 +424,16 @@ hashtable_map_update_elem_percpu(struct ebpf_map *map, void *key, void *value,
 
 	old_elem = get_hash_elem(bucket, key, map->key_size);
 	error = check_update_flags(hash_map, old_elem, flags);
-	if (error) {
+	if (error != 0) {
 		goto err0;
 	}
 
-	if (old_elem) {
+	if (old_elem != NULL) {
 		memcpy(HASH_ELEM_CURCPU_VALUE(hash_map, old_elem), value,
 		       map->value_size);
 	} else {
 		new_elem = ebpf_allocator_alloc(&hash_map->allocator);
-		if (!new_elem) {
+		if (new_elem == NULL) {
 			error = EBUSY;
 			goto err0;
 		}
@@ -465,18 +465,18 @@ hashtable_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key,
 
 	old_elem = get_hash_elem(bucket, key, map->key_size);
 	error = check_update_flags(hash_map, old_elem, flags);
-	if (error) {
+	if (error != 0) {
 		goto err0;
 	}
 
-	if (old_elem) {
+	if (old_elem != NULL) {
 		for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
 			memcpy(HASH_ELEM_PERCPU_VALUE(hash_map, old_elem, i),
 			       value, map->value_size);
 		}
 	} else {
 		new_elem = ebpf_allocator_alloc(&hash_map->allocator);
-		if (!new_elem) {
+		if (new_elem == NULL) {
 			error = EBUSY;
 			goto err0;
     }
@@ -508,7 +508,7 @@ hashtable_map_delete_elem(struct ebpf_map *map, void *key)
 	HASH_BUCKET_LOCK(bucket);
 
 	elem = get_hash_elem(bucket, key, map->key_size);
-	if (elem) {
+	if (elem != NULL) {
 		EBPF_EPOCH_LIST_REMOVE(elem, elem);
 	}
 
@@ -519,7 +519,7 @@ hashtable_map_delete_elem(struct ebpf_map *map, void *key)
 	 * synchronization. This is safe, because ebpf_allocator
 	 * never calls free().
 	 */
-	if (elem) {
+	if (elem != NULL) {
 		ebpf_allocator_free(&hash_map->allocator, elem);
 	}
 
@@ -547,7 +547,7 @@ hashtable_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	}
 
 	next_elem = EBPF_EPOCH_LIST_NEXT(elem, elem);
-	if (next_elem) {
+	if (next_elem != NULL) {
 		memcpy(next_key, next_elem->key, map->key_size);
 		return 0;
 	}

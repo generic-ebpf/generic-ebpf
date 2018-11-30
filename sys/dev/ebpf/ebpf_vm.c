@@ -47,11 +47,11 @@ ebpf_create(void)
 void
 ebpf_destroy(struct ebpf_vm *vm)
 {
-	if (!vm) {
+	if (vm == NULL) {
 		return;
 	}
 
-	if (vm->jitted) {
+	if (vm->jitted != NULL) {
 		ebpf_exfree(vm->jitted, vm->jitted_size);
 	}
 
@@ -64,7 +64,8 @@ ebpf_destroy(struct ebpf_vm *vm)
 int
 ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name, void *fn)
 {
-	if (!vm || idx >= MAX_EXT_FUNCS || !name || !fn) {
+	if (vm == NULL || idx >= MAX_EXT_FUNCS ||
+			name == NULL || fn == NULL) {
 		return -1;
 	}
 
@@ -76,7 +77,7 @@ ebpf_register(struct ebpf_vm *vm, unsigned int idx, const char *name, void *fn)
 unsigned int
 ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name)
 {
-	if (!vm || !name) {
+	if (vm == NULL || name == NULL) {
 		return -1;
 	}
 
@@ -93,11 +94,11 @@ ebpf_lookup_registered_function(struct ebpf_vm *vm, const char *name)
 int
 ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len)
 {
-	if (!vm || !prog || prog_len == 0) {
+	if (vm == NULL || prog == NULL || prog_len == 0) {
 		return -1;
 	}
 
-	if (vm->insts) {
+	if (vm->insts != NULL) {
 		ebpf_unload(vm);
 	}
 
@@ -125,15 +126,15 @@ ebpf_load(struct ebpf_vm *vm, const void *prog, uint32_t prog_len)
 void
 ebpf_unload(struct ebpf_vm *vm)
 {
-	if (!vm) {
+	if (vm == NULL) {
 		return;
 	}
 
-	if (vm->jitted) {
+	if (vm->jitted != NULL) {
 		ebpf_exfree(vm->jitted, vm->jitted_size);
 	}
 
-	if (vm->insts) {
+	if (vm->insts != NULL) {
 		ebpf_free(vm->insts);
 		vm->insts = NULL;
 	}
@@ -153,11 +154,11 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 	uint64_t reg[16];
 	uint64_t stack[(STACK_SIZE + 7) / 8];
 
-	if (!vm) {
+	if (vm == NULL) {
 		return UINT64_MAX;
 	}
 
-	if (!vm->insts) {
+	if (vm->insts == NULL) {
 		/* Code must be loaded before we can execute */
 		return UINT64_MAX;
 	}
@@ -576,11 +577,11 @@ ebpf_exec(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 uint64_t
 ebpf_exec_jit(const struct ebpf_vm *vm, void *mem, size_t mem_len)
 {
-	if (!vm) {
+	if (vm == NULL) {
 		return UINT64_MAX;
 	}
 
-	if (vm->jitted) {
+	if (vm->jitted != NULL) {
 		return vm->jitted(mem, mem_len);
 	} else {
 		return UINT64_MAX;

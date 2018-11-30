@@ -30,7 +30,7 @@ ebpf_objfile_close(struct file *fp, struct thread *td)
 {
 	struct ebpf_obj *obj = fp->f_data;
 
-	if (!fp->f_count) {
+	if (fp->f_count == 0) {
 		ebpf_obj_delete(obj, td);
 	}
 
@@ -40,7 +40,7 @@ ebpf_objfile_close(struct file *fp, struct thread *td)
 bool
 is_ebpf_objfile(ebpf_file *fp)
 {
-	if (!fp) {
+	if (fp == NULL) {
 		return false;
 	}
 	return fp->f_ops == &ebpf_objf_ops;
@@ -51,12 +51,12 @@ ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 {
 	int error;
 
-	if (!td || !fp || !fd || !data) {
+	if (td == NULL || fp == NULL || fd == NULL || data == NULL) {
 		return EINVAL;
 	}
 
 	error = falloc(td, fp, fd, 0);
-	if (error) {
+	if (error != 0) {
 		return error;
 	}
 
@@ -155,7 +155,7 @@ int ebpf_dev_init(void);
 void
 ebpf_dev_fini(void)
 {
-	if (ebpf_dev) {
+	if (ebpf_dev != NULL) {
 		destroy_dev(ebpf_dev);
 	}
 	printf("ebpf-dev unloaded\n");
@@ -166,7 +166,7 @@ ebpf_dev_init(void)
 {
 	ebpf_dev = make_dev_credf(MAKEDEV_ETERNAL_KLD, &ebpf_cdevsw, 0, NULL,
 				  UID_ROOT, GID_WHEEL, 0600, "ebpf");
-	if (!ebpf_dev) {
+	if (ebpf_dev == NULL) {
 		goto fail;
 	}
 

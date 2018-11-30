@@ -48,7 +48,7 @@ ebpf_objfile_release(struct inode *inode, struct file *filp)
 {
 	struct ebpf_obj *obj = filp->private_data;
 
-	if (!atomic_read(&inode->i_count)) {
+	if (atomic_read(&inode->i_count) == 0) {
 		ebpf_obj_delete(obj, current);
 	}
 
@@ -61,7 +61,7 @@ static const struct file_operations ebpf_objf_ops = {.release =
 bool
 is_ebpf_objfile(ebpf_file *fp)
 {
-	if (!fp) {
+	if (fp == NULL) {
 		return false;
 	}
 	return fp->f_op == &ebpf_objf_ops;
@@ -73,7 +73,7 @@ ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 	*fd = anon_inode_getfd("ebpf-map", &ebpf_objf_ops, data, O_RDWR);
 
 	*fp = fget(*fd);
-	if (!fp) {
+	if (fp == NULL) {
 		return EBUSY;
 	}
 
@@ -86,7 +86,7 @@ int
 ebpf_fget(ebpf_thread *td, int fd, ebpf_file **f)
 {
 	*f = fget(fd);
-	if (!f) {
+	if (f == NULL) {
 		return EBUSY;
 	}
 	return 0;
@@ -139,16 +139,16 @@ linux_ebpf_ioctl(struct file *filp, unsigned int cmd, unsigned long data)
 	union ebpf_req req;
 
 	error = copy_from_user(&req, (void *)data, sizeof(union ebpf_req));
-	if (error) {
+	if (error != 0) {
 		return -error;
 	}
 
 	error = ebpf_ioctl(cmd, &req, current);
-	if (error) {
+	if (error != 0) {
 		return -error;
 	}
 
-	if ((void *)data) {
+	if ((void *)data != NULL) {
 		error =
 		    copy_to_user((void *)data, &req, sizeof(union ebpf_req));
 	}

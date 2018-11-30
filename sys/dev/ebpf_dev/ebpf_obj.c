@@ -21,7 +21,7 @@
 void *
 ebpf_obj_container_of(struct ebpf_obj *obj)
 {
-	if (!obj) {
+	if (obj == NULL) {
 		return NULL;
 	}
 
@@ -40,7 +40,7 @@ ebpf_obj_container_of(struct ebpf_obj *obj)
 void *
 ebpf_objfile_get_container(ebpf_file *fp)
 {
-	if (!fp) {
+	if (fp == NULL) {
 		return NULL;
 	}
 
@@ -49,7 +49,7 @@ ebpf_objfile_get_container(ebpf_file *fp)
 	}
 
 	struct ebpf_obj *obj = EBPF_OBJ(fp);
-	if (!obj) {
+	if (obj == NULL) {
 		return NULL;
 	}
 
@@ -59,19 +59,19 @@ ebpf_objfile_get_container(ebpf_file *fp)
 void
 ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread *td)
 {
-	if (!obj) {
+	if (obj == NULL) {
 		return;
 	}
 
 	if (obj->type == EBPF_OBJ_TYPE_PROG) {
 		struct ebpf_obj_prog *prog;
 		prog = (struct ebpf_obj_prog *)ebpf_obj_container_of(obj);
-		if (!prog) {
+		if (prog == NULL) {
 			return;
 		}
 
 		for (int i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
-			if (prog->attached_maps[i]) {
+			if (prog->attached_maps[i] != NULL) {
 				ebpf_fdrop(prog->attached_maps[i]->obj.f, td);
 			}
 		}
@@ -81,7 +81,7 @@ ebpf_obj_delete(struct ebpf_obj *obj, ebpf_thread *td)
 	} else if (obj->type == EBPF_OBJ_TYPE_MAP) {
 		struct ebpf_map *map;
 		map = (struct ebpf_map *)ebpf_obj_container_of(obj);
-		if (!map) {
+		if (map == NULL) {
 			return;
 		}
 		ebpf_map_deinit_default(map, NULL);

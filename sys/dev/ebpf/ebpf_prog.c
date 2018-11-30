@@ -37,12 +37,13 @@ int
 ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
 	       struct ebpf_inst *prog, uint32_t prog_len)
 {
-	if (!prog_obj || type >= EBPF_PROG_TYPE_MAX || !prog || !prog_len) {
+	if (prog_obj == NULL || type >= EBPF_PROG_TYPE_MAX ||
+			prog == NULL || prog_len == 0) {
 		return EINVAL;
 	}
 
 	struct ebpf_inst *insts = ebpf_malloc(prog_len);
-	if (!insts) {
+	if (insts == NULL) {
 		return ENOMEM;
 	}
 
@@ -65,11 +66,11 @@ ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg)
 void
 ebpf_prog_deinit(struct ebpf_prog *prog_obj, void *arg)
 {
-	if (!prog_obj) {
+	if (prog_obj == NULL) {
 		return;
 	}
 
-	if (prog_obj->deinit) {
+	if (prog_obj->deinit != NULL) {
 		prog_obj->deinit(prog_obj, arg);
 	}
 }

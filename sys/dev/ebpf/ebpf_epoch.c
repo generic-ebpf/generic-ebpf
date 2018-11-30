@@ -63,7 +63,7 @@ ebpf_epoch_get_record(ck_epoch_record_t **record)
 		ck_epoch_register(&ebpf_epoch, *record);
 
 		error = pthread_setspecific(ebpf_epoch_key, *record);
-		if (error) {
+		if (error != 0) {
 			ebpf_free(*record);
 			return -1;
 		}

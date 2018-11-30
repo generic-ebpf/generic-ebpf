@@ -151,56 +151,56 @@ void
 ebpf_mtx_init(ebpf_mtx *mutex, const char *name)
 {
 	int error = pthread_mutex_init(mutex, NULL);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_mtx_lock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_lock(mutex);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_mtx_unlock(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_unlock(mutex);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_mtx_destroy(ebpf_mtx *mutex)
 {
 	int error = pthread_mutex_destroy(mutex);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_spinmtx_init(ebpf_spinmtx *mutex, const char *name)
 {
 	int error = pthread_spin_init(mutex, 0);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_spinmtx_lock(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_lock(mutex);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_spinmtx_unlock(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_unlock(mutex);
-	assert(!error);
+	assert(error == 0);
 }
 
 void
 ebpf_spinmtx_destroy(ebpf_spinmtx *mutex)
 {
 	int error = pthread_spin_destroy(mutex);
-	assert(!error);
+	assert(error == 0);
 }
 
 uint32_t
@@ -209,24 +209,28 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
   return jenkins_hash(buf, len, hash);
 }
 
-__attribute__((constructor)) void
+int
 ebpf_init(void)
 {
-	ebpf_epoch_init();
-	ebpf_init_prog_types();
-	ebpf_init_map_types();
+	int error;
+
+	error = ebpf_epoch_init();
+	if (error != 0) {
+		return error;
+	}
+
+	return 0;
 }
 
-__attribute__((destructor)) void
+int
 ebpf_deinit(void)
 {
 	int error;
 
-	error = ebpf_deinit_map_types();
-	assert(!error);
+	error = ebpf_epoch_deinit();
+	if (error != 0) {
+		return error;
+	}
 
-	error = ebpf_deinit_prog_types();
-	assert(!error);
-
-	ebpf_epoch_deinit();
+	return 0;
 }

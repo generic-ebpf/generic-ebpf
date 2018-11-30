@@ -62,7 +62,7 @@ ebpf_run_test(struct ebpf_inst *prog, uint32_t prog_len,
 
 	if (jit) {
 		ebpf_jit_fn fn = ebpf_compile(vm);
-		if (!fn) {
+		if (fn == NULL) {
 			error = EINVAL;
 			goto err0;
 		}
