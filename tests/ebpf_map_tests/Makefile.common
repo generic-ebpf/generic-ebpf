@@ -1,5 +1,5 @@
 PROG=	all_tests
-OBJS=	$(map_tests) $(prog_tests) $(GTESTOBJS)
+OBJS=	$(map_tests) $(GTESTALL)
 CXXFLAGS+= \
 	-I $(BASE)/sys \
 	-I $(LIBEBPFDIR) \
@@ -34,7 +34,8 @@ map_tests = \
 	percpu_hashtable_map_delete_test.o \
 	percpu_hashtable_map_get_next_key_test.o \
 	percpu_hashtable_map_lookup_test.o \
-	percpu_hashtable_map_update_test.o
+	percpu_hashtable_map_update_test.o \
+	../ebpf_gtest_main.o
 
 all: $(PROG)
 $(PROG): $(OBJS) ${LIBEBPF}

@@ -19,8 +19,9 @@ SHLIB_VAL= $(SHLIB_VAL_$(UNAME_s))
 CC?=		cc
 
 GTESTPATH?=	${BASE}/extern/googletest
-GTESTOBJS?=	${GTESTPATH}/googletest/make/gtest_main.o \
-		${GTESTPATH}/googletest/make/gtest-all.o
+GTESTMAIN?=	${GTESTPATH}/googletest/make/gtest_main.o
+GTESTALL?=	${GTESTPATH}/googletest/make/gtest-all.o
+GTESTOBJS?=	${GTESTMAIN} ${GTESTALL}
 
 CKPATH?=	${BASE}/extern/ck-0.6.0
 CKOBJS?=	${CKPATH}/src/libck.a
