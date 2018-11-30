@@ -77,8 +77,5 @@ err0:
 }
 
 struct ebpf_prog_type test_prog_type = {
-	.name = "test",
-	.description =
-		 "Program type for builtin simple"
-		 "testing framework"
+	.name = "test"
 };

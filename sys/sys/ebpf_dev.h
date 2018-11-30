@@ -22,12 +22,10 @@
 
 struct ebpf_map_type_info {
 	char name[EBPF_NAME_MAX];
-	char description[EBPF_DESC_MAX];
 };
 
 struct ebpf_prog_type_info {
 	char name[EBPF_NAME_MAX];
-	char description[EBPF_DESC_MAX];
 };
 
 union ebpf_req {

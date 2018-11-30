@@ -569,7 +569,6 @@ get_first_key:
 
 struct ebpf_map_type hashtable_map_type = {
 	.name = "hashtable",
-	.description = "Hashtable map",
 	.ops = {
 		.init = hashtable_map_init,
 		.update_elem = hashtable_map_update_elem,
@@ -585,7 +584,6 @@ struct ebpf_map_type hashtable_map_type = {
 
 struct ebpf_map_type percpu_hashtable_map_type = {
 	.name = "percpu_hashtable",
-	.description = "Per CPU hashtable map",
 	.ops = {
 		.init = hashtable_map_init,
 		.update_elem = hashtable_map_update_elem_percpu,

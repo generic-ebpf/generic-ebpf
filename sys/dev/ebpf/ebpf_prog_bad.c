@@ -20,5 +20,4 @@
 
 struct ebpf_prog_type bad_prog_type = {
 	.name = "bad",
-	.description = "Bad prog type just for placeholder"
 };

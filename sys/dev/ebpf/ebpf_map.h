@@ -49,9 +49,7 @@ struct ebpf_map_ops {
 };
 
 struct ebpf_map_type {
-	uint32_t refcount;
 	char name[EBPF_NAME_MAX];
-	char description[EBPF_DESC_MAX];
 	struct ebpf_map_ops ops;
 };
 
