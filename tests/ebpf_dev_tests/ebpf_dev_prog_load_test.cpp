@@ -58,7 +58,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithInvalidProgType1)
 
 	union ebpf_req req;
 	req.prog_fdp = &fd;
-	req.prog_type = __EBPF_PROG_TYPE_MAX;
+	req.prog_type = EBPF_PROG_TYPE_MAX;
 	req.prog = insts;
 	req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
 	req.map_flags = 0;
@@ -76,7 +76,7 @@ TEST_F(EbpfDevProgLoadTest, LoadWithInvalidProgType2)
 
 	union ebpf_req req;
 	req.prog_fdp = &fd;
-	req.prog_type = __EBPF_PROG_TYPE_MAX + 1;
+	req.prog_type = EBPF_PROG_TYPE_MAX + 1;
 	req.prog = insts;
 	req.prog_len = sizeof(struct ebpf_inst) * sizeof(insts);
 	req.map_flags = 0;

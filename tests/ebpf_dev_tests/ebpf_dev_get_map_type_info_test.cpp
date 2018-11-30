@@ -40,7 +40,7 @@ TEST_F(EbpfDevGetMapTypeInfoTest, GetWithInvalidMapId)
 	int error;
 	struct ebpf_map_type_info info;
 
-	error = ebpf_get_map_type_info(ebpf_fd, __EBPF_MAP_TYPE_MAX, &info);
+	error = ebpf_get_map_type_info(ebpf_fd, EBPF_MAP_TYPE_MAX, &info);
 	EXPECT_EQ(-1, error);
 	EXPECT_EQ(EINVAL, errno);
 }

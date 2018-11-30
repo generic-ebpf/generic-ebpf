@@ -24,7 +24,7 @@ TEST(ProgLoadTest, LoadWithInvalidProgType1)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(&prog, __EBPF_PROG_TYPE_MAX, insts, 1);
+	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_MAX, insts, 1);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -36,7 +36,7 @@ TEST(ProgLoadTest, LoadWithInvalidProgType2)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(&prog, __EBPF_PROG_TYPE_MAX + 1, insts, 1);
+	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_MAX + 1, insts, 1);
 
 	EXPECT_EQ(EINVAL, error);
 }

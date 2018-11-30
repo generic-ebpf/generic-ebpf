@@ -131,7 +131,7 @@ ebpf_ioc_load_prog(union ebpf_req *req, ebpf_thread *td)
 	struct ebpf_obj_prog *prog;
 	struct ebpf_inst *insts;
 
-	if (!req || !req->prog_fdp || req->prog_type >= __EBPF_PROG_TYPE_MAX ||
+	if (!req || !req->prog_fdp || req->prog_type >= EBPF_PROG_TYPE_MAX ||
 	    !req->prog || !req->prog_len || !td) {
 		return EINVAL;
 	}
@@ -153,8 +153,8 @@ ebpf_ioc_load_prog(union ebpf_req *req, ebpf_thread *td)
 		return ENOMEM;
 	}
 
-	error =
-	    ebpf_prog_init(&prog->prog, req->prog_type, insts, req->prog_len);
+	error = ebpf_prog_init(&prog->prog, req->prog_type,
+			insts, req->prog_len);
 	if (error) {
 		ebpf_free(insts);
 		ebpf_free(prog);
@@ -528,7 +528,7 @@ static int
 ebpf_ioc_get_map_type_info(union ebpf_req *req)
 {
 	int error;
-	if (req->mt_id >= __EBPF_MAP_TYPE_MAX) {
+	if (req->mt_id >= EBPF_MAP_TYPE_MAX) {
 		return EINVAL;
 	}
 
@@ -537,20 +537,18 @@ ebpf_ioc_get_map_type_info(union ebpf_req *req)
 		return ENOMEM;
 	}
 
-	struct ebpf_map_type *type;
-	error = ebpf_acquire_map_type(req->mt_id, &type);
-	if (error) {
-		return error;
+	const struct ebpf_map_type *type = ebpf_get_map_type(req->mt_id);
+	if (type == NULL) {
+		error = ENOENT;
+		goto err0;
 	}
 
 	memcpy(info->name, type->name, EBPF_NAME_MAX);
-	memcpy(info->description, type->description, EBPF_DESC_MAX);
 
 	error = ebpf_copyout(info, req->mt_info, sizeof(*info));
+
+err0:
 	ebpf_free(info);
-
-	ebpf_release_map_type(req->mt_id);
-
 	return error;
 }
 
@@ -558,7 +556,7 @@ static int
 ebpf_ioc_get_prog_type_info(union ebpf_req *req)
 {
 	int error;
-	if (req->pt_id >= __EBPF_PROG_TYPE_MAX) {
+	if (req->pt_id >= EBPF_PROG_TYPE_MAX) {
 		return EINVAL;
 	}
 
@@ -567,20 +565,21 @@ ebpf_ioc_get_prog_type_info(union ebpf_req *req)
 		return ENOMEM;
 	}
 
-	struct ebpf_prog_type *type;
-	error = ebpf_acquire_prog_type(req->pt_id, &type);
-	if (error) {
-		return error;
+	const struct ebpf_prog_type *type = ebpf_get_prog_type(req->pt_id);
+	if (type == NULL) {
+		error = ENOENT;
+		goto err0;
 	}
 
 	memcpy(info->name, type->name, EBPF_NAME_MAX);
-	memcpy(info->description, type->description, EBPF_DESC_MAX);
 
 	error = ebpf_copyout(info, req->pt_info, sizeof(*info));
+	if (error != 0) {
+		goto err0;
+	}
+
+err0:
 	ebpf_free(info);
-
-	ebpf_release_prog_type(req->pt_id);
-
 	return error;
 }
 

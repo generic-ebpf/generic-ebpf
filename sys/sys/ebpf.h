@@ -30,13 +30,13 @@ enum ebpf_basic_map_types {
 	EBPF_MAP_TYPE_PERCPU_ARRAY,
 	EBPF_MAP_TYPE_HASHTABLE,
 	EBPF_MAP_TYPE_PERCPU_HASHTABLE,
-	__EBPF_BASIC_MAP_TYPE_MAX
+	EBPF_MAP_TYPE_MAX
 };
 
 enum ebpf_basic_prog_types {
 	EBPF_PROG_TYPE_BAD,
 	EBPF_PROG_TYPE_TEST,
-	__EBPF_BASIC_PROG_TYPE_MAX
+	EBPF_PROG_TYPE_MAX
 };
 
 enum ebpf_map_update_flags {

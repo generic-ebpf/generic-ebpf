@@ -132,7 +132,7 @@ ebpf_dev_get_map_type_by_name(GBPFDriver *self, const char *name)
 	struct ebpf_map_type_info info;
 	union ebpf_req req;
 
-	for (uint16_t i = 0; i < __EBPF_MAP_TYPE_MAX; i++) {
+	for (uint16_t i = 0; i < EBPF_MAP_TYPE_MAX; i++) {
 		req.mt_id = i;
 		req.mt_info = &info;
 		error = ioctl(driver->ebpf_fd, EBPFIOC_GET_MAP_TYPE_INFO, &req);
@@ -156,7 +156,7 @@ ebpf_dev_get_prog_type_by_name(GBPFDriver *self, const char *name)
 	struct ebpf_prog_type_info info;
 	union ebpf_req req;
 
-	for (uint16_t i = 0; i < __EBPF_PROG_TYPE_MAX; i++) {
+	for (uint16_t i = 0; i < EBPF_PROG_TYPE_MAX; i++) {
 		req.pt_id = i;
 		req.pt_info = &info;
 		error = ioctl(driver->ebpf_fd, EBPFIOC_GET_MAP_TYPE_INFO, &req);

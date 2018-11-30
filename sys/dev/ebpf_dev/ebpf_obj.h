@@ -24,7 +24,7 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 
-enum ebpf_obj_type {
+enum ebpf_obj_types {
 	EBPF_OBJ_TYPE_PROG = 0,
 	EBPF_OBJ_TYPE_MAP,
 	__EBPF_OBJ_TYPE_MAX

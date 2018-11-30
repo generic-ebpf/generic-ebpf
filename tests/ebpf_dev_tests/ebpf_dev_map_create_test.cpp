@@ -54,7 +54,7 @@ TEST_F(EbpfDevMapCreateTest, CreateWithInvalidMapType1)
 
 	union ebpf_req req;
 	req.map_fdp = &fd;
-	req.map_type = __EBPF_MAP_TYPE_MAX;
+	req.map_type = EBPF_MAP_TYPE_MAX;
 	req.key_size = sizeof(uint32_t);
 	req.value_size = sizeof(uint32_t);
 	req.max_entries = 100;
@@ -71,7 +71,7 @@ TEST_F(EbpfDevMapCreateTest, CreateWithInvalidMapType2)
 
 	union ebpf_req req;
 	req.map_fdp = &fd;
-	req.map_type = __EBPF_MAP_TYPE_MAX + 1;
+	req.map_type = EBPF_MAP_TYPE_MAX + 1;
 	req.key_size = sizeof(uint32_t);
 	req.value_size = sizeof(uint32_t);
 	req.max_entries = 100;

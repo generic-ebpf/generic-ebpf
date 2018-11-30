@@ -21,7 +21,7 @@ TEST(MapCreateTest, CreateWithInvalidMapType1)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, __EBPF_MAP_TYPE_MAX, sizeof(uint32_t),
+	error = ebpf_map_init(&map, EBPF_MAP_TYPE_MAX, sizeof(uint32_t),
 			      sizeof(uint32_t), 100, 0);
 
 	EXPECT_EQ(EINVAL, error);
@@ -32,7 +32,7 @@ TEST(MapCreateTest, CreateWithInvalidMapType2)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, __EBPF_MAP_TYPE_MAX + 1, sizeof(uint32_t),
+	error = ebpf_map_init(&map, EBPF_MAP_TYPE_MAX + 1, sizeof(uint32_t),
 			      sizeof(uint32_t), 100, 0);
 
 	EXPECT_EQ(EINVAL, error);
