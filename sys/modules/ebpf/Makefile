@@ -11,16 +11,16 @@ CFLAGS += -std=c99
 
 KMOD    = ebpf
 
+CORES += ebpf_allocator.c
 CORES += ebpf_freebsd.c
 CORES += ebpf_loader.c
+CORES += ebpf_map.c
+CORES += ebpf_prog.c
 CORES += ebpf_verifer.c
 CORES += ebpf_vm.c
-CORES += ebpf_prog.c
-CORES += ebpf_allocator.c
-CORES += ebpf_map.c
 
-MAPS += ebpf_map_bad.c
 MAPS += ebpf_map_array.c
+MAPS += ebpf_map_bad.c
 MAPS += ebpf_map_hashtable.c
 
 PROGS += ebpf_prog_bad.c
