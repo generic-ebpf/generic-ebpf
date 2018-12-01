@@ -64,7 +64,7 @@ ebpf_allocator_deinit(struct ebpf_allocator *alloc, void (*dtor)(void *, void *)
 		}
 	}
 
-	while (SLIST_EMPTY(&alloc->used_segment)) {
+	while (!SLIST_EMPTY(&alloc->used_segment)) {
 		tmp = SLIST_FIRST(&alloc->used_segment);
 		if (tmp != NULL) {
 			SLIST_REMOVE_HEAD(&alloc->used_segment, entry);
