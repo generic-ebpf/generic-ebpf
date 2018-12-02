@@ -22,6 +22,17 @@
 #include <sys/ebpf_dev.h>
 
 /*
+ * Global reference count. Since ebpf.ko doesn't provide
+ * any reference counting, we need to manage our own reference
+ * counting in here.
+ *
+ * This will acquired when users get file descriptor like /dev/ebpf
+ * descriptor or ebpf object (programs, maps...) descriptor. It will
+ * released when users close them.
+ */
+static uint32_t ebpf_dev_global_refcount = 0;
+
+/*
  * Extend badfileops for anonimous file for ebpf objects.
  */
 static struct fileops ebpf_objf_ops;
@@ -32,6 +43,7 @@ ebpf_objfile_close(struct file *fp, struct thread *td)
 
 	if (fp->f_count == 0) {
 		ebpf_obj_delete(obj, td);
+		ebpf_refcount_release(&ebpf_dev_global_refcount);
 	}
 
 	return 0;
@@ -77,6 +89,8 @@ ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 	finit(*fp, FREAD | FWRITE, DTYPE_NONE, data, &ebpf_objf_ops);
 	fdrop(*fp, td);
 
+	ebpf_refcount_acquire(&ebpf_dev_global_refcount);
+
 	return 0;
 }
 
@@ -121,12 +135,14 @@ ebpf_curthread(void)
 static int
 ebpf_open(struct cdev *dev, int oflags, int devtype, struct thread *td)
 {
+	ebpf_refcount_acquire(&ebpf_dev_global_refcount);
 	return 0;
 }
 
 static int
 ebpf_close(struct cdev *dev, int fflag, int devtype, struct thread *td)
 {
+	ebpf_refcount_release(&ebpf_dev_global_refcount);
 	return 0;
 }
 
@@ -187,6 +203,10 @@ ebpf_dev_loader(__unused struct module *module, int event, __unused void *arg)
 		error = ebpf_dev_init();
 		break;
 	case MOD_UNLOAD:
+		if (ebpf_dev_global_refcount != 0) {
+			error = EBUSY;
+			break;
+		}
 		ebpf_dev_fini();
 		break;
 	default:
