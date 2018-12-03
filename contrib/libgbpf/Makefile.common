@@ -7,8 +7,7 @@ OBJS=	${SRCS:.c=.o}
 CORE=	gbpf_elf_walker.c \
 	gbpf_driver.c
 DRIVERS=gbpf_null_driver.c \
-	ebpf_dev_driver.c \
-	gbpf_linux_driver.c
+	ebpf_dev_driver.c
 
 CFLAGS+=-Ofast \
 	-I ${BASE}/sys \

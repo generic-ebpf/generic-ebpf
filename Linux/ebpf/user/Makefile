@@ -42,7 +42,7 @@ endif
 all: libebpf.so
 
 libebpf.so: $(CKOBJS) $(ebpf-objs)
-	$(CC) $(CFLAGS) -shared -o $@ $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) ${LIBS}
 
 install:
 	cp libebpf.so $(DESTDIR)

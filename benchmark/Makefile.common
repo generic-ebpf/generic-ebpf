@@ -18,7 +18,3 @@ install:
 
 map_benchmark: map_benchmark.o ${LIBGBPF}
 	$(CC) $(CFLAGS) -o $@ map_benchmark.o ${LIBS}
-map_benchmark_native.o: map_benchmark.c ${LIBGBPF}
-	$(CC) $(CFLAGS) -Dnative_bpf -c -o $@ $?
-map_benchmark_native: map_benchmark_native.o ${LIBGBPF}
-	$(CC) $(CFLAGS) -o $@ map_benchmark_native.o ${LIBS}

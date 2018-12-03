@@ -26,6 +26,6 @@
 #include "drivers/gbpf_null_driver.h"
 #include "drivers/ebpf_dev_driver.h"
 
-#ifdef linux
+#if defined(linux) && defined(native_bpf)
 #include "drivers/gbpf_linux_driver.h"
 #endif

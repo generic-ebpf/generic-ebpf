@@ -1,4 +1,4 @@
-CC=	clang
+CC=	${EBPFCC}
 SRCS=	test.c
 OBJS=	${SRCS:.c=.o}
 CPPFLAGS= \

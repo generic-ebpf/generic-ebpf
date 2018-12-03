@@ -17,6 +17,7 @@ SHLIB_VAL_Darwin=	DYLD_LIBRARY_PATH
 SHLIB_VAL= $(SHLIB_VAL_$(UNAME_s))
 
 CC?=		cc
+EBPFCC?=	clang
 
 GTESTPATH?=	${BASE}/extern/googletest
 GTESTMAIN?=	${GTESTPATH}/googletest/make/gtest_main.o
