@@ -12,7 +12,13 @@ TEST(ProgLoadTest, LoadWithNULLProgPointer)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(NULL, EBPF_PROG_TYPE_TEST, insts, 1);
+	struct ebpf_prog_attr attr = {
+		.type = EBPF_PROG_TYPE_TEST,
+		.prog = insts,
+		.prog_len = 1
+	};
+
+	error = ebpf_prog_init(NULL, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -24,7 +30,13 @@ TEST(ProgLoadTest, LoadWithInvalidProgType1)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_MAX, insts, 1);
+	struct ebpf_prog_attr attr = {
+		.type = EBPF_PROG_TYPE_MAX,
+		.prog = insts,
+		.prog_len = 1
+	};
+
+	error = ebpf_prog_init(&prog, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -36,7 +48,13 @@ TEST(ProgLoadTest, LoadWithInvalidProgType2)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_MAX + 1, insts, 1);
+	struct ebpf_prog_attr attr = {
+		.type = EBPF_PROG_TYPE_MAX + 1,
+		.prog = insts,
+		.prog_len = 1
+	};
+
+	error = ebpf_prog_init(&prog, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -48,7 +66,13 @@ TEST(ProgLoadTest, LoadWithZeroLen)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_TEST, insts, 0);
+	struct ebpf_prog_attr attr = {
+		.type = EBPF_PROG_TYPE_TEST,
+		.prog = insts,
+		.prog_len = 0
+	};
+
+	error = ebpf_prog_init(&prog, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -58,7 +82,13 @@ TEST(ProgLoadTest, LoadWithNULLProg)
 	int error;
 	struct ebpf_prog prog;
 
-	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_TEST, NULL, 1);
+	struct ebpf_prog_attr attr = {
+		.type = EBPF_PROG_TYPE_TEST,
+		.prog = NULL,
+		.prog_len = 1
+	};
+
+	error = ebpf_prog_init(&prog, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -70,7 +100,13 @@ TEST(ProgLoadTest, CorrectLoad)
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
-	error = ebpf_prog_init(&prog, EBPF_PROG_TYPE_TEST, insts, 1);
+	struct ebpf_prog_attr attr = {
+		.type = EBPF_PROG_TYPE_TEST,
+		.prog = insts,
+		.prog_len = 1
+	};
+
+	error = ebpf_prog_init(&prog, &attr);
 
 	EXPECT_EQ(0, error);
 

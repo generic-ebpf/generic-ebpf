@@ -155,8 +155,13 @@ ebpf_ioc_load_prog(union ebpf_req *req, ebpf_thread *td)
 		return ENOMEM;
 	}
 
-	error = ebpf_prog_init(&prog->prog, req->prog_type,
-			insts, req->prog_len);
+	struct ebpf_prog_attr attr = {
+		.type = req->prog_type,
+		.prog = insts,
+		.prog_len = req->prog_len
+	};
+
+	error = ebpf_prog_init(&prog->prog, &attr);
 	if (error != 0) {
 		ebpf_free(insts);
 		ebpf_free(prog);
@@ -215,9 +220,15 @@ ebpf_ioc_map_create(union ebpf_req *req, ebpf_thread *td)
 		return ENOMEM;
 	}
 
-	error =
-	    ebpf_map_init(&map->map, req->map_type, req->key_size,
-			  req->value_size, req->max_entries, req->map_flags);
+	struct ebpf_map_attr attr = {
+		.type = req->map_type,
+		.key_size = req->key_size,
+		.value_size = req->value_size,
+		.max_entries = req->max_entries,
+		.flags = req->map_flags
+	};
+
+	error = ebpf_map_init(&map->map, &attr);
 	if (error != 0) {
 		ebpf_free(map);
 		return error;

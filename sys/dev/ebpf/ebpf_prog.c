@@ -34,23 +34,23 @@ ebpf_get_prog_type(uint16_t type)
 }
 
 int
-ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
-	       struct ebpf_inst *prog, uint32_t prog_len)
+ebpf_prog_init(struct ebpf_prog *prog_obj, struct ebpf_prog_attr *attr)
 {
-	if (prog_obj == NULL || type >= EBPF_PROG_TYPE_MAX ||
-			prog == NULL || prog_len == 0) {
+	if (prog_obj == NULL || attr == NULL ||
+			attr->type >= EBPF_PROG_TYPE_MAX ||
+			attr->prog == NULL || attr->prog_len == 0) {
 		return EINVAL;
 	}
 
-	struct ebpf_inst *insts = ebpf_malloc(prog_len);
+	struct ebpf_inst *insts = ebpf_malloc(attr->prog_len);
 	if (insts == NULL) {
 		return ENOMEM;
 	}
 
-	memcpy(insts, prog, prog_len);
+	memcpy(insts, attr->prog, attr->prog_len);
 
-	prog_obj->type = type;
-	prog_obj->prog_len = prog_len;
+	prog_obj->type = attr->type;
+	prog_obj->prog_len = attr->prog_len;
 	prog_obj->prog = insts;
 	prog_obj->deinit = ebpf_prog_deinit_default;
 

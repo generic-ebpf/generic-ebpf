@@ -23,9 +23,15 @@
 
 struct ebpf_map;
 
-typedef int ebpf_map_init_t(struct ebpf_map *map, uint32_t key_size,
-			    uint32_t value_size, uint32_t max_entries,
-			    uint32_t flags);
+struct ebpf_map_attr {
+	uint16_t type;
+	uint32_t key_size;
+	uint32_t value_size;
+	uint32_t max_entries;
+	uint32_t flags;
+};
+
+typedef int ebpf_map_init_t(struct ebpf_map *map, struct ebpf_map_attr *attr);
 typedef void *ebpf_map_lookup_elem_t(struct ebpf_map *map, void *key);
 typedef int ebpf_map_lookup_elem_from_user_t(struct ebpf_map *map, void *key,
 					     void *value);
@@ -65,9 +71,7 @@ struct ebpf_map {
 };
 
 const struct ebpf_map_type *ebpf_get_map_type(uint16_t type);
-int ebpf_map_init(struct ebpf_map *mapp, uint16_t type, uint32_t key_size,
-		  uint32_t value_size, uint32_t max_entries,
-		  uint32_t map_flags);
+int ebpf_map_init(struct ebpf_map *mapp, struct ebpf_map_attr *attr);
 void *ebpf_map_lookup_elem(struct ebpf_map *map, void *key);
 int ebpf_map_update_elem(struct ebpf_map *map, void *key, void *value,
 			 uint64_t flags);

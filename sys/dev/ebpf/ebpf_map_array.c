@@ -50,10 +50,9 @@ array_map_deinit_percpu(struct ebpf_map *map, void *arg)
 }
 
 static int
-array_map_init_common(struct ebpf_map_array *array_map, uint32_t key_size,
-		      uint32_t value_size, uint32_t max_entries, uint32_t flags)
+array_map_init_common(struct ebpf_map_array *array_map, struct ebpf_map_attr *attr)
 {
-	array_map->array = ebpf_calloc(max_entries, value_size);
+	array_map->array = ebpf_calloc(attr->max_entries, attr->value_size);
 	if (array_map->array == NULL) {
 		return ENOMEM;
 	}
@@ -62,8 +61,7 @@ array_map_init_common(struct ebpf_map_array *array_map, uint32_t key_size,
 }
 
 static int
-array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
-	       uint32_t max_entries, uint32_t flags)
+array_map_init(struct ebpf_map *map, struct ebpf_map_attr *attr)
 {
 	int error;
 
@@ -73,8 +71,7 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 		return ENOMEM;
 	}
 
-	error = array_map_init_common(array_map, key_size, value_size,
-				      max_entries, flags);
+	error = array_map_init_common(array_map, attr);
 	if (error != 0) {
 		ebpf_free(array_map);
 		return error;
@@ -87,8 +84,7 @@ array_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 }
 
 static int
-array_map_init_percpu(struct ebpf_map *map, uint32_t key_size,
-		      uint32_t value_size, uint32_t max_entries, uint32_t flags)
+array_map_init_percpu(struct ebpf_map *map, struct ebpf_map_attr *attr)
 {
 	int error;
 	uint16_t ncpus = ebpf_ncpus();
@@ -101,8 +97,7 @@ array_map_init_percpu(struct ebpf_map *map, uint32_t key_size,
 
 	uint16_t i;
 	for (i = 0; i < ncpus; i++) {
-		error = array_map_init_common(array_map + i, key_size,
-					      value_size, max_entries, flags);
+		error = array_map_init_common(array_map + i, attr);
 		if (error != 0) {
 			goto err0;
 		}

@@ -17,9 +17,14 @@ class MapUpdateTest : public ::testing::Test {
 	{
 		int error;
 
-		error =
-		    ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
-				  sizeof(uint32_t), 100, 0);
+		struct ebpf_map_attr attr;
+		attr.type = EBPF_MAP_TYPE_ARRAY;
+		attr.key_size = sizeof(uint32_t);
+		attr.value_size = sizeof(uint32_t);
+		attr.max_entries = 100;
+		attr.flags = 0;
+
+		error = ebpf_map_init(&map, &attr);
 		ASSERT_TRUE(!error);
 	}
 

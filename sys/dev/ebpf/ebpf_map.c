@@ -39,26 +39,25 @@ ebpf_get_map_type(uint16_t type)
 }
 
 int
-ebpf_map_init(struct ebpf_map *map, uint16_t type, uint32_t key_size,
-	      uint32_t value_size, uint32_t max_entries, uint32_t flags)
+ebpf_map_init(struct ebpf_map *map, struct ebpf_map_attr *attr)
 {
 	int error;
 
-	if (map == NULL || type >= EBPF_MAP_TYPE_MAX ||
-			key_size == 0 || value_size == 0 ||
-	    max_entries == 0) {
+	if (map == NULL || attr == NULL ||
+			attr->type >= EBPF_MAP_TYPE_MAX ||
+			attr->key_size == 0 || attr->value_size == 0 ||
+			attr->max_entries == 0) {
 		return EINVAL;
 	}
 
-	map->type = type;
-	map->key_size = key_size;
-	map->value_size = value_size;
-	map->max_entries = max_entries;
-	map->map_flags = flags;
+	map->type = attr->type;
+	map->key_size = attr->key_size;
+	map->value_size = attr->value_size;
+	map->max_entries = attr->max_entries;
+	map->map_flags = attr->flags;
 	map->deinit = ebpf_map_deinit_default;
 
-	error = EBPF_MAP_TYPE_OPS(type).init(map, key_size, value_size,
-					 max_entries, flags);
+	error = EBPF_MAP_TYPE_OPS(attr->type).init(map, attr);
 	if (error != 0) {
 		return error;
 	}

@@ -139,15 +139,14 @@ is_percpu(struct ebpf_map *map)
 }
 
 static int
-hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
-		   uint32_t max_entries, uint32_t flags)
+hashtable_map_init(struct ebpf_map *map, struct ebpf_map_attr *attr)
 {
 	int error;
 
 	map->percpu = is_percpu(map);
 
 	/* Check overflow */
-	if (ebpf_roundup(key_size, 8) + ebpf_roundup(value_size, 8) +
+	if (ebpf_roundup(attr->key_size, 8) + ebpf_roundup(attr->value_size, 8) +
 		sizeof(struct hash_elem) >
 	    UINT32_MAX) {
 		return E2BIG;
@@ -167,8 +166,8 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	 * For getting the "real" key_size and value_size, please
 	 * use values stored in struct ebpf_map.
 	 */
-	hash_map->key_size = ebpf_roundup(key_size, 8);
-	hash_map->value_size = ebpf_roundup(value_size, 8);
+	hash_map->key_size = ebpf_roundup(attr->key_size, 8);
+	hash_map->value_size = ebpf_roundup(attr->value_size, 8);
 
 	if (map->percpu) {
 		hash_map->elem_size = hash_map->key_size + sizeof(uint8_t *) +
@@ -184,7 +183,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	 * This improbes performance, because we don't have to
 	 * use slow moduro opearation.
 	 */
-	hash_map->nbuckets = ebpf_roundup_pow_of_two(max_entries);
+	hash_map->nbuckets = ebpf_roundup_pow_of_two(attr->max_entries);
 	hash_map->buckets =
 	    ebpf_calloc(hash_map->nbuckets, sizeof(struct hash_bucket));
 	if (hash_map->buckets == NULL) {
@@ -200,7 +199,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 
 	if (map->percpu) {
 		error = ebpf_allocator_init(&hash_map->allocator,
-					    hash_map->elem_size, max_entries,
+					    hash_map->elem_size, attr->max_entries,
 					    percpu_elem_ctor, hash_map);
 		if (error != 0) {
 			goto err1;
@@ -208,7 +207,7 @@ hashtable_map_init(struct ebpf_map *map, uint32_t key_size, uint32_t value_size,
 	} else {
 		error = ebpf_allocator_init(
 		    &hash_map->allocator, hash_map->elem_size,
-		    max_entries + ebpf_ncpus(), NULL, NULL);
+		    attr->max_entries + ebpf_ncpus(), NULL, NULL);
 		if (error != 0) {
 			goto err1;
 		}

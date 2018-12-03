@@ -10,8 +10,14 @@ TEST(MapCreateTest, CreateWithNULLMapPointer)
 {
 	int error;
 
-	error = ebpf_map_init(NULL, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t),
-			      sizeof(uint32_t), 100, 0);
+	struct ebpf_map_attr attr;
+	attr.type = EBPF_MAP_TYPE_ARRAY;
+	attr.key_size = sizeof(uint32_t);
+	attr.value_size = sizeof(uint32_t);
+	attr.max_entries = 100;
+	attr.flags = 0;
+
+	error = ebpf_map_init(NULL, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -21,8 +27,14 @@ TEST(MapCreateTest, CreateWithInvalidMapType1)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, EBPF_MAP_TYPE_MAX, sizeof(uint32_t),
-			      sizeof(uint32_t), 100, 0);
+	struct ebpf_map_attr attr;
+	attr.type = EBPF_MAP_TYPE_MAX;
+	attr.key_size = sizeof(uint32_t);
+	attr.value_size = sizeof(uint32_t);
+	attr.max_entries = 100;
+	attr.flags = 0;
+
+	error = ebpf_map_init(&map, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -32,8 +44,14 @@ TEST(MapCreateTest, CreateWithInvalidMapType2)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, EBPF_MAP_TYPE_MAX + 1, sizeof(uint32_t),
-			      sizeof(uint32_t), 100, 0);
+	struct ebpf_map_attr attr;
+	attr.type = EBPF_MAP_TYPE_MAX + 1;
+	attr.key_size = sizeof(uint32_t);
+	attr.value_size = sizeof(uint32_t);
+	attr.max_entries = 100;
+	attr.flags = 0;
+
+	error = ebpf_map_init(&map, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -43,8 +61,14 @@ TEST(MapCreateTest, CreateWithZeroKey)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, 0, sizeof(uint32_t),
-			      100, 0);
+	struct ebpf_map_attr attr;
+	attr.type = EBPF_MAP_TYPE_ARRAY;
+	attr.key_size = 0;
+	attr.value_size = sizeof(uint32_t);
+	attr.max_entries = 100;
+	attr.flags = 0;
+
+	error = ebpf_map_init(&map, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -54,8 +78,14 @@ TEST(MapCreateTest, CreateWithZeroValue)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t), 0,
-			      100, 0);
+	struct ebpf_map_attr attr;
+	attr.type = EBPF_MAP_TYPE_ARRAY;
+	attr.key_size = sizeof(uint32_t);
+	attr.value_size = 0;
+	attr.max_entries = 100;
+	attr.flags = 0;
+
+	error = ebpf_map_init(&map, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -65,8 +95,14 @@ TEST(MapCreateTest, CreateWithZeroMaxEntries)
 	int error;
 	struct ebpf_map map;
 
-	error = ebpf_map_init(&map, EBPF_MAP_TYPE_ARRAY, sizeof(uint32_t), 0,
-			      100, 0);
+	struct ebpf_map_attr attr;
+	attr.type = EBPF_MAP_TYPE_ARRAY;
+	attr.key_size = sizeof(uint32_t);
+	attr.value_size = sizeof(uint32_t);
+	attr.max_entries = 0;
+	attr.flags = 0;
+
+	error = ebpf_map_init(&map, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }

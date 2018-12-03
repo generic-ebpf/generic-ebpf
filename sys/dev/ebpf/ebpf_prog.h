@@ -29,12 +29,17 @@ struct ebpf_prog {
 	void (*deinit)(struct ebpf_prog *, void *);
 };
 
+struct ebpf_prog_attr {
+	uint16_t type;
+	struct ebpf_inst *prog;
+	uint32_t prog_len;
+};
+
 struct ebpf_prog_type {
 	char name[EBPF_NAME_MAX];
 };
 
 const struct ebpf_prog_type *ebpf_get_prog_type(uint16_t type);
-int ebpf_prog_init(struct ebpf_prog *prog_obj, uint16_t type,
-		   struct ebpf_inst *prog, uint32_t prog_len);
+int ebpf_prog_init(struct ebpf_prog *prog_obj, struct ebpf_prog_attr *attr);
 void ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg);
 void ebpf_prog_deinit(struct ebpf_prog *prog_obj, void *arg);

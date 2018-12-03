@@ -15,9 +15,14 @@ class PercpuArrayMapGetNextKeyTest : public ::testing::Test {
 	virtual void
 	SetUp()
 	{
-		int error =
-		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPU_ARRAY,
-				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
+	  struct ebpf_map_attr attr;
+	  attr.type = EBPF_MAP_TYPE_PERCPU_ARRAY;
+	  attr.key_size = sizeof(uint32_t);
+	  attr.value_size = sizeof(uint32_t);
+	  attr.max_entries = 100;
+	  attr.flags = 0;
+
+		int error = ebpf_map_init(&map, &attr);
 		ASSERT_TRUE(!error);
 	}
 
