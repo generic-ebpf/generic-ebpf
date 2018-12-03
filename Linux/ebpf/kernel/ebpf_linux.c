@@ -228,19 +228,30 @@ ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash)
   return jhash(buf, len, hash);
 }
 
-static int
+int
 ebpf_init(void)
 {
-	ebpf_init_map_types();
-	ebpf_init_prog_types();
-	printk("ebpf loaded\n");
+	return 0;
+}
+
+static int
+ebpf_mod_init(void)
+{
+	return ebpf_init();
+}
+
+int
+ebpf_deinit(void)
+{
 	return 0;
 }
 
 static void
-ebpf_fini(void)
+ebpf_mod_deinit(void)
 {
-	printk("ebpf unloaded\n");
+	int error;
+	error = ebpf_deinit();
+	ebpf_assert(error == 0);
 }
 
 /* dev/ebpf/ebpf_allocator.h */
@@ -250,13 +261,8 @@ EXPORT_SYMBOL(ebpf_allocator_alloc);
 EXPORT_SYMBOL(ebpf_allocator_free);
 
 /* dev/ebpf/ebpf_map.h */
-EXPORT_SYMBOL(ebpf_init_map_types);
-EXPORT_SYMBOL(ebpf_deinit_map_types);
-EXPORT_SYMBOL(ebpf_register_map_type);
-EXPORT_SYMBOL(ebpf_unregister_map_type);
-EXPORT_SYMBOL(ebpf_acquire_map_type);
-EXPORT_SYMBOL(ebpf_release_map_type);
 EXPORT_SYMBOL(ebpf_map_init);
+EXPORT_SYMBOL(ebpf_get_map_type);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
 EXPORT_SYMBOL(ebpf_map_delete_elem);
@@ -295,13 +301,8 @@ EXPORT_SYMBOL(ebpf_refcount_acquire);
 EXPORT_SYMBOL(ebpf_refcount_release);
 
 /* dev/ebpf/ebpf_prog.h */
-EXPORT_SYMBOL(ebpf_init_prog_types);
-EXPORT_SYMBOL(ebpf_deinit_prog_types);
-EXPORT_SYMBOL(ebpf_acquire_prog_type);
-EXPORT_SYMBOL(ebpf_release_prog_type);
-EXPORT_SYMBOL(ebpf_register_prog_type);
-EXPORT_SYMBOL(ebpf_unregister_prog_type);
 EXPORT_SYMBOL(ebpf_prog_init);
+EXPORT_SYMBOL(ebpf_get_prog_type);
 EXPORT_SYMBOL(ebpf_prog_deinit_default);
 EXPORT_SYMBOL(ebpf_prog_deinit);
 
@@ -314,13 +315,12 @@ EXPORT_SYMBOL(ebpf_destroy);
 EXPORT_SYMBOL(ebpf_register);
 EXPORT_SYMBOL(ebpf_load);
 EXPORT_SYMBOL(ebpf_unload);
-EXPORT_SYMBOL(ebpf_load_elf);
 EXPORT_SYMBOL(ebpf_exec);
 EXPORT_SYMBOL(ebpf_exec_jit);
 EXPORT_SYMBOL(ebpf_compile);
 
-module_init(ebpf_init);
-module_exit(ebpf_fini);
+module_init(ebpf_mod_init);
+module_exit(ebpf_mod_deinit);
 MODULE_AUTHOR("Yutaro Hayakawa");
 MODULE_DESCRIPTION("Generic eBPF Module");
 MODULE_LICENSE("Dual BSD/GPL");

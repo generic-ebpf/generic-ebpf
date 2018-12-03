@@ -56,7 +56,6 @@ ebpf_objfile_release(struct inode *inode, struct file *filp)
 }
 
 static const struct file_operations ebpf_objf_ops = {
-	.owner = THIS_MODULE
 	.release = ebpf_objfile_release
 };
 
