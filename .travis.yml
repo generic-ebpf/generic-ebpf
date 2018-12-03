@@ -4,7 +4,7 @@ python:
   - "2.7"
 before_install:
   - sudo apt-get update
-  - sudo apt-get install -y libelf-dev build-essential
+  - sudo apt-get install -y libelf-dev build-essential libc6-dev-i386
 install:
   - pip install --user -r requirements.txt
   - pip install --user cpp-coveralls
