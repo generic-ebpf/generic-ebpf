@@ -1,5 +1,5 @@
-OBJS=	map_benchmark.o map_benchmark_native.o \
-	map_benchmark map_benchmark_native
+OBJS=	map_benchmark.o \
+	map_benchmark
 CPPFLAGS= \
 	-I ${BASE}/sys \
 	-I ${LIBGBPFDIR}/include \
@@ -7,7 +7,7 @@ CPPFLAGS= \
 CFLAGS+=${CPPFLAGS}
 LIBS=	${LIBGBPF}
 
-TARGETS_Linux=		map_benchmark map_benchmark_native
+TARGETS_Linux=		map_benchmark
 TARGETS_FreeBSD=	map_benchmark
 TARGETS=	$(TARGETS_$(UNAME_s))
 
