@@ -1,6 +1,3 @@
-SUBDIR=	printer \
-	test
-
 LIB=	libgbpf.a
 SRCS=	${CORE} ${DRIVERS}
 OBJS=	${SRCS:.c=.o}
@@ -17,8 +14,6 @@ CFLAGS+=-Ofast \
 	-Wno-unused-parameter
 
 all: ${LIB}
-	for D in ${SUBDIR}; do (cd $$D && ${MAKE_CMD} $@); done
-
 ${LIB}: $(OBJS)
 	ar rc $@ $(OBJS)
 CLEANFILES=	${LIB} *.o
