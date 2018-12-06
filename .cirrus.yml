@@ -1,0 +1,12 @@
+freebsd_instance:
+        image: freebsd-12-0-rc3-amd64
+
+task:
+        script:
+                - pkg update
+                - pkg install -y git python27 py27-pip
+                - git clone https://github.com/YutaroHayakawa/generic-ebpf
+                - cd generic-ebpf
+                - pip install -r requirements.txt
+                - make
+                - make check
