@@ -3,9 +3,7 @@ freebsd_task:
     image: freebsd-12-0-rc3-amd64
   script:
     - pkg update
-    - pkg install -y git python27 py27-pip
-    - git clone https://github.com/YutaroHayakawa/generic-ebpf
-    - cd generic-ebpf
+    - pkg install -y python27 py27-pip
     - pip install -r requirements.txt
     - make
     - make check
@@ -14,11 +12,6 @@ freebsd_kernel_task:
   freebsd_instance:
     image: freebsd-12-0-rc3-amd64
   script:
-    - pkg update
-    - pkg install -y git python27 py27-pip
-    - git clone https://github.com/YutaroHayakawa/generic-ebpf
-    - cd generic-ebpf
-    - pip install -r requirements.txt
     - make
     - make load
     - make check-kern
@@ -28,9 +21,7 @@ linux_task:
     image: ubuntu:latest
   script:
     - apt update
-    - apt -y install python-pip git libelf-dev build-essential libc6-dev-i386
-    - git clone https://github.com/YutaroHayakawa/generic-ebpf
-    - cd generic-ebpf
+    - apt -y install python-pip libelf-dev build-essential libc6-dev-i386
     - pip install -r requirements.txt
     - make
     - make check
@@ -40,7 +31,7 @@ linux_task:
 #     image: ubuntu:latest
 #   script:
 #     - apt update
-#     - apt -y install python-pip git libelf-dev build-essential libc6-dev-i386 module-init-tools linux-headers-`uname -r`
+#     - apt -y install libelf-dev build-essential libc6-dev-i386 module-init-tools linux-headers-`uname -r`
 #     - git clone https://github.com/YutaroHayakawa/generic-ebpf
 #     - cd generic-ebpf
 #     - pip install -r requirements.txt
@@ -52,9 +43,7 @@ darwin_task:
   osx_instance:
     image: mojave-base
   script:
-      - brew install git libelf python@2
-      - git clone https://github.com/YutaroHayakawa/generic-ebpf
-      - cd generic-ebpf
+      - brew install libelf python@2
       - pip install --user -r requirements.txt
       - UNAME_s=Darwin make
       - UNAME_s=Darwin make check
