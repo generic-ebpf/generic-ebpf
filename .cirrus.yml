@@ -47,3 +47,14 @@ linux_task:
 #     - make
 #     - make load
 #     - make check
+
+darwin_task:
+  osx_instance:
+    image: mojave-base
+  script:
+      - brew install git libelf python@2
+      - git clone https://github.com/YutaroHayakawa/generic-ebpf
+      - cd generic-ebpf
+      - pip install --user -r requirements.txt
+      - UNAME_s=Darwin make
+      - UNAME_s=Darwin make check
