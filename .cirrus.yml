@@ -35,15 +35,15 @@ linux_task:
     - make
     - make check
 
-linux_kernel_task:
-  container:
-    image: ubuntu:latest
-  script:
-    - apt update
-    - apt -y install python-pip git libelf-dev build-essential libc6-dev-i386 module-init-tools linux-headers-`uname -r`
-    - git clone https://github.com/YutaroHayakawa/generic-ebpf
-    - cd generic-ebpf
-    - pip install -r requirements.txt
-    - make
-    - make load
-    - make check
+# linux_kernel_task:
+#   container:
+#     image: ubuntu:latest
+#   script:
+#     - apt update
+#     - apt -y install python-pip git libelf-dev build-essential libc6-dev-i386 module-init-tools linux-headers-`uname -r`
+#     - git clone https://github.com/YutaroHayakawa/generic-ebpf
+#     - cd generic-ebpf
+#     - pip install -r requirements.txt
+#     - make
+#     - make load
+#     - make check
