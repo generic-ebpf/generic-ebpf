@@ -78,6 +78,24 @@ struct ebpf_verifier {
 	FILE *dot_file;
 };
 
+/*
+ * FIXME: Be more generic
+ */
+static bool
+is_pointer_type(struct ebpf_verifier *v, uint8_t reg_id)
+{
+	switch (v->reg_states[reg_id].type) {
+		case NOT_INIT:
+		case SCALAR_VALUE:
+			return false;
+		case PTR_TO_CTX:
+		case PTR_TO_MAP_VALUE:
+		case PTR_TO_MAP_VALUE_OR_NULL:
+		case PTR_TO_STACK:
+			return true;
+	}
+}
+
 static void
 print_verifier_state(struct ebpf_verifier *v, struct ebpf_inst *inst)
 {
@@ -257,6 +275,11 @@ check_syntax_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 	uint8_t opcode = EBPF_ALU_OP(inst->opcode);
 	uint8_t source = EBPF_SRC(inst->opcode);
 
+	if (opcode > EBPF_END) {
+		printf("Syntax Error: Unknown ALU opcode %u", opcode);
+		return EINVAL;
+	}
+
 	if (inst->offset != 0) {
 		printf("Syntax Error: ALU instruction uses reserved field\n");
 		return EINVAL;
@@ -273,7 +296,7 @@ check_syntax_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 	 */
 	if (opcode == EBPF_NEG) {
 		if (source != EBPF_SRC_IMM || inst->src != 0 ||
-				inst->offset != 0 || inst->imm != 0) {
+				inst->imm != 0) {
 			printf("Syntax Error: NEG instruction uses reserved field\n");
 			return EINVAL;
 		}
@@ -286,17 +309,35 @@ check_syntax_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 	 * 2. inst->src == 0
 	 * 3. inst->offset == 0
 	 * 4. inst->imm == 16, 32 or 64
+	 * 5. class == BPF_ALU
 	 *
 	 * 3 is already checkedm so check 1, 2 and 4 in here
 	 */
 	if (opcode == EBPF_END) {
 		if (source != EBPF_SRC_IMM || inst->src != 0 ||
-				inst->offset != 0 || (inst->imm != 16 &&
-					inst->imm != 32 && inst->imm != 64)) {
+				(inst->imm != 16 && inst->imm != 32 && inst->imm != 64) ||
+				EBPF_CLS(inst->opcode) == EBPF_CLS_ALU64) {
 			printf("Syntax Error: END instruction uses reserved field\n");
 			return EINVAL;
 		}
 		return 0;
+	}
+
+	if (opcode == EBPF_ARSH && EBPF_CLS(inst->opcode) != EBPF_CLS_ALU64) {
+		printf("Syntax Error: ARSH is not supported for 32bit ALU\n");
+		return EINVAL;
+	}
+
+	/*
+	 * Check for negative direction shift and over shift
+	 */
+	if ((opcode == EBPF_LSH || opcode == EBPF_RSH ||
+			opcode == EBPF_ARSH) && source == EBPF_SRC_IMM) {
+		int32_t size = EBPF_CLS(inst->opcode) == EBPF_CLS_ALU64 ? 64 : 32;
+		if (inst->imm < 0 || inst->imm >= size) {
+			printf("Syntax Error: Invalid shift %d\n", inst->imm);
+			return EINVAL;
+		}
 	}
 
 	/*
@@ -318,10 +359,98 @@ check_syntax_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 }
 
 static int
+check_type_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t opcode = EBPF_ALU_OP(inst->opcode);
+	uint8_t source = EBPF_SRC(inst->opcode);
+	struct reg_state *regs = v->reg_states;
+
+	if (opcode == EBPF_NEG || opcode == EBPF_END) {
+		if (regs[inst->dst].type == NOT_INIT) {
+			printf("Invalid arithmetic operation to uninit value\n");
+			return EINVAL;
+		}
+
+		if (inst->dst == 10) {
+			printf("Frame pointer is read only\n");
+			return EINVAL;
+		}
+
+		if (is_pointer_type(v, inst->dst)) {
+			printf("Invalid destination register type\n");
+			return EINVAL;
+		}
+
+		return 0;
+	}
+
+	if (opcode == EBPF_MOV) {
+		if (source == EBPF_SRC_REG &&
+			regs[inst->src].type == NOT_INIT) {
+			printf("Invalid operation to uninit value\n");
+			return EINVAL;
+		}
+		return 0;
+	}
+
+	if (source == EBPF_SRC_IMM) {
+		if (regs[inst->dst].type == NOT_INIT) {
+			printf("Invalid operation to uninit value\n");
+			return EINVAL;
+		}
+	} else /* source == EBPF_SRC_REG */ {
+		if (regs[inst->dst].type == NOT_INIT ||
+				regs[inst->src].type == NOT_INIT) {
+			printf("Invalid operation to uninit value\n");
+			return EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int
+simulate_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t opcode = EBPF_ALU_OP(inst->opcode);
+	uint8_t source = EBPF_SRC(inst->opcode);
+	struct reg_state *reg = v->reg_states;
+
+	if (opcode == EBPF_MOV) {
+		if (source == EBPF_SRC_IMM) {
+			reg[inst->dst].type = SCALAR_VALUE;
+			if (EBPF_CLS(inst->opcode) == EBPF_CLS_ALU64) {
+				reg[inst->dst].smax = inst->imm;
+				reg[inst->dst].smin = inst->imm;
+				reg[inst->dst].umax = inst->imm;
+				reg[inst->dst].umin = inst->imm;
+			} else {
+				reg[inst->dst].smax = (uint32_t)inst->imm;
+				reg[inst->dst].smin = (uint32_t)inst->imm;
+				reg[inst->dst].umax = (uint32_t)inst->imm;
+				reg[inst->dst].umin = (uint32_t)inst->imm;
+			}
+		} else {
+			reg[inst->dst] = reg[inst->src];
+		}
+		return 0;
+	}
+
+	// TODO Implement rest of the logic
+
+	return 0;
+}
+
+static int
 check_syntax_jmp(struct ebpf_verifier *v, struct ebpf_inst *inst)
 {
 	uint8_t opcode = EBPF_JMP_OP(inst->opcode);
 	uint8_t source = EBPF_SRC(inst->opcode);
+
+	if (opcode > EBPF_JSLE) {
+		printf("Syntax Error: Unknown JMP opcode %u\n", opcode);
+		return EINVAL;
+	}
 
 	/*
 	 * EBPF_JA should meet following requirements.
@@ -427,6 +556,16 @@ check_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 		return error;
 	}
 
+	error = check_type_alu(v, inst);
+	if (error) {
+		return error;
+	}
+
+	error = simulate_alu(v, inst);
+	if (error) {
+		return error;
+	}
+
 	return 0;
 }
 
@@ -468,6 +607,11 @@ do_check(struct ebpf_verifier *v)
 
 		inst = v->insts + idx;
 		node = v->nodes + idx;
+
+		/*
+		print_inst(inst, stderr);
+		fprintf(stderr, "\n");
+		*/
 
 		error = check_syntax_common(v, inst);
 		if (error) {
@@ -760,7 +904,7 @@ struct ebpf_inst test_prog3[] = {
 };
 
 struct ebpf_inst test_prog4[] = {
-	{ EBPF_OP_CALL, 0, 0, 0, 1 },
+	{ EBPF_OP_MOV64_IMM, 0, 0, 0, 1 },
 	{ EBPF_OP_MOV64_REG, 1, 0, 0, 0 },
 	{ EBPF_OP_MOV64_IMM, 0, 0, 0, 0 },
 	{ EBPF_OP_AND64_IMM, 1, 0, 0, 0xff },
