@@ -67,37 +67,25 @@ struct ebpf_verifier {
 	struct ebpf_inst *insts;
 	struct inst_node *nodes;
 	struct reg_state reg_states[11];
+
+	struct {
+		uint16_t *cur;
+		uint16_t *start;
+		uint16_t *end;
+	} stack;
+
 	FILE *out_file;
 	FILE *dot_file;
 };
 
 static void
-init_registers(struct ebpf_verifier *state)
-{
-	for (uint8_t i = 0; i < 11; i++) {
-		if (i == 1) {
-			state->reg_states[i].type = PTR_TO_CTX;
-		} else if (i == 10) {
-			state->reg_states[i].type = PTR_TO_STACK;
-		} else {
-			state->reg_states[i].type = NOT_INIT;
-		}
-
-		state->reg_states[i].smax = 0;
-		state->reg_states[i].smin = 0;
-		state->reg_states[i].umax = 0;
-		state->reg_states[i].umin = 0;
-	}
-}
-
-static void
-print_verifier_state(struct ebpf_verifier *state, struct ebpf_inst *inst)
+print_verifier_state(struct ebpf_verifier *v, struct ebpf_inst *inst)
 {
 	char *fmt;
 
-	fprintf(state->out_file, "{\"cur_inst\": \"");
-	print_inst(inst, state->out_file);
-	fprintf(state->out_file, "\",\n \"registers\": [\n");
+	fprintf(v->out_file, "{\"cur_inst\": \"");
+	print_inst(inst, v->out_file);
+	fprintf(v->out_file, "\",\n \"registers\": [\n");
 	for (uint16_t i = 0; i < 11; i++) {
 		if (i == 10) {
 			fmt = "{\"type\": \"%s\",\"smax\":%ld,\"smin\":%ld,\"umax\":%lu,\"umin\":%lu}\n";
@@ -105,109 +93,402 @@ print_verifier_state(struct ebpf_verifier *state, struct ebpf_inst *inst)
 			fmt = "{\"type\": \"%s\",\"smax\":%ld,\"smin\":%ld,\"umax\":%lu,\"umin\":%lu},\n";
 		}
 
-		fprintf(state->out_file, fmt,
-				reg_type_str[state->reg_states[i].type],
-				state->reg_states[i].smax,
-				state->reg_states[i].smin,
-				state->reg_states[i].umax,
-				state->reg_states[i].umin
+		fprintf(v->out_file, fmt,
+				reg_type_str[v->reg_states[i].type],
+				v->reg_states[i].smax,
+				v->reg_states[i].smin,
+				v->reg_states[i].umax,
+				v->reg_states[i].umin
 		);
 	}
-	fprintf(state->out_file, "]}\n");
+	fprintf(v->out_file, "]}\n");
 }
 
-static int
-check_ld(struct ebpf_verifier *state, struct ebpf_inst *inst)
+static inline int
+stack_init(struct ebpf_verifier *v)
 {
-	return 0;
-}
-
-static int
-check_st(struct ebpf_verifier *state, struct ebpf_inst *inst)
-{
-	return 0;
-}
-
-#define ALU32_IMM2REG(_operator, _regp, _instp) do { \
-	_regp->smax = regp->smax _operator _instp->imm;
-
-static int
-check_alu(struct ebpf_verifier *state, struct ebpf_inst *inst)
-{
-	switch (inst->opcode) {
-		case EBPF_OP_ADD_IMM:
-			state->reg_states[inst->dst].smax += (int64_t)inst->imm;
-			state->reg_states[inst->dst].smin += (int64_t)inst->imm;
-			state->reg_states[inst->dst].umax += (uint64_t)inst->imm;
-			state->reg_states[inst->dst].umin += (uint64_t)inst->imm;
-		case EBPF_OP_MOV64_REG:
-			memcpy(state->reg_states + inst->dst,
-					state->reg_states + inst->src,
-					sizeof(*state->reg_states));
-			break;
-		case EBPF_OP_MOV64_IMM:
-			state->reg_states[inst->dst].type = SCALAR_VALUE;
-			state->reg_states[inst->dst].smax = (int64_t)inst->imm;
-			state->reg_states[inst->dst].smin = (int64_t)inst->imm;
-			state->reg_states[inst->dst].umax = (uint64_t)inst->imm;
-			state->reg_states[inst->dst].umin = (uint64_t)inst->imm;
-			break;
-		default:
-			break;
-	}
-
-	return 0;
-}
-
-static int
-check_jmp(struct ebpf_verifier *state, struct ebpf_inst *inst)
-{
-	return 0;
-}
-
-static int
-do_check(struct ebpf_verifier *state)
-{
-	int error = 0;
-	struct ebpf_inst *inst;
-	struct inst_edge *edge;
-	struct inst_node *node;
-	struct inst_node **stack_cur, **stack_start, **stack_end;
-
-	init_registers(state);
-
-	stack_start = calloc(sizeof(*stack_start), state->ninsts);
-	if (stack_start == NULL) {
+	v->stack.start =
+		calloc(sizeof(*v->stack.start), v->ninsts);
+	if (v->stack.start == NULL) {
 		return ENOMEM;
 	}
 
-	stack_cur = stack_start;
-	stack_end = stack_start + state->ninsts;
-	inst = state->insts;
-	node = state->nodes;
-	edge = NULL;
+	v->stack.cur = v->stack.start;
+	v->stack.end = v->stack.start + v->ninsts;
 
-	*stack_cur++ = node;
+	return 0;
+}
 
-	while (stack_cur != stack_start) {
-		node = *--stack_cur;
-		inst = state->insts + (node - state->nodes);
+static inline void
+stack_deinit(struct ebpf_verifier *v)
+{
+	free(v->stack.start);
+}
+
+static inline bool
+stack_empty(struct ebpf_verifier *v)
+{
+	return v->stack.cur == v->stack.start;
+}
+
+static inline int
+stack_push(struct ebpf_verifier *v, uint16_t val)
+{
+	if (v->stack.cur == v->stack.end) {
+		return E2BIG;
+	}
+
+	*v->stack.cur++ = val;
+	return 0;
+}
+
+static inline int
+stack_pop(struct ebpf_verifier *v, uint16_t *val)
+{
+	if (stack_empty(v)) {
+		return ENOENT;
+	}
+
+	*val = *--v->stack.cur;
+	return 0;
+}
+
+static void
+init_registers(struct ebpf_verifier *v)
+{
+	for (uint8_t i = 0; i < 11; i++) {
+		if (i == 1) {
+			v->reg_states[i].type = PTR_TO_CTX;
+		} else if (i == 10) {
+			v->reg_states[i].type = PTR_TO_STACK;
+		} else {
+			v->reg_states[i].type = NOT_INIT;
+		}
+
+		v->reg_states[i].smax = INT64_MAX;
+		v->reg_states[i].smin = INT64_MIN;
+		v->reg_states[i].umax = UINT64_MAX;
+		v->reg_states[i].umin = 0;
+	}
+}
+
+static int
+check_syntax_common(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t cls = EBPF_CLS(inst->opcode);
+
+	/* check register id */
+	if (inst->dst > EBPF_REG_MAX || inst->src > EBPF_REG_MAX) {
+		return EINVAL;
+	}
+
+	/* check opcode class id */
+	if (cls > EBPF_CLS_ALU64) {
+		return EINVAL;
+	}
+
+	return 0;
+}
+
+static int
+check_syntax_ld(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t mode = EBPF_MODE(inst->opcode);
+
+	if (mode == EBPF_MODE_IMM) {
+		if (inst->opcode != EBPF_OP_LDDW) {
+			printf("Unknown opcode\n");
+			return EINVAL;
+		}
+
+		/* LDDW case */
+		if ((inst->src != EBPF_PSEUDO_MAP_DESC && inst->src != 0)
+				|| inst->offset != 0) {
+			printf("Invalid lddw format\n");
+			return EINVAL;
+		}
+
+		/* LDDW consumes 2 instructions. Check next instruction syntax */
+		struct ebpf_inst *next = inst + 1;
+		if (next > v->insts + v->ninsts) {
+			printf("Imcomplete lddw format\n");
+			return EINVAL;
+		}
+
+		if (next->opcode != 0 || next->src != 0 ||
+				next->dst != 0 || next->offset != 0) {
+			printf("Invalid lddw format\n");
+			return EINVAL;
+		}
+	} else if (mode == EBPF_MODE_MEM) {
+		if (inst->imm != 0) {
+			printf("Syntax Error: LD instruction uses reserved field\n");
+			return EINVAL;
+		}
+	} else {
+		printf("Unsupported memory mode\n");
+		return EINVAL;
+	}
+
+	return 0;
+}
+
+static int
+check_syntax_st(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t mode = EBPF_MODE(inst->opcode);
+
+	if (mode == EBPF_MODE_MEM) {
+		if (inst->imm != 0) {
+			printf("Syntax Error: ST instruction uses reserved field\n");
+			return EINVAL;
+		}
+	} else {
+		printf("Syntax Error: Unsupported memory mode\n");
+		return EINVAL;
+	}
+
+	return 0;
+}
+
+static int
+check_syntax_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t opcode = EBPF_ALU_OP(inst->opcode);
+	uint8_t source = EBPF_SRC(inst->opcode);
+
+	if (inst->offset != 0) {
+		printf("Syntax Error: ALU instruction uses reserved field\n");
+		return EINVAL;
+	}
+
+	/* 
+	 * NEG instruction should meet following requirements.
+	 * 1. source == EBPF_SRC_IMM
+	 * 2. inst->src == 0
+	 * 3. inst->offset == 0
+	 * 4. inst->imm == 0
+	 *
+	 * 3 is already checked, so check 1, 2 and 4 in here.
+	 */
+	if (opcode == EBPF_NEG) {
+		if (source != EBPF_SRC_IMM || inst->src != 0 ||
+				inst->offset != 0 || inst->imm != 0) {
+			printf("Syntax Error: NEG instruction uses reserved field\n");
+			return EINVAL;
+		}
+		return 0;
+	}
+
+	/*
+	 * END instruction should meet following requirements.
+	 * 1. source == EBPF_SRC_IMM
+	 * 2. inst->src == 0
+	 * 3. inst->offset == 0
+	 * 4. inst->imm == 16, 32 or 64
+	 *
+	 * 3 is already checkedm so check 1, 2 and 4 in here
+	 */
+	if (opcode == EBPF_END) {
+		if (source != EBPF_SRC_IMM || inst->src != 0 ||
+				inst->offset != 0 || (inst->imm != 16 &&
+					inst->imm != 32 && inst->imm != 64)) {
+			printf("Syntax Error: END instruction uses reserved field\n");
+			return EINVAL;
+		}
+		return 0;
+	}
+
+	/*
+	 * Rest of the ALU instructions
+	 */
+	if (source == EBPF_SRC_IMM) {
+		if (inst->src != 0) {
+			printf("Syntax Error: ALU instruction uses reserved field\n");
+			return EINVAL;
+		}
+	} else /* source == EBPF_SRC_REG */ {
+		if (inst->imm != 0) {
+			printf("Syntax Error: ALU instruction uses reserved field\n");
+			return EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int
+check_syntax_jmp(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	uint8_t opcode = EBPF_JMP_OP(inst->opcode);
+	uint8_t source = EBPF_SRC(inst->opcode);
+
+	/*
+	 * EBPF_JA should meet following requirements.
+	 *
+	 * 1. source == EBPF_SRC_IMM
+	 * 2. dst == 0
+	 * 3. src == 0
+	 * 4. imm == 0
+	 */
+	if (opcode == EBPF_JA) {
+		if (source != EBPF_SRC_IMM || inst->dst != 0 ||
+				inst->src != 0 || inst->imm != 0) {
+			printf("Syntax Error: JA instruction uses reserved field\n");
+			return EINVAL;
+		}
+		return 0;
+	}
+
+	/*
+	 * EBPF_EXIT should meet following requirements.
+	 *
+	 * 1. source == EBPF_SRC_IMM
+	 * 2. dst == 0
+	 * 3. src == 0
+	 * 4. offset == 0
+	 * 5. imm == 0
+	 */
+	if (opcode == EBPF_EXIT) {
+		if (source != EBPF_SRC_IMM || inst->dst != 0 ||
+				inst->src != 0 || inst->offset != 0 ||
+				inst->imm != 0) {
+			printf("Syntax Error: EXIT instruction uses reserved field\n");
+			return EINVAL;
+		}
+		return 0;
+	}
+
+	/*
+	 * EBPF_CALL should meet following requirements.
+	 *
+	 * 1. source == EBPF_SRC_IMM
+	 * 2. dst == 0
+	 * 3. src == 0
+	 * 4. offset == 0
+	 */
+	if (opcode == EBPF_CALL) {
+		if (source != EBPF_SRC_IMM || inst->dst != 0 ||
+				inst->src != 0 || inst->offset != 0) {
+			printf("Syntax Error: CALL instruction uses reserved field\n");
+			return EINVAL;
+		}
+		return 0;
+	}
+
+	if (source == EBPF_SRC_IMM) {
+		if (inst->src != 0) {
+			printf("Syntax Error: JMP instruction uses reserved field\n");
+			return EINVAL;
+		}
+	} else /* source == EBPF_SRC_REG */ {
+		if (inst->imm != 0) {
+			printf("Syntax Error: JMP instruction uses reserved field\n");
+			return EINVAL;
+		}
+	}
+
+	return 0;
+}
+
+static int
+check_ld(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	int error;
+
+	error = check_syntax_ld(v, inst);
+	if (error) {
+		return error;
+	}
+
+	return 0;
+}
+
+static int
+check_st(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	int error;
+
+	error = check_syntax_st(v, inst);
+	if (error) {
+		return error;
+	}
+
+	return 0;
+}
+
+static int
+check_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	int error;
+
+	error = check_syntax_alu(v, inst);
+	if (error) {
+		return error;
+	}
+
+	return 0;
+}
+
+static int
+check_jmp(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	int error;
+
+	error = check_syntax_jmp(v, inst);
+	if (error) {
+		return error;
+	}
+
+	return 0;
+}
+
+static int
+do_check(struct ebpf_verifier *v)
+{
+	int error = 0;
+
+	init_registers(v);
+
+	error = stack_init(v);
+	if (error) {
+		return error;
+	}
+
+	error = stack_push(v, 0);
+	assert(error == 0);
+
+	while (!stack_empty(v)) {
+		uint16_t idx;
+		struct ebpf_inst *inst;
+		struct inst_node *node;
+
+		error = stack_pop(v, &idx);
+		assert(error == 0);
+
+		inst = v->insts + idx;
+		node = v->nodes + idx;
+
+		error = check_syntax_common(v, inst);
+		if (error) {
+			goto end;
+		}
 
 		switch (EBPF_CLS(inst->opcode)) {
 			case EBPF_CLS_LD:
 			case EBPF_CLS_LDX:
-				error = check_ld(state, inst);
+				error = check_ld(v, inst);
 				break;
 			case EBPF_CLS_ST:
 			case EBPF_CLS_STX:
-				error = check_st(state, inst);
+				error = check_st(v, inst);
 				break;
 			case EBPF_CLS_ALU:
 			case EBPF_CLS_ALU64:
-				error = check_alu(state, inst);
+				error = check_alu(v, inst);
 				break;
 			case EBPF_CLS_JMP:
-				error = check_jmp(state, inst);
+				error = check_jmp(v, inst);
 				break;
 			default:
 				error = EINVAL;
@@ -218,24 +499,24 @@ do_check(struct ebpf_verifier *state)
 			goto end;
 		}
 
-		print_verifier_state(state, inst);
+		print_verifier_state(v, inst);
 
 		for (uint8_t i = 0; i < node->nedges; i++) {
-			*stack_cur++ = state->nodes + (node->edges[i].idx);
+			stack_push(v, node->edges[i].idx);
 		}
 
-		if (stack_cur != stack_start) {
-			fprintf(state->out_file, ",");
+		if (!stack_empty(v)) {
+			fprintf(v->out_file, ",");
 		}
 	}
 
 end:
-	free(stack_start);
+	stack_deinit(v);
 	return error;
 }
 
 static int
-add_edge(struct ebpf_verifier *state, struct inst_node *node,
+cfg_add_edge(struct ebpf_verifier *v, struct inst_node *node,
 		uint16_t idx)
 {
 	if (node->nedges == 2) {
@@ -243,7 +524,7 @@ add_edge(struct ebpf_verifier *state, struct inst_node *node,
 		return EINVAL;
 	}
 
-	if (idx >= state->ninsts) {
+	if (idx >= v->ninsts) {
 		fprintf(stderr, "out of range jump to index(%u)\n", idx);
 		return EINVAL;
 	}
@@ -255,15 +536,15 @@ add_edge(struct ebpf_verifier *state, struct inst_node *node,
 }
 
 static int
-create_cfg(struct ebpf_verifier *state)
+create_cfg(struct ebpf_verifier *v)
 {
 	int error;
 	struct inst_node *node;
 	struct ebpf_inst *inst;
 
-	for (uint16_t i = 0; i < state->ninsts; i++) {
-		inst = state->insts + i;
-		node = state->nodes + i;
+	for (uint16_t i = 0; i < v->ninsts; i++) {
+		inst = v->insts + i;
+		node = v->nodes + i;
 
 		switch (EBPF_CLS(inst->opcode)) {
 			case EBPF_CLS_JMP:
@@ -274,23 +555,23 @@ create_cfg(struct ebpf_verifier *state)
 
 				/* call instruction has only one edge */
 				if (inst->opcode == EBPF_OP_CALL) {
-					error = add_edge(state, node, i + 1);
+					error = cfg_add_edge(v, node, i + 1);
 					break;
 				}
 
 				/* unconditional jump has only one edge */
 				if (inst->opcode == EBPF_OP_JA) {
-					error = add_edge(state, node, i + inst->offset + 1);
+					error = cfg_add_edge(v, node, i + inst->offset + 1);
 					break;
 				}
 
 				/* conditional jump has two edges */
-				error = add_edge(state, node, i + inst->offset + 1);
+				error = cfg_add_edge(v, node, i + inst->offset + 1);
 				if (error) {
 					break;
 				}
 
-				error = add_edge(state, node, i + 1);
+				error = cfg_add_edge(v, node, i + 1);
 				if (error) {
 					break;
 				}
@@ -299,14 +580,14 @@ create_cfg(struct ebpf_verifier *state)
 			case EBPF_CLS_LD:
 				/* LDDW instruction takes two instructions */
 				if (inst->opcode == EBPF_OP_LDDW) {
-					error = add_edge(state, node, i + 2);
+					error = cfg_add_edge(v, node, i + 2);
 					i++;
 					break;
 				}
 
 				/* fall through */
 			default:
-				error = add_edge(state, node, i + 1);
+				error = cfg_add_edge(v, node, i + 1);
 				break;
 		}
 
@@ -319,27 +600,44 @@ create_cfg(struct ebpf_verifier *state)
 }
 
 static int
-do_dfs(struct ebpf_verifier *state)
+do_dfs(struct ebpf_verifier *v)
 {
 	int error = 0;
 	struct inst_node *node;
 	struct inst_edge *edge;
-	struct inst_edge **stack_cur, **stack_start, **stack_end;
 
-	node = state->nodes;
-	stack_start = calloc(sizeof(*stack_start), state->ninsts);
+	node = v->nodes;
+	node->discovered = true;
+
+	/*
+	 * Return earlier if the first instruction doesn't have
+	 * any edge. This may be a case which the program
+	 * consists of single EXIT or first instruction is EXIT
+	 * and rest of the program is unreachable. The latter case
+	 * will be rejected by next reachability check, so just
+	 * return 0 in here.
+	 */
+	if (node->nedges == 0) {
+		return 0;
+	}
+
+	/*
+	 * Use minimal inline stack. We don't have to do overflow
+	 * check, because the depth will never become greater than
+	 * instruction number.
+	 */
+	struct inst_edge **stack_cur, **stack_start, **stack_end;
+	stack_start = calloc(sizeof(*stack_start), v->ninsts);
 	if (stack_start == NULL) {
 		return ENOMEM;
 	}
 
 	stack_cur = stack_start;
-	stack_end = stack_start + state->ninsts;
+	stack_end = stack_start + v->ninsts;
 
 	for (uint8_t i = 0; i < node->nedges; i++) {
 		*stack_cur++ = node->edges + i;
 	}
-
-	node->discovered = true;
 
 	while (stack_cur != stack_start) {
 		edge = *--stack_cur;
@@ -350,7 +648,7 @@ do_dfs(struct ebpf_verifier *state)
 
 		edge->passed = true;
 
-		node = state->nodes + edge->idx;
+		node = v->nodes + edge->idx;
 		node->discovered = true;
 		for (uint8_t i = 0; i < node->nedges; i++) {
 			*stack_cur++ = node->edges + i;
@@ -362,10 +660,10 @@ do_dfs(struct ebpf_verifier *state)
 }
 
 static bool
-unreachable_inst_exists(struct ebpf_verifier *state)
+unreachable_inst_exists(struct ebpf_verifier *v)
 {
-	for (uint16_t i = 0; i < state->ninsts; i++) {
-		if (state->nodes[i].discovered == false) {
+	for (uint16_t i = 0; i < v->ninsts; i++) {
+		if (v->nodes[i].discovered == false) {
 			return true;
 		}
 	}
@@ -374,63 +672,63 @@ unreachable_inst_exists(struct ebpf_verifier *state)
 }
 
 static void
-generate_dot(struct ebpf_verifier *state)
+generate_dot(struct ebpf_verifier *v)
 {
-	fprintf(state->dot_file, "digraph cfg {");
-	for (uint16_t i = 0; i < state->ninsts; i++) {
-		fprintf(state->dot_file, "%u[label=\"", i);
-		print_inst(state->insts + i, state->dot_file);
-		fprintf(state->dot_file, "\"];");
-		for (uint8_t j = 0; j < state->nodes[i].nedges; j++) {
-			fprintf(state->dot_file, "%u->%u;", i, state->nodes[i].edges[j].idx);
+	fprintf(v->dot_file, "digraph cfg {");
+	for (uint16_t i = 0; i < v->ninsts; i++) {
+		fprintf(v->dot_file, "%u[label=\"", i);
+		print_inst(v->insts + i, v->dot_file);
+		fprintf(v->dot_file, "\"];");
+		for (uint8_t j = 0; j < v->nodes[i].nedges; j++) {
+			fprintf(v->dot_file, "%u->%u;", i, v->nodes[i].edges[j].idx);
 		}
 	}
-	fprintf(state->dot_file, "}");
+	fprintf(v->dot_file, "}");
 }
 
 int
 ebpf_validate(struct ebpf_inst *insts, uint16_t ninsts)
 {
 	int error;
-	struct ebpf_verifier state;
+	struct ebpf_verifier v;
 
-	state.out_file = fopen("verifier_states.json", "w");
-	state.dot_file = fopen("cfg.dot", "w");
+	v.out_file = fopen("verifier_states.json", "w");
+	v.dot_file = fopen("cfg.dot", "w");
 
-	state.ninsts = ninsts;
-	state.insts = insts;
+	v.ninsts = ninsts;
+	v.insts = insts;
 
-	state.nodes = calloc(ninsts, sizeof(state.nodes[0]));
-	if (state.nodes == NULL) {
+	v.nodes = calloc(ninsts, sizeof(v.nodes[0]));
+	if (v.nodes == NULL) {
 		return ENOMEM;
 	}
 
-	error = create_cfg(&state);
+	error = create_cfg(&v);
 	if (error) {
 		goto err0;
 	}
 
-	generate_dot(&state);
+	generate_dot(&v);
 
-	error = do_dfs(&state);
+	error = do_dfs(&v);
 	if (error) {
 		goto err0;
 	}
 
-	if (unreachable_inst_exists(&state)) {
+	if (unreachable_inst_exists(&v)) {
 		printf("unreachable instruction exists\n");
 		goto err0;
 	}
 
-	fprintf(state.out_file, "{\"states\":[\n");
-	error = do_check(&state);
+	fprintf(v.out_file, "{\"states\":[\n");
+	error = do_check(&v);
 	if (error) {
 		goto err0;
 	}
-	fprintf(state.out_file, "]}\n");
+	fprintf(v.out_file, "]}\n");
 
 err0:
-	free(state.nodes); 
+	free(v.nodes); 
 	return error;
 }
 
@@ -485,7 +783,6 @@ main(void)
 	error = ebpf_validate(test_prog1, 8);
 	printf("test1: %s\n", strerror(error));
 
-	/*
 	error = ebpf_validate(test_prog2, 5);
 	printf("test2: %s\n", strerror(error));
 
@@ -494,7 +791,6 @@ main(void)
 
 	error = ebpf_validate(test_prog4, 13);
 	printf("test4: %s\n", strerror(error));
-	*/
 
 	return 0;
 }
