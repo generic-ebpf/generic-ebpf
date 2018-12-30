@@ -1,0 +1,22 @@
+CPPFLAGS= \
+	-Ofast \
+	-fPIC \
+	-I $(BASE)/dev/ebpf \
+	-I $(BASE)/FreeBSD/ebpf/user \
+	-I $(BASE)/sys \
+	-I $(BASE) \
+	-I $(CKPATH)/include \
+	-I $(.CURDIR) \
+	-Wall \
+	-Wno-declaration-after-statement \
+	-std=c99
+CFLAGS+=${CPPFLAGS}
+
+OBJS=ebpf_verifier.o
+
+all: ebpf_verifier
+ebpf_verifier: $(OBJS)
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ ${OBJS} ${LIBS}
+
+clean-all:
+	- rm -f $(OBJS) ebpf_verifier
