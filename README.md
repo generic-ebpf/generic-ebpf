@@ -26,7 +26,7 @@ After compilation, you will see at least one of below
 - ebpf.ko: Kernel module for ebpf library
 - ebpf-dev.ko: Kernel module for ebpf character device
 - libebpf.so: User space library for ebpf
-- libgbpf.a: Library for interacting with various eBPF systems including Linux's native eBPF
+- libgbpf.a: Library for interacting with various eBPF systems
 
 Please load or link them.
 
