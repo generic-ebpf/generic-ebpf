@@ -27,10 +27,9 @@ struct ebpf_inst {
 	int32_t imm;
 };
 
-#define EBPF_CLS_MASK 0x07
-#define EBPF_CLS(op) (op & EBPF_CLS_MASK)
+#define EBPF_REG_MAX 10
 
-#define EBPF_ALU_OP_MASK 0xf0
+#define EBPF_PSEUDO_MAP_DESC 1
 
 #define EBPF_CLS_LD 0x00
 #define EBPF_CLS_LDX 0x01
@@ -39,9 +38,11 @@ struct ebpf_inst {
 #define EBPF_CLS_ALU 0x04
 #define EBPF_CLS_JMP 0x05
 #define EBPF_CLS_ALU64 0x07
+#define EBPF_CLS(op) ((op) & 0x07)
 
 #define EBPF_SRC_IMM 0x00
 #define EBPF_SRC_REG 0x08
+#define EBPF_SRC(op) ((op) & 0x08)
 
 #define EBPF_TO_LE 0x00
 #define EBPF_TO_BE 0x08
@@ -50,10 +51,12 @@ struct ebpf_inst {
 #define EBPF_SIZE_H 0x08 /* half word: 16bit */
 #define EBPF_SIZE_B 0x10 /* byte: 8bit */
 #define EBPF_SIZE_DW 0x18 /* double word: 64bit */
+#define EBPF_SIZE(op) ((op) & 0x18)
 
 /* Other memory modes are not yet supported */
 #define EBPF_MODE_IMM 0x00
 #define EBPF_MODE_MEM 0x60
+#define EBPF_MODE(op) ((op) & 0xe0)
 
 /* ALU operations */
 #define EBPF_ADD 0x00
@@ -70,6 +73,7 @@ struct ebpf_inst {
 #define EBPF_MOV 0xb0
 #define EBPF_ARSH 0xc0 /* sign extending shift right */
 #define EBPF_END 0xd0 /* convert endianness */
+#define EBPF_ALU_OP(op) ((op) & 0xf0)
 
 /* jump operations */
 #define EBPF_JA 0x00 /* unconditional */
@@ -86,6 +90,7 @@ struct ebpf_inst {
 #define EBPF_JSLE 0xd0	/* signed, <= */
 #define EBPF_CALL 0x80	/* function call */
 #define EBPF_EXIT 0x90	/* function return */
+#define EBPF_JMP_OP(op) ((op) & 0xf0)
 
 #define EBPF_OP_ADD_IMM (EBPF_CLS_ALU | EBPF_SRC_IMM | EBPF_ADD)
 #define EBPF_OP_ADD_REG (EBPF_CLS_ALU | EBPF_SRC_REG | EBPF_ADD)

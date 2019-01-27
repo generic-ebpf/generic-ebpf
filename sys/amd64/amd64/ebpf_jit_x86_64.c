@@ -425,12 +425,12 @@ muldivmod(struct jit_state *state, uint16_t pc, uint8_t opcode, int src,
 	  int dst, int32_t imm)
 {
 	bool mul =
-	    (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_MUL_IMM & EBPF_ALU_OP_MASK);
+	    EBPF_ALU_OP(opcode) == EBPF_ALU_OP(EBPF_OP_MUL_IMM);
 	bool div =
-	    (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_DIV_IMM & EBPF_ALU_OP_MASK);
+	    EBPF_ALU_OP(opcode) == EBPF_ALU_OP(EBPF_OP_DIV_IMM);
 	bool mod =
-	    (opcode & EBPF_ALU_OP_MASK) == (EBPF_OP_MOD_IMM & EBPF_ALU_OP_MASK);
-	bool is64 = (opcode & EBPF_CLS_MASK) == EBPF_CLS_ALU64;
+	    EBPF_ALU_OP(opcode) == EBPF_ALU_OP(EBPF_OP_MOD_IMM);
+	bool is64 = EBPF_CLS(opcode) == EBPF_CLS_ALU64;
 
 	if (div || mod) {
 		emit_load_imm(state, RCX, pc);

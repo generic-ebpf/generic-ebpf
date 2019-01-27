@@ -42,5 +42,4 @@ enum ebpf_map_update_flags {
 	__EBPF_MAP_UPDATE_FLAGS_MAX
 };
 
-#define EBPF_PSEUDO_MAP_DESC 1
 #define EBPF_PROG_MAX_ATTACHED_MAPS 64
