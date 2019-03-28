@@ -18,7 +18,7 @@ all:
 	for D in ${SUBDIR}; do \
 		(cd $$D && ${MAKE_CMD} && ${MAKE_CMD} install); \
 	done
-CLEANFILES=	libebpf${SHLIB} ebpf.ko ebpf-dev.ko libgbpf.a
+CLEANFILES=	libebpf${SHLIB} libebpf.a ebpf.ko ebpf-dev.ko libgbpf.a
 
 user:
 	cd ${UNAME_s}/ebpf/user && ${MAKE_CMD} && ${MAKE_CMD} install

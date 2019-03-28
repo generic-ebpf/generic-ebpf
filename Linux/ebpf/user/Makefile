@@ -44,6 +44,9 @@ all: libebpf.so
 libebpf.so: $(CKOBJS) $(ebpf-objs)
 	$(CC) $(CFLAGS) $(LDFLAGS) -shared -o $@ $(OBJS) ${LIBS}
 
+libebpf.a: $(CKOBJS) $(ebpf-objs)
+	ar rc $@ $^
+
 install:
 	cp libebpf.so $(DESTDIR)
 

@@ -19,11 +19,8 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf_inst.h>
 
+#include "tnum.h"
 #include "ebpf_disassembler.h"
-
-struct ebpf_visitor;
-
-typedef int (*accept_fn)(struct ebpf_visitor *v);
 
 struct inst_edge {
 	bool passed;
@@ -56,6 +53,7 @@ const char *reg_type_str[] = {
 
 struct reg_state {
 	enum ebpf_reg_type type;
+	struct tnum var_off;
 	int64_t smax;
 	int64_t smin;
 	uint64_t umax;
@@ -106,9 +104,9 @@ print_verifier_state(struct ebpf_verifier *v, struct ebpf_inst *inst)
 	fprintf(v->out_file, "\",\n \"registers\": [\n");
 	for (uint16_t i = 0; i < 11; i++) {
 		if (i == 10) {
-			fmt = "{\"type\": \"%s\",\"smax\":%ld,\"smin\":%ld,\"umax\":%lu,\"umin\":%lu}\n";
+			fmt = "{\"type\": \"%s\",\"smax\":%ld,\"smin\":%ld,\"umax\":%lu,\"umin\":%lu }\n";
 		} else {
-			fmt = "{\"type\": \"%s\",\"smax\":%ld,\"smin\":%ld,\"umax\":%lu,\"umin\":%lu},\n";
+			fmt = "{\"type\": \"%s\",\"smax\":%ld,\"smin\":%ld,\"umax\":%lu,\"umin\":%lu },\n";
 		}
 
 		fprintf(v->out_file, fmt,
@@ -409,6 +407,135 @@ check_type_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 	return 0;
 }
 
+static void
+mark_reg_unknown(struct reg_state *reg)
+{
+	reg->type = SCALAR_VALUE;
+	reg->var_off = tnum_unknown;
+	reg->smax = INT64_MAX;
+	reg->smin = INT64_MIN;
+	reg->umin = 0;
+	reg->umax = UINT64_MAX;
+}
+
+static void
+mark_reg_known(struct reg_state *reg, uint64_t val)
+{
+	reg->var_off = tnum_const(val);
+	reg->smax = (int64_t)val;
+	reg->smin = (int64_t)val;
+	reg->umax = val;
+	reg->umin = val;
+}
+
+static void coerce_reg_to_size(struct reg_state *reg, size_t size)
+{
+	uint64_t mask;
+
+	/* clear high bits in bit representation */
+	reg->var_off = tnum_cast(reg->var_off, size);
+
+	/* fix arithmetic bounds */
+	mask = ((uint64_t)1 << (size * 8)) - 1;
+	if ((reg->umin & ~mask) == (reg->umax & ~mask)) {
+		reg->umin &= mask;
+		reg->umax &= mask;
+	} else {
+		reg->umin = 0;
+		reg->umax = mask;
+	}
+	reg->smin = reg->umin;
+	reg->smax = reg->umax;
+}
+
+static int
+adjust_scalar_min_max_vals(struct ebpf_verifier *v, struct ebpf_inst *inst,
+		struct reg_state *dst_reg, struct reg_state *src_reg)
+{
+	int error;
+	uint8_t opcode = EBPF_ALU_OP(inst->opcode);
+
+	switch (opcode) {
+		case EBPF_ADD:
+			/* Addition with overflow */
+			if (signed_add_overflows(dst_reg->smin, src_reg->smin) ||
+					signed_add_overflows(dst_reg->smax, src_reg->smax)) {
+				dst_reg->smin = INT64_MIN;
+				dst_reg->smax = INT64_MAX;
+			} else {
+				dst_reg->smin += src_reg->smin;
+				dst_reg->smax += src_reg->smax;
+			}
+			/* Addition with no-overflow */
+			if (dst_reg->umin + src_reg->umin < src_reg->umin ||
+					dst_reg->umax + src_reg->umax < src_reg->umax) {
+				dst_reg->umin = 0;
+				dst_reg->umax = UINT64_MAX;
+			} else {
+				dst_reg->umin += src_reg->umin;
+				dst_reg->umax += src_reg->umax;
+			}
+			/* update tnum */
+			dst_reg->var_off = tnum_add(dst_reg->var_off, src_reg->var_off);
+			break;
+		case EBPF_SUB:
+			/* Subtruction with overflow */
+			if (signed_sub_overflows(dst_reg->smin, src_reg->smax) ||
+					sigend_sub_overflows(dst_reg->smax, src_reg->smin)) {
+				dst_reg->smin = INT64_MIN;
+				dst_reg->smax = INT64_MAX;
+			} else {
+				dst_reg->smin -= src_reg->smax;
+				dst_reg->smax -= src_reg->smin;
+			}
+			/* Subrtuction with no-overflow */
+			if (dst_reg->umin < src_reg->umax) {
+				dst_reg->umin = 0;
+				dst_reg->umax = UINT64_MAX;
+			} else {
+				dst_reg->umin -= src_reg->umax;
+				dst_reg->umax -= src_reg->umin;
+			}
+			/* update tnum */
+			dst_reg->var_off = tnum_sub(dst_reg->var_off, src_reg->var_off);
+			break;
+	}
+}
+
+static int
+adjust_reg_min_max_vals(struct ebpf_verifier *v, struct ebpf_inst *inst)
+{
+	int error;
+	uint8_t opcode = EBPF_ALU_OP(inst->opcode);
+	struct reg_state *regs = v->reg_states;
+
+	if (EBPF_SRC(inst->opcode) == EBPF_SRC_REG) {
+		if (regs[inst->dst].type == SCALAR_VALUE) {
+			if (regs[inst->src].type == SCALAR_VALUE) {
+				// scalar (op) scalar
+				return adjust_scalar_min_max_vals(v, inst);
+			}
+
+			if (is_pointer_type(v, inst->src)) {
+				// scalar (op) pointer
+			}
+		}
+
+		if (is_pointer_type(v. inst->dst)) {
+			if (regs[inst->src].type == SCALAR_VALUE) {
+				// pointer (op) scalar
+			}
+
+			if (is_pointer_type(v, inst->src)) {
+				// pointer (op) pointer
+			}
+		}
+	} else {
+	}
+
+	return 0;
+}
+
 static int
 simulate_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 {
@@ -420,25 +547,37 @@ simulate_alu(struct ebpf_verifier *v, struct ebpf_inst *inst)
 		if (source == EBPF_SRC_IMM) {
 			reg[inst->dst].type = SCALAR_VALUE;
 			if (EBPF_CLS(inst->opcode) == EBPF_CLS_ALU64) {
-				reg[inst->dst].smax = inst->imm;
-				reg[inst->dst].smin = inst->imm;
-				reg[inst->dst].umax = inst->imm;
-				reg[inst->dst].umin = inst->imm;
+				reg[inst->dst] = reg[inst->src];
 			} else {
-				reg[inst->dst].smax = (uint32_t)inst->imm;
-				reg[inst->dst].smin = (uint32_t)inst->imm;
-				reg[inst->dst].umax = (uint32_t)inst->imm;
-				reg[inst->dst].umin = (uint32_t)inst->imm;
+				if (is_pointer_type(v, inst->src)) {
+					printf("Partial copy of pointer\n");
+					return EACCES;
+				} else if (reg[inst->src] == SCALAR_VALUE) {
+					reg[inst->dst] = reg[inst->src];
+				} else {
+					mark_reg_unknown(reg + inst->dst);
+				}
+				coerce_reg_to_size(reg + inst->dst, 4);
 			}
 		} else {
-			reg[inst->dst] = reg[inst->src];
+			mark_reg_unknown(reg + inst->dst);
+			regs[inst->dst].type = SCALAR_VALUE;
+			if (EBPF_CLS(inst->opcode) == EBPF_ALU64) {
+				mark_reg_known(reg + inst->dst, inst->imm);
+			} else {
+				mark_reg_known(reg + inst->dst, (uint32_t)inst->imm);
+			}
 		}
 		return 0;
 	}
 
-	// TODO Implement rest of the logic
+	/* Rest of the opcode */
+	if ((opcode == EBPF_MOD || opcode == EBPF_DIV) &&
+			EBPF_SRC(isnt->opcode) == EBPF_SRC_IMM && inst->imm == 0) {
+		printf("div by zero\n");
+	}
 
-	return 0;
+	return adjust_reg_min_max_vals(v, inst);
 }
 
 static int

@@ -44,6 +44,9 @@ all: libebpf.dylib
 libebpf.dylib: $(OBJS)
 	$(CC) $(CFLAGS) -shared -o $@ $(OBJS)
 
+libebpf.a: $(OBJS)
+	ar rc libebpf.a $(OBJS)
+
 install:
 	cp libebpf.dylib $(DESTDIR)
 

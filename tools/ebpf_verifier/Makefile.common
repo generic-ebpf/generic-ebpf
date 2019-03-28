@@ -12,7 +12,7 @@ CPPFLAGS= \
 	-std=c99
 CFLAGS+=${CPPFLAGS}
 
-OBJS=ebpf_verifier.o
+OBJS=ebpf_verifier.o tnum.o
 
 all: ebpf_verifier
 ebpf_verifier: $(OBJS)
