@@ -8,6 +8,7 @@ ebpf-objs+=	$(SRC_DIR)/ebpf_map.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_map_bad.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_map_array.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_map_hashtable.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_obj.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog_bad.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog_test.o
