@@ -12,7 +12,6 @@ CXXFLAGS+= \
 	-Wno-unused-variable \
 	-Wno-sign-compare \
 	-O0 \
-	-fsanitize=leak \
 	$(LDFLAGS)
 LDFLAGS+=-coverage
 LIBS=	-lpthread -lebpf -L${LIBEBPFDIR}
