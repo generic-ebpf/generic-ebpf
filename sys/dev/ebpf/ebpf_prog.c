@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ebpf_prog.h"
+#include <dev/ebpf/ebpf_prog.h>
 
 const struct ebpf_prog_type *ebpf_prog_types[] = {
 	[EBPF_PROG_TYPE_BAD]  = &bad_prog_type,
@@ -33,44 +33,48 @@ ebpf_get_prog_type(uint16_t type)
 	return ebpf_prog_types[type];
 }
 
-int
-ebpf_prog_init(struct ebpf_prog *prog_obj, struct ebpf_prog_attr *attr)
+static void
+ebpf_prog_dtor(struct ebpf_obj *eo)
 {
-	if (prog_obj == NULL || attr == NULL ||
-			attr->type >= EBPF_PROG_TYPE_MAX ||
-			attr->prog == NULL || attr->prog_len == 0) {
-		return EINVAL;
-	}
+	struct ebpf_obj_prog *eop = (struct ebpf_obj_prog *)eo;
+	ebpf_free(eop->prog);
+}
 
-	struct ebpf_inst *insts = ebpf_malloc(attr->prog_len);
-	if (insts == NULL) {
+int
+ebpf_prog_create(struct ebpf_obj_prog **eopp, struct ebpf_prog_attr *attr)
+{
+	struct ebpf_obj_prog *eop;
+
+	if (eopp == NULL || attr == NULL ||
+			attr->type >= EBPF_PROG_TYPE_MAX ||
+			attr->prog == NULL || attr->prog_len == 0)
+		return EINVAL;
+
+	eop = ebpf_malloc(sizeof(*eop));
+	if (eop == NULL)
+		return ENOMEM;
+
+	eop->prog = ebpf_malloc(attr->prog_len);
+	if (eop->prog == NULL) {
+		ebpf_free(eop);
 		return ENOMEM;
 	}
 
-	memcpy(insts, attr->prog, attr->prog_len);
+	memcpy(eop->prog, attr->prog, attr->prog_len);
 
-	prog_obj->type = attr->type;
-	prog_obj->prog_len = attr->prog_len;
-	prog_obj->prog = insts;
-	prog_obj->deinit = ebpf_prog_deinit_default;
+	ebpf_refcount_init(&eop->eo.ref, 1);
+	eop->eo.type	= EBPF_OBJ_TYPE_PROG;
+	eop->eo.dtor	= ebpf_prog_dtor;
+	eop->type	= attr->type;
+	eop->prog_len	= attr->prog_len;
+
+	*eopp = eop;
 
 	return 0;
 }
 
 void
-ebpf_prog_deinit_default(struct ebpf_prog *prog_obj, void *arg)
+ebpf_prog_destroy(struct ebpf_obj_prog *eop)
 {
-	ebpf_free(prog_obj->prog);
-}
-
-void
-ebpf_prog_deinit(struct ebpf_prog *prog_obj, void *arg)
-{
-	if (prog_obj == NULL) {
-		return;
-	}
-
-	if (prog_obj->deinit != NULL) {
-		prog_obj->deinit(prog_obj, arg);
-	}
+	ebpf_obj_release(&eop->eo);
 }
