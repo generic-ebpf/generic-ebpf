@@ -25,7 +25,7 @@ struct ebpf_map_array {
 #define ARRAY_MAP(_map) ((struct ebpf_map_array *)(_map->data))
 
 static void
-array_map_deinit(struct ebpf_map *map, void *arg)
+array_map_deinit(struct ebpf_obj_map *map)
 {
 	struct ebpf_map_array *array_map = map->data;
 
@@ -36,7 +36,7 @@ array_map_deinit(struct ebpf_map *map, void *arg)
 }
 
 static void
-array_map_deinit_percpu(struct ebpf_map *map, void *arg)
+array_map_deinit_percpu(struct ebpf_obj_map *map)
 {
 	struct ebpf_map_array *array_map = map->data;
 
@@ -61,7 +61,7 @@ array_map_init_common(struct ebpf_map_array *array_map, struct ebpf_map_attr *at
 }
 
 static int
-array_map_init(struct ebpf_map *map, struct ebpf_map_attr *attr)
+array_map_init(struct ebpf_obj_map *map, struct ebpf_map_attr *attr)
 {
 	int error;
 
@@ -84,7 +84,7 @@ array_map_init(struct ebpf_map *map, struct ebpf_map_attr *attr)
 }
 
 static int
-array_map_init_percpu(struct ebpf_map *map, struct ebpf_map_attr *attr)
+array_map_init_percpu(struct ebpf_obj_map *map, struct ebpf_map_attr *attr)
 {
 	int error;
 	uint16_t ncpus = ebpf_ncpus();
@@ -119,7 +119,7 @@ err0:
 }
 
 static void *
-array_map_lookup_elem(struct ebpf_map *map, void *key)
+array_map_lookup_elem(struct ebpf_obj_map *map, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
@@ -131,7 +131,7 @@ array_map_lookup_elem(struct ebpf_map *map, void *key)
 }
 
 static int
-array_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
+array_map_lookup_elem_from_user(struct ebpf_obj_map *map, void *key, void *value)
 {
 	uint32_t k = *(uint32_t *)key;
 
@@ -147,7 +147,7 @@ array_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
 }
 
 static void *
-array_map_lookup_elem_percpu(struct ebpf_map *map, void *key)
+array_map_lookup_elem_percpu(struct ebpf_obj_map *map, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
@@ -160,7 +160,7 @@ array_map_lookup_elem_percpu(struct ebpf_map *map, void *key)
 }
 
 static int
-array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key,
+array_map_lookup_elem_percpu_from_user(struct ebpf_obj_map *map, void *key,
 				       void *value)
 {
 	uint32_t k = *(uint32_t *)key;
@@ -181,7 +181,7 @@ array_map_lookup_elem_percpu_from_user(struct ebpf_map *map, void *key,
 }
 
 static int
-array_map_update_elem_common(struct ebpf_map *map,
+array_map_update_elem_common(struct ebpf_obj_map *map,
 			     struct ebpf_map_array *array_map, uint32_t key,
 			     void *value, uint64_t flags)
 {
@@ -193,7 +193,7 @@ array_map_update_elem_common(struct ebpf_map *map,
 }
 
 static inline int
-array_map_update_check_attr(struct ebpf_map *map, void *key, void *value,
+array_map_update_check_attr(struct ebpf_obj_map *map, void *key, void *value,
 			    uint64_t flags)
 {
 	if (flags & EBPF_NOEXIST) {
@@ -208,7 +208,7 @@ array_map_update_check_attr(struct ebpf_map *map, void *key, void *value,
 }
 
 static int
-array_map_update_elem(struct ebpf_map *map, void *key, void *value,
+array_map_update_elem(struct ebpf_obj_map *map, void *key, void *value,
 		      uint64_t flags)
 {
 	int error;
@@ -224,7 +224,7 @@ array_map_update_elem(struct ebpf_map *map, void *key, void *value,
 }
 
 static int
-array_map_update_elem_percpu(struct ebpf_map *map, void *key, void *value,
+array_map_update_elem_percpu(struct ebpf_obj_map *map, void *key, void *value,
 			     uint64_t flags)
 {
 	int error;
@@ -240,7 +240,7 @@ array_map_update_elem_percpu(struct ebpf_map *map, void *key, void *value,
 }
 
 static int
-array_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key,
+array_map_update_elem_percpu_from_user(struct ebpf_obj_map *map, void *key,
 				       void *value, uint64_t flags)
 {
 	int error;
@@ -260,13 +260,13 @@ array_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key,
 }
 
 static int
-array_map_delete_elem(struct ebpf_map *map, void *key)
+array_map_delete_elem(struct ebpf_obj_map *map, void *key)
 {
 	return EINVAL;
 }
 
 static int
-array_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
+array_map_get_next_key(struct ebpf_obj_map *map, void *key, void *next_key)
 {
 	uint32_t k = key ? *(uint32_t *)key : UINT32_MAX;
 	uint32_t *nk = (uint32_t *)next_key;

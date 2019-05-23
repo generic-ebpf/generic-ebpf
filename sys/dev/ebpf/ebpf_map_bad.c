@@ -19,44 +19,44 @@
 #include "ebpf_map.h"
 
 static int
-bad_map_init(struct ebpf_map *self, struct ebpf_map_attr *attr)
+bad_map_init(struct ebpf_obj_map *self, struct ebpf_map_attr *attr)
 {
 	return EINVAL;
 }
 
 static int
-bad_map_update_elem(struct ebpf_map *self, void *key, void *value,
+bad_map_update_elem(struct ebpf_obj_map *self, void *key, void *value,
 		    uint64_t flags)
 {
 	return EINVAL;
 }
 
 static void *
-bad_map_lookup_elem(struct ebpf_map *self, void *key)
+bad_map_lookup_elem(struct ebpf_obj_map *self, void *key)
 {
 	return NULL;
 }
 
 static int
-bad_map_lookup_elem_from_user(struct ebpf_map *self, void *key, void *value)
+bad_map_lookup_elem_from_user(struct ebpf_obj_map *self, void *key, void *value)
 {
 	return EINVAL;
 }
 
 static int
-bad_map_delete_elem(struct ebpf_map *self, void *key)
+bad_map_delete_elem(struct ebpf_obj_map *self, void *key)
 {
 	return EINVAL;
 }
 
 static int
-bad_map_get_next_key(struct ebpf_map *self, void *key, void *next_key)
+bad_map_get_next_key(struct ebpf_obj_map *self, void *key, void *next_key)
 {
 	return EINVAL;
 }
 
 static void
-bad_map_deinit(struct ebpf_map *self, void *arg)
+bad_map_deinit(struct ebpf_obj_map *self)
 {
 	return;
 }

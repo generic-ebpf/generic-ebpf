@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class PercpuArrayMapLookupTest : public ::testing::Test {
       protected:
-	struct ebpf_map map;
+	struct ebpf_obj_map *eom;
 
 	virtual void
 	SetUp()
@@ -26,17 +26,17 @@ class PercpuArrayMapLookupTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_init(&map, &attr);
+		error = ebpf_map_create(&eom, &attr);
 		ASSERT_TRUE(!error);
 
-		error = ebpf_map_update_elem_from_user(&map, &gkey, &gval, 0);
+		error = ebpf_map_update_elem_from_user(eom, &gkey, &gval, 0);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_deinit(&map, NULL);
+		ebpf_map_destroy(eom);
 	}
 };
 
@@ -46,7 +46,7 @@ TEST_F(PercpuArrayMapLookupTest, LookupMaxEntryPlusOne)
 	uint32_t key = 100;
 	uint64_t value;
 
-	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
+	error = ebpf_map_lookup_elem_from_user(eom, &key, &value);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -57,7 +57,7 @@ TEST_F(PercpuArrayMapLookupTest, LookupOutOfMaxEntry)
 	uint32_t key = 102;
 	uint64_t value;
 
-	error = ebpf_map_lookup_elem_from_user(&map, &key, &value);
+	error = ebpf_map_lookup_elem_from_user(eom, &key, &value);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -68,7 +68,7 @@ TEST_F(PercpuArrayMapLookupTest, CorrectLookup)
 	uint32_t key = 50;
 	uint64_t value[ebpf_ncpus()];
 
-	error = ebpf_map_lookup_elem_from_user(&map, &key, value);
+	error = ebpf_map_lookup_elem_from_user(eom, &key, value);
 	EXPECT_EQ(0, error);
 
 	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {

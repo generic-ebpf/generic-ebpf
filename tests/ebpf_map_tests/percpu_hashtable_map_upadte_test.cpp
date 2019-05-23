@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class PercpuHashTableMapUpdateTest : public ::testing::Test {
       protected:
-	struct ebpf_map map;
+	struct ebpf_obj_map map;
 
 	virtual void
 	SetUp()
@@ -18,8 +18,8 @@ class PercpuHashTableMapUpdateTest : public ::testing::Test {
 		int error;
 
 		error =
-		    ebpf_map_init(&map, EBPF_MAP_TYPE_PERCPPU_HASHTABLE,
-				  sizeof(uint32_t), sizeof(uint32_t), 100, 0);
+                ebpf_map_create(&map, EBPF_MAP_TYPE_PERCPPU_HASHTABLE,
+                                sizeof(uint32_t), sizeof(uint32_t), 100, 0);
 		ASSERT_TRUE(!error);
 	}
 

@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class MapLookupTest : public ::testing::Test {
       protected:
-	struct ebpf_map map;
+	struct ebpf_obj_map *eom;
 
 	virtual void
 	SetUp()
@@ -24,14 +24,14 @@ class MapLookupTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_init(&map, &attr);
+		error = ebpf_map_create(&eom, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_deinit(&map, NULL);
+		ebpf_map_destroy(eom);
 	}
 };
 
@@ -51,7 +51,7 @@ TEST_F(MapLookupTest, LookupWithNULLKey)
 	int error;
 	void *value;
 
-	value = ebpf_map_lookup_elem(&map, NULL);
+	value = ebpf_map_lookup_elem(eom, NULL);
 
 	EXPECT_EQ(NULL, value);
 }
@@ -62,7 +62,7 @@ TEST_F(MapLookupTest, LookupWithNULLValue)
 	uint32_t key = 100;
 	void *value;
 
-	value = ebpf_map_lookup_elem(&map, (void *)&key);
+	value = ebpf_map_lookup_elem(eom, (void *)&key);
 
 	EXPECT_EQ(NULL, value);
 }

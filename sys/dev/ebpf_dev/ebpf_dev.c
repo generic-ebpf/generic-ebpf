@@ -33,7 +33,7 @@ ebpf_dev_prog_deinit(struct ebpf_prog *self, void *arg)
 }
 
 static void
-ebpf_dev_map_deinit(struct ebpf_map *self, void *arg)
+ebpf_dev_map_deinit(struct ebpf_obj_map *self, void *arg)
 {
 	struct ebpf_obj_map *map = (struct ebpf_obj_map *)self;
 	ebpf_thread *td = (ebpf_thread *)arg;

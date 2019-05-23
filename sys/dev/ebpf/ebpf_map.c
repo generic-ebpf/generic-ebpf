@@ -38,111 +38,127 @@ ebpf_get_map_type(uint16_t type)
 	return ebpf_map_types[type];
 }
 
+static void
+ebpf_map_dtor(struct ebpf_obj *eo)
+{
+	struct ebpf_obj_map *eom = (struct ebpf_obj_map *)eo;
+	EBPF_MAP_TYPE_OPS(eom->type).deinit(eom);
+}
+
 int
-ebpf_map_init(struct ebpf_map *map, struct ebpf_map_attr *attr)
+ebpf_map_create(struct ebpf_obj_map **eomp, struct ebpf_map_attr *attr)
 {
 	int error;
+	struct ebpf_obj_map *eom;
 
-	if (map == NULL || attr == NULL ||
+	if (eomp == NULL || attr == NULL ||
 			attr->type >= EBPF_MAP_TYPE_MAX ||
 			attr->key_size == 0 || attr->value_size == 0 ||
-			attr->max_entries == 0) {
+			attr->max_entries == 0)
 		return EINVAL;
-	}
 
-	map->type = attr->type;
-	map->key_size = attr->key_size;
-	map->value_size = attr->value_size;
-	map->max_entries = attr->max_entries;
-	map->map_flags = attr->flags;
-	map->deinit = ebpf_map_deinit_default;
+	eom = ebpf_malloc(sizeof(*eom));
+	if (eom == NULL)
+		return ENOMEM;
 
-	error = EBPF_MAP_TYPE_OPS(attr->type).init(map, attr);
+	ebpf_refcount_init(&eom->eo.ref, 1);
+	eom->eo.type		= EBPF_OBJ_TYPE_MAP;
+	eom->eo.dtor		= ebpf_map_dtor;
+	eom->type		= attr->type;
+	eom->key_size		= attr->key_size;
+	eom->value_size		= attr->value_size;
+	eom->max_entries	= attr->max_entries;
+	eom->map_flags		= attr->flags;
+
+	error = EBPF_MAP_TYPE_OPS(attr->type).init(eom, attr);
 	if (error != 0) {
+		ebpf_free(eom);
 		return error;
 	}
+
+	*eomp = eom;
 
 	return 0;
 }
 
 void *
-ebpf_map_lookup_elem(struct ebpf_map *map, void *key)
+ebpf_map_lookup_elem(struct ebpf_obj_map *eom, void *key)
 {
-	if (map == NULL || key == NULL) {
+	if (eom == NULL || key == NULL) {
 		return NULL;
 	}
 
-	return EBPF_MAP_TYPE_OPS(map->type).lookup_elem(map, key);
+	return EBPF_MAP_TYPE_OPS(eom->type).lookup_elem(eom, key);
 }
 
 int
-ebpf_map_lookup_elem_from_user(struct ebpf_map *map, void *key, void *value)
+ebpf_map_lookup_elem_from_user(struct ebpf_obj_map *eom, void *key, void *value)
 {
 	int error;
 
-	if (map == NULL || key == NULL || value == NULL) {
+	if (eom == NULL || key == NULL || value == NULL) {
 		return EINVAL;
 	}
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_TYPE_OPS(map->type).lookup_elem_from_user(map, key, value);
+	error = EBPF_MAP_TYPE_OPS(eom->type).lookup_elem_from_user(eom, key, value);
 	ebpf_epoch_exit();
 
 	return error;
 }
 
 int
-ebpf_map_update_elem(struct ebpf_map *map, void *key, void *value,
+ebpf_map_update_elem(struct ebpf_obj_map *eom, void *key, void *value,
 		     uint64_t flags)
 {
-	if (map == NULL || key == NULL ||
+	if (eom == NULL || key == NULL ||
 			value == NULL || flags > EBPF_EXIST) {
 		return EINVAL;
 	}
 
-	return EBPF_MAP_TYPE_OPS(map->type).update_elem(map, key, value, flags);
+	return EBPF_MAP_TYPE_OPS(eom->type).update_elem(eom, key, value, flags);
 }
 
 int
-ebpf_map_update_elem_from_user(struct ebpf_map *map, void *key, void *value,
+ebpf_map_update_elem_from_user(struct ebpf_obj_map *eom, void *key, void *value,
 			       uint64_t flags)
 {
 	int error;
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_TYPE_OPS(map->type).update_elem_from_user(map, key, value, flags);
+	error = EBPF_MAP_TYPE_OPS(eom->type).update_elem_from_user(eom, key, value, flags);
 	ebpf_epoch_exit();
 
 	return error;
 }
 
 int
-ebpf_map_delete_elem(struct ebpf_map *map, void *key)
+ebpf_map_delete_elem(struct ebpf_obj_map *eom, void *key)
 {
-	if (map == NULL || key == NULL) {
+	if (eom == NULL || key == NULL) {
 		return EINVAL;
 	}
 
-	return EBPF_MAP_TYPE_OPS(map->type).delete_elem(map, key);
+	return EBPF_MAP_TYPE_OPS(eom->type).delete_elem(eom, key);
 }
 
 int
-ebpf_map_delete_elem_from_user(struct ebpf_map *map, void *key)
+ebpf_map_delete_elem_from_user(struct ebpf_obj_map *eom, void *key)
 {
 	int error;
-	if (map == NULL || key == NULL) {
+	if (eom == NULL || key == NULL) {
 		return EINVAL;
 	}
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_TYPE_OPS(map->type).delete_elem_from_user(map, key);
+	error = EBPF_MAP_TYPE_OPS(eom->type).delete_elem_from_user(eom, key);
 	ebpf_epoch_exit();
 
 	return error;
 }
 
 int
-ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
+ebpf_map_get_next_key_from_user(struct ebpf_obj_map *eom, void *key, void *next_key)
 {
 	int error;
 
@@ -150,31 +166,22 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *map, void *key, void *next_key)
 	 * key == NULL is valid, because it means "Give me a
 	 * first key"
 	 */
-	if (map == NULL || next_key == NULL) {
+	if (eom == NULL || next_key == NULL) {
 		return EINVAL;
 	}
 
 	ebpf_epoch_enter();
-	error = EBPF_MAP_TYPE_OPS(map->type).get_next_key_from_user(map, key, next_key);
+	error = EBPF_MAP_TYPE_OPS(eom->type).get_next_key_from_user(eom, key, next_key);
 	ebpf_epoch_exit();
 
 	return error;
 }
 
 void
-ebpf_map_deinit_default(struct ebpf_map *map, void *arg)
+ebpf_map_destroy(struct ebpf_obj_map *eom)
 {
-	EBPF_MAP_TYPE_OPS(map->type).deinit(map, arg);
-}
-
-void
-ebpf_map_deinit(struct ebpf_map *map, void *arg)
-{
-	if (map == NULL) {
+	if (eom == NULL)
 		return;
-	}
 
-	if (map->deinit != NULL) {
-		map->deinit(map, arg);
-	}
+	ebpf_obj_release(&eom->eo);
 }

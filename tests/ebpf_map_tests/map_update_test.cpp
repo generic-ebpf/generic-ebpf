@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class MapUpdateTest : public ::testing::Test {
       protected:
-	struct ebpf_map map;
+	struct ebpf_obj_map *eom;
 
 	virtual void
 	SetUp()
@@ -24,14 +24,14 @@ class MapUpdateTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_init(&map, &attr);
+		error = ebpf_map_create(&eom, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_deinit(&map, NULL);
+		ebpf_map_destroy(eom);
 	}
 };
 
@@ -50,7 +50,7 @@ TEST_F(MapUpdateTest, UpdateWithNULLKey)
 	int error;
 	uint32_t value = 100;
 
-	error = ebpf_map_update_elem(&map, NULL, &value, EBPF_ANY);
+	error = ebpf_map_update_elem(eom, NULL, &value, EBPF_ANY);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -60,7 +60,7 @@ TEST_F(MapUpdateTest, UpdateWithNULLValue)
 	int error;
 	uint32_t key = 100;
 
-	error = ebpf_map_update_elem(&map, &key, NULL, EBPF_ANY);
+	error = ebpf_map_update_elem(eom, &key, NULL, EBPF_ANY);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -70,7 +70,7 @@ TEST_F(MapUpdateTest, UpdateWithInvalidFlag)
 	int error;
 	uint32_t key = 1, value = 1;
 
-	error = ebpf_map_update_elem(&map, &key, &value, EBPF_EXIST + 1);
+	error = ebpf_map_update_elem(eom, &key, &value, EBPF_EXIST + 1);
 
 	EXPECT_EQ(EINVAL, error);
 }

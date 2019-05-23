@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class PercpuArrayMapGetNextKeyTest : public ::testing::Test {
       protected:
-	struct ebpf_map map;
+	struct ebpf_obj_map *eom;
 
 	virtual void
 	SetUp()
@@ -22,14 +22,14 @@ class PercpuArrayMapGetNextKeyTest : public ::testing::Test {
 	  attr.max_entries = 100;
 	  attr.flags = 0;
 
-		int error = ebpf_map_init(&map, &attr);
+		int error = ebpf_map_create(&eom, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_deinit(&map, NULL);
+		ebpf_map_destroy(eom);
 	}
 };
 
@@ -38,7 +38,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, GetNextKeyWithMaxKey)
 	int error;
 	uint32_t key = 99, next_key = 0;
 
-	error = ebpf_map_get_next_key_from_user(&map, &key, &next_key);
+	error = ebpf_map_get_next_key_from_user(eom, &key, &next_key);
 
 	EXPECT_EQ(ENOENT, error);
 }
@@ -48,7 +48,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, GetFirstKey)
 	int error;
 	uint32_t next_key = 0;
 
-	error = ebpf_map_get_next_key_from_user(&map, NULL, &next_key);
+	error = ebpf_map_get_next_key_from_user(eom, NULL, &next_key);
 
 	EXPECT_EQ(0, error);
 	EXPECT_EQ(0, next_key);
@@ -59,7 +59,7 @@ TEST_F(PercpuArrayMapGetNextKeyTest, CorrectGetNextKey)
 	int error;
 	uint32_t key = 50, next_key = 0;
 
-	error = ebpf_map_get_next_key_from_user(&map, &key, &next_key);
+	error = ebpf_map_get_next_key_from_user(eom, &key, &next_key);
 
 	EXPECT_EQ(0, error);
 	EXPECT_EQ(51, next_key);

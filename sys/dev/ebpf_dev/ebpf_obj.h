@@ -36,7 +36,7 @@ struct ebpf_obj {
 };
 
 struct ebpf_obj_map {
-	struct ebpf_map map;
+	struct ebpf_obj_map map;
 	struct ebpf_obj obj;
 };
 
