@@ -37,6 +37,11 @@ static void
 ebpf_prog_dtor(struct ebpf_obj *eo)
 {
 	struct ebpf_obj_prog *eop = (struct ebpf_obj_prog *)eo;
+
+	for (uint16_t i = 0; i < eop->ndep_maps; i++) {
+		ebpf_obj_release((struct ebpf_obj *)eop->dep_maps[i]);
+	}
+
 	ebpf_free(eop->prog);
 }
 
@@ -63,10 +68,14 @@ ebpf_prog_create(struct ebpf_obj_prog **eopp, struct ebpf_prog_attr *attr)
 	memcpy(eop->prog, attr->prog, attr->prog_len);
 
 	ebpf_refcount_init(&eop->eo.ref, 1);
-	eop->eo.type	= EBPF_OBJ_TYPE_PROG;
-	eop->eo.dtor	= ebpf_prog_dtor;
-	eop->type	= attr->type;
-	eop->prog_len	= attr->prog_len;
+	eop->eo.type = EBPF_OBJ_TYPE_PROG;
+	eop->eo.dtor = ebpf_prog_dtor;
+	eop->type = attr->type;
+	eop->ndep_maps = 0;
+	eop->prog_len = attr->prog_len;
+
+	memset(eop->dep_maps, 0,
+			sizeof(eop->dep_maps[0]) * EOP_MAX_DEPS);
 
 	*eopp = eop;
 
@@ -77,4 +86,21 @@ void
 ebpf_prog_destroy(struct ebpf_obj_prog *eop)
 {
 	ebpf_obj_release(&eop->eo);
+}
+
+int
+ebpf_prog_attach_map(struct ebpf_obj_prog *eop, struct ebpf_obj_map *eom)
+{
+	if (eop == NULL || eom == NULL) {
+		return EINVAL;
+	}
+
+	if (eop->ndep_maps >= EOP_MAX_DEPS) {
+		return EBUSY;
+	}
+
+	ebpf_obj_acquire((struct ebpf_obj *)eom);
+	eop->dep_maps[eop->ndep_maps++] = eom;
+
+	return 0;
 }

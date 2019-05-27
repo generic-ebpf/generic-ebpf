@@ -20,6 +20,8 @@
 
 #include <dev/ebpf/ebpf_platform.h>
 
+#define EBPF_OBJ_MAX_DEPS 128
+
 struct ebpf_obj;
 
 typedef void (*ebpf_obj_dtor)(struct ebpf_obj*);
@@ -33,6 +35,7 @@ enum ebpf_obj_type {
 struct ebpf_obj {
 	uint32_t ref;
 	uint16_t type;
+	uint16_t ndeps;
 	void (*dtor)(struct ebpf_obj*);
 };
 
