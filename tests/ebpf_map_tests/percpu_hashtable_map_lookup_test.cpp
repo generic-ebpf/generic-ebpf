@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class PercpuHashTableMapLookupTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	virtual void
 	SetUp()
@@ -25,17 +25,17 @@ class PercpuHashTableMapLookupTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_create(&eom, &attr);
+		error = ebpf_map_create(&em, &attr);
 		ASSERT_TRUE(!error);
 
-		error = ebpf_map_update_elem_from_user(eom, &gkey, &gval, 0);
+		error = ebpf_map_update_elem_from_user(em, &gkey, &gval, 0);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_destroy(eom);
+		ebpf_map_destroy(em);
 	}
 };
 
@@ -45,7 +45,7 @@ TEST_F(PercpuHashTableMapLookupTest, LookupUnexistingEntry)
 	uint32_t key = 51;
 	uint32_t value;
 
-	error = ebpf_map_lookup_elem_from_user(eom, &key, &value);
+	error = ebpf_map_lookup_elem_from_user(em, &key, &value);
 
 	EXPECT_EQ(ENOENT, error);
 }
@@ -57,7 +57,7 @@ TEST_F(PercpuHashTableMapLookupTest, CorrectLookup)
 	uint16_t ncpus = sysconf(_SC_NPROCESSORS_ONLN);
 	uint32_t value[ncpus];
 
-	error = ebpf_map_lookup_elem_from_user(eom, &key, value);
+	error = ebpf_map_lookup_elem_from_user(em, &key, value);
 	EXPECT_EQ(0, error);
 
 	for (uint32_t i = 0; i < ncpus; i++) {

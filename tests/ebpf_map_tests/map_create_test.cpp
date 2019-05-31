@@ -25,7 +25,7 @@ TEST(MapCreateTest, CreateWithNULLMapPointer)
 TEST(MapCreateTest, CreateWithInvalidMapType1)
 {
 	int error;
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	struct ebpf_map_attr attr;
 	attr.type = EBPF_MAP_TYPE_MAX;
@@ -34,7 +34,7 @@ TEST(MapCreateTest, CreateWithInvalidMapType1)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&eom, &attr);
+	error = ebpf_map_create(&em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -42,7 +42,7 @@ TEST(MapCreateTest, CreateWithInvalidMapType1)
 TEST(MapCreateTest, CreateWithInvalidMapType2)
 {
 	int error;
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	struct ebpf_map_attr attr;
 	attr.type = EBPF_MAP_TYPE_MAX + 1;
@@ -51,7 +51,7 @@ TEST(MapCreateTest, CreateWithInvalidMapType2)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&eom, &attr);
+	error = ebpf_map_create(&em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -59,7 +59,7 @@ TEST(MapCreateTest, CreateWithInvalidMapType2)
 TEST(MapCreateTest, CreateWithZeroKey)
 {
 	int error;
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	struct ebpf_map_attr attr;
 	attr.type = EBPF_MAP_TYPE_ARRAY;
@@ -68,7 +68,7 @@ TEST(MapCreateTest, CreateWithZeroKey)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&eom, &attr);
+	error = ebpf_map_create(&em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -76,7 +76,7 @@ TEST(MapCreateTest, CreateWithZeroKey)
 TEST(MapCreateTest, CreateWithZeroValue)
 {
 	int error;
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	struct ebpf_map_attr attr;
 	attr.type = EBPF_MAP_TYPE_ARRAY;
@@ -85,7 +85,7 @@ TEST(MapCreateTest, CreateWithZeroValue)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&eom, &attr);
+	error = ebpf_map_create(&em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -93,7 +93,7 @@ TEST(MapCreateTest, CreateWithZeroValue)
 TEST(MapCreateTest, CreateWithZeroMaxEntries)
 {
 	int error;
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	struct ebpf_map_attr attr;
 	attr.type = EBPF_MAP_TYPE_ARRAY;
@@ -102,7 +102,7 @@ TEST(MapCreateTest, CreateWithZeroMaxEntries)
 	attr.max_entries = 0;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&eom, &attr);
+	error = ebpf_map_create(&em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }

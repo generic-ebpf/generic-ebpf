@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class ArrayMapGetNextKeyTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	virtual void
 	SetUp()
@@ -22,14 +22,14 @@ class ArrayMapGetNextKeyTest : public ::testing::Test {
 	  attr.max_entries = 100;
 	  attr.flags = 0;
 
-		int error = ebpf_map_create(&eom, &attr);
+		int error = ebpf_map_create(&em, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_destroy(eom);
+		ebpf_map_destroy(em);
 	}
 };
 
@@ -38,7 +38,7 @@ TEST_F(ArrayMapGetNextKeyTest, GetNextKeyWithMaxKey)
 	int error;
 	uint32_t key = 99, next_key = 0;
 
-	error = ebpf_map_get_next_key_from_user(eom, &key, &next_key);
+	error = ebpf_map_get_next_key_from_user(em, &key, &next_key);
 
 	EXPECT_EQ(ENOENT, error);
 }
@@ -48,7 +48,7 @@ TEST_F(ArrayMapGetNextKeyTest, GetFirstKey)
 	int error;
 	uint32_t next_key = 0;
 
-	error = ebpf_map_get_next_key_from_user(eom, NULL, &next_key);
+	error = ebpf_map_get_next_key_from_user(em, NULL, &next_key);
 
 	EXPECT_EQ(0, error);
 	EXPECT_EQ(0, next_key);
@@ -59,7 +59,7 @@ TEST_F(ArrayMapGetNextKeyTest, CorrectGetNextKey)
 	int error;
 	uint32_t key = 50, next_key = 0;
 
-	error = ebpf_map_get_next_key_from_user(eom, &key, &next_key);
+	error = ebpf_map_get_next_key_from_user(em, &key, &next_key);
 
 	EXPECT_EQ(0, error);
 	EXPECT_EQ(51, next_key);

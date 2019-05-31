@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class MapDeleteTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	virtual void
 	SetUp()
@@ -24,14 +24,14 @@ class MapDeleteTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_create(&eom, &attr);
+		error = ebpf_map_create(&em, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_destroy(eom);
+		ebpf_map_destroy(em);
 	}
 };
 
@@ -49,7 +49,7 @@ TEST_F(MapDeleteTest, DeleteWithNULLKey)
 {
 	int error;
 
-	error = ebpf_map_delete_elem(eom, NULL);
+	error = ebpf_map_delete_elem(em, NULL);
 
 	EXPECT_EQ(EINVAL, error);
 }

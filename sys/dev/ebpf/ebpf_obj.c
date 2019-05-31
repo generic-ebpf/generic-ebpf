@@ -22,15 +22,15 @@ void
 ebpf_obj_acquire(struct ebpf_obj *eo)
 {
 	ebpf_assert(eo != NULL);
-	ebpf_refcount_acquire(&eo->ref);
+	ebpf_refcount_acquire(&eo->eo_ref);
 }
 
 void
 ebpf_obj_release(struct ebpf_obj *eo)
 {
 	ebpf_assert(eo != NULL);
-	if (ebpf_refcount_release(&eo->ref) == 0) {
-		eo->dtor(eo);
+	if (ebpf_refcount_release(&eo->eo_ref) == 0) {
+		eo->eo_dtor(eo);
 		ebpf_free(eo);
 	}
 }

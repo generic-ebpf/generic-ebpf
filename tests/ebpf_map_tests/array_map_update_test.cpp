@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class ArrayMapUpdateTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	virtual void
 	SetUp()
@@ -24,14 +24,14 @@ class ArrayMapUpdateTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_create(&eom, &attr);
+		error = ebpf_map_create(&em, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_destroy(eom);
+		ebpf_map_destroy(em);
 	}
 };
 
@@ -40,7 +40,7 @@ TEST_F(ArrayMapUpdateTest, UpdateWithMaxPlusOneKey)
 	int error;
 	uint32_t key = 100, value = 100;
 
-	error = ebpf_map_update_elem_from_user(eom, &key, &value, EBPF_ANY);
+	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -50,7 +50,7 @@ TEST_F(ArrayMapUpdateTest, CorrectUpdate)
 	int error;
 	uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(eom, &key, &value, EBPF_ANY);
+	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
 	EXPECT_EQ(0, error);
 }
@@ -60,11 +60,11 @@ TEST_F(ArrayMapUpdateTest, CorrectUpdateOverwrite)
 	int error;
 	uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(eom, &key, &value, EBPF_ANY);
+	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 	ASSERT_TRUE(!error);
 
 	value = 101;
-	error = ebpf_map_update_elem_from_user(eom, &key, &value, EBPF_ANY);
+	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
 	EXPECT_EQ(0, error);
 }
@@ -76,13 +76,13 @@ TEST_F(ArrayMapUpdateTest, CreateMoreThenMaxEntries)
 
 	for (int i = 0; i < 100; i++) {
 		key = i;
-		error = ebpf_map_update_elem_from_user(eom, &key, &value,
+		error = ebpf_map_update_elem_from_user(em, &key, &value,
 						       EBPF_ANY);
 		ASSERT_TRUE(!error);
 	}
 
 	key++;
-	error = ebpf_map_update_elem_from_user(eom, &key, &value, EBPF_ANY);
+	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
 	/*
 	 * In array map, max_entries equals to max key, so
@@ -97,7 +97,7 @@ TEST_F(ArrayMapUpdateTest, UpdateElementWithNOEXISTFlag)
 	uint32_t key = 50, value = 100;
 
 	error =
-	    ebpf_map_update_elem_from_user(eom, &key, &value, EBPF_NOEXIST);
+	    ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
 
 	EXPECT_EQ(EEXIST, error);
 }

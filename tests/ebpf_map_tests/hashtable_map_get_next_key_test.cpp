@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class HashTableMapGetNextKeyTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	virtual void
 	SetUp()
@@ -24,14 +24,14 @@ class HashTableMapGetNextKeyTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_create(&eom, &attr);
+		error = ebpf_map_create(&em, &attr);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_destroy(eom);
+		ebpf_map_destroy(em);
 	}
 };
 
@@ -40,10 +40,10 @@ TEST_F(HashTableMapGetNextKeyTest, GetFirstKey)
 	int error;
 	uint32_t key = 100, value = 200, next_key = 0;
 
-	error = ebpf_map_update_elem_from_user(eom, &key, &value, 0);
+	error = ebpf_map_update_elem_from_user(em, &key, &value, 0);
 	EXPECT_EQ(0, error);
 
-	error = ebpf_map_get_next_key_from_user(eom, NULL, &next_key);
+	error = ebpf_map_get_next_key_from_user(em, NULL, &next_key);
 	EXPECT_EQ(0, error);
 	EXPECT_EQ(100, next_key);
 }
@@ -55,18 +55,18 @@ TEST_F(HashTableMapGetNextKeyTest, CorrectGetNextKey)
 
 	for (uint32_t i = 0; i < 100; i++) {
 		discovered[i] = false;
-		error = ebpf_map_update_elem_from_user(eom, &i, &i, 0);
+		error = ebpf_map_update_elem_from_user(em, &i, &i, 0);
 		ASSERT_TRUE(!error);
 	}
 
 	uint32_t next_key, next_key_copy;
-	error = ebpf_map_get_next_key_from_user(eom, NULL, &next_key);
+	error = ebpf_map_get_next_key_from_user(em, NULL, &next_key);
 	EXPECT_EQ(0, error);
 	discovered[next_key] = true;
 
 	while (!error) {
 		next_key_copy = next_key;
-		error = ebpf_map_get_next_key_from_user(eom, &next_key_copy, &next_key);
+		error = ebpf_map_get_next_key_from_user(em, &next_key_copy, &next_key);
 		discovered[next_key] = true;
 	}
 

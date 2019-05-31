@@ -59,4 +59,4 @@ typedef struct file ebpf_file;
 #include <dev/ebpf_dev/ebpf_obj.h>
 
 #define EBPF_OBJ(filep) filep->private_data
-#define EBPF_OBJ_MAP(filep) (struct ebpf_obj_map *)filep->private_data
+#define EBPF_OBJ_MAP(filep) (struct ebpf_map *)filep->private_data

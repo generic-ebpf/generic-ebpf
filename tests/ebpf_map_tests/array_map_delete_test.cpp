@@ -11,7 +11,7 @@ namespace {
 
 class ArrayMapDeleteTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map *eom;
+	struct ebpf_map *em;
 
 	virtual void
 	SetUp()
@@ -27,17 +27,17 @@ class ArrayMapDeleteTest : public ::testing::Test {
 		attr.max_entries = 100;
 		attr.flags = 0;
 
-		error = ebpf_map_create(&eom, &attr);
+		error = ebpf_map_create(&em, &attr);
 		ASSERT_TRUE(!error);
 
-		error = ebpf_map_update_elem_from_user(eom, &gkey, &gval, 0);
+		error = ebpf_map_update_elem_from_user(em, &gkey, &gval, 0);
 		ASSERT_TRUE(!error);
 	}
 
 	virtual void
 	TearDown()
 	{
-		ebpf_map_destroy(eom);
+		ebpf_map_destroy(em);
 	}
 };
 
@@ -47,7 +47,7 @@ TEST_F(ArrayMapDeleteTest, CorrectDelete)
 	int error;
 	uint32_t key = 50;
 
-	error = ebpf_map_delete_elem_from_user(eom, &key);
+	error = ebpf_map_delete_elem_from_user(em, &key);
 
 	EXPECT_EQ(EINVAL, error);
 }

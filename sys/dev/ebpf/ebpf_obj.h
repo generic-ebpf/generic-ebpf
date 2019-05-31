@@ -33,10 +33,10 @@ enum ebpf_obj_type {
 };
 
 struct ebpf_obj {
-	uint32_t ref;
-	uint16_t type;
-	uint16_t ndeps;
-	void (*dtor)(struct ebpf_obj*);
+	uint32_t eo_ref;
+	uint16_t eo_type;
+	uint16_t eo_ndeps;
+	void (*eo_dtor)(struct ebpf_obj*);
 };
 
 void ebpf_obj_acquire(struct ebpf_obj *eo);

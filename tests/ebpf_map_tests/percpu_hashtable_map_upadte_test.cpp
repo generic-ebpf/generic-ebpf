@@ -10,7 +10,7 @@ extern "C" {
 namespace {
 class PercpuHashTableMapUpdateTest : public ::testing::Test {
       protected:
-	struct ebpf_obj_map map;
+	struct ebpf_map map;
 
 	virtual void
 	SetUp()

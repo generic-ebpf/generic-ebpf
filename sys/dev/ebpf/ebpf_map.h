@@ -21,7 +21,7 @@
 #include <dev/ebpf/ebpf_obj.h>
 #include <sys/ebpf.h>
 
-struct ebpf_obj_map;
+struct ebpf_map;
 
 struct ebpf_map_attr {
 	uint16_t type;
@@ -31,16 +31,16 @@ struct ebpf_map_attr {
 	uint32_t flags;
 };
 
-typedef int ebpf_map_init_t(struct ebpf_obj_map *eom, struct ebpf_map_attr *attr);
-typedef void *ebpf_map_lookup_elem_t(struct ebpf_obj_map *eom, void *key);
-typedef int ebpf_map_lookup_elem_from_user_t(struct ebpf_obj_map *eom, void *key,
+typedef int ebpf_map_init_t(struct ebpf_map *em, struct ebpf_map_attr *attr);
+typedef void *ebpf_map_lookup_elem_t(struct ebpf_map *em, void *key);
+typedef int ebpf_map_lookup_elem_from_user_t(struct ebpf_map *em, void *key,
 					     void *value);
-typedef int ebpf_map_update_elem_t(struct ebpf_obj_map *eom, void *key, void *value,
+typedef int ebpf_map_update_elem_t(struct ebpf_map *em, void *key, void *value,
 				   uint64_t flags);
-typedef int ebpf_map_delete_elem_t(struct ebpf_obj_map *eom, void *key);
-typedef int ebpf_map_get_next_key_t(struct ebpf_obj_map *eom, void *key,
+typedef int ebpf_map_delete_elem_t(struct ebpf_map *em, void *key);
+typedef int ebpf_map_get_next_key_t(struct ebpf_map *em, void *key,
 				    void *next_key);
-typedef void ebpf_map_deinit_t(struct ebpf_obj_map *eom);
+typedef void ebpf_map_deinit_t(struct ebpf_map *em);
 
 struct ebpf_map_ops {
 	ebpf_map_init_t *init;
@@ -59,7 +59,7 @@ struct ebpf_map_type {
 	struct ebpf_map_ops ops;
 };
 
-struct ebpf_obj_map {
+struct ebpf_map {
 	struct ebpf_obj eo;
 	uint16_t type;
 	uint32_t key_size;
@@ -71,16 +71,16 @@ struct ebpf_obj_map {
 };
 
 const struct ebpf_map_type *ebpf_get_map_type(uint16_t type);
-int ebpf_map_create(struct ebpf_obj_map **eomp, struct ebpf_map_attr *attr);
-void *ebpf_map_lookup_elem(struct ebpf_obj_map *eom, void *key);
-int ebpf_map_update_elem(struct ebpf_obj_map *eom, void *key, void *value,
+int ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr);
+void *ebpf_map_lookup_elem(struct ebpf_map *em, void *key);
+int ebpf_map_update_elem(struct ebpf_map *em, void *key, void *value,
 			 uint64_t flags);
-int ebpf_map_delete_elem(struct ebpf_obj_map *eom, void *key);
-int ebpf_map_lookup_elem_from_user(struct ebpf_obj_map *eom, void *key,
+int ebpf_map_delete_elem(struct ebpf_map *em, void *key);
+int ebpf_map_lookup_elem_from_user(struct ebpf_map *em, void *key,
 				   void *value);
-int ebpf_map_update_elem_from_user(struct ebpf_obj_map *eom, void *key, void *value,
+int ebpf_map_update_elem_from_user(struct ebpf_map *em, void *key, void *value,
 				   uint64_t flags);
-int ebpf_map_delete_elem_from_user(struct ebpf_obj_map *eom, void *key);
-int ebpf_map_get_next_key_from_user(struct ebpf_obj_map *eom, void *key,
+int ebpf_map_delete_elem_from_user(struct ebpf_map *em, void *key);
+int ebpf_map_get_next_key_from_user(struct ebpf_map *em, void *key,
 				    void *next_key);
-void ebpf_map_destroy(struct ebpf_obj_map *eom);
+void ebpf_map_destroy(struct ebpf_map *em);

@@ -26,7 +26,7 @@ TEST(ProgLoadTest, LoadWithNULLProgPointer)
 TEST(ProgLoadTest, LoadWithInvalidProgType1)
 {
 	int error;
-	struct ebpf_obj_prog *eop;
+	struct ebpf_prog *ep;
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
@@ -36,7 +36,7 @@ TEST(ProgLoadTest, LoadWithInvalidProgType1)
 		.prog_len = 1
 	};
 
-	error = ebpf_prog_create(&eop, &attr);
+	error = ebpf_prog_create(&ep, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -44,7 +44,7 @@ TEST(ProgLoadTest, LoadWithInvalidProgType1)
 TEST(ProgLoadTest, LoadWithInvalidProgType2)
 {
 	int error;
-	struct ebpf_obj_prog *eop;
+	struct ebpf_prog *ep;
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
@@ -54,7 +54,7 @@ TEST(ProgLoadTest, LoadWithInvalidProgType2)
 		.prog_len = 1
 	};
 
-	error = ebpf_prog_create(&eop, &attr);
+	error = ebpf_prog_create(&ep, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -62,7 +62,7 @@ TEST(ProgLoadTest, LoadWithInvalidProgType2)
 TEST(ProgLoadTest, LoadWithZeroLen)
 {
 	int error;
-	struct ebpf_obj_prog *eop;
+	struct ebpf_prog *ep;
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
@@ -72,7 +72,7 @@ TEST(ProgLoadTest, LoadWithZeroLen)
 		.prog_len = 0
 	};
 
-	error = ebpf_prog_create(&eop, &attr);
+	error = ebpf_prog_create(&ep, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -80,7 +80,7 @@ TEST(ProgLoadTest, LoadWithZeroLen)
 TEST(ProgLoadTest, LoadWithNULLProg)
 {
 	int error;
-	struct ebpf_obj_prog *eop;
+	struct ebpf_prog *ep;
 
 	struct ebpf_prog_attr attr = {
 		.type = EBPF_PROG_TYPE_TEST,
@@ -88,7 +88,7 @@ TEST(ProgLoadTest, LoadWithNULLProg)
 		.prog_len = 1
 	};
 
-	error = ebpf_prog_create(&eop, &attr);
+	error = ebpf_prog_create(&ep, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
@@ -96,7 +96,7 @@ TEST(ProgLoadTest, LoadWithNULLProg)
 TEST(ProgLoadTest, CorrectLoad)
 {
 	int error;
-	struct ebpf_obj_prog *eop;
+	struct ebpf_prog *ep;
 
 	struct ebpf_inst insts[] = {{EBPF_OP_EXIT, 0, 0, 0, 0}};
 
@@ -106,9 +106,9 @@ TEST(ProgLoadTest, CorrectLoad)
 		.prog_len = 1
 	};
 
-	error = ebpf_prog_create(&eop, &attr);
+	error = ebpf_prog_create(&ep, &attr);
 
 	EXPECT_EQ(0, error);
 
-	ebpf_prog_destroy(eop);
+	ebpf_prog_destroy(ep);
 }

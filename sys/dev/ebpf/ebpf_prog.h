@@ -24,13 +24,13 @@
 
 #define EOP_MAX_DEPS 64
 
-struct ebpf_obj_prog {
+struct ebpf_prog {
 	struct ebpf_obj eo;
 	uint16_t type;
 	uint16_t ndep_maps;
 	uint32_t prog_len;
 	struct ebpf_inst *prog;
-	struct ebpf_obj_map *dep_maps[EOP_MAX_DEPS];
+	struct ebpf_map *dep_maps[EOP_MAX_DEPS];
 };
 
 struct ebpf_prog_attr {
@@ -44,6 +44,6 @@ struct ebpf_prog_type {
 };
 
 const struct ebpf_prog_type *ebpf_get_prog_type(uint16_t type);
-int ebpf_prog_create(struct ebpf_obj_prog **eopp, struct ebpf_prog_attr *attr);
-void ebpf_prog_destroy(struct ebpf_obj_prog *eop);
-int ebpf_prog_attach_map(struct ebpf_obj_prog *eop, struct ebpf_obj_map *eom);
+int ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr);
+void ebpf_prog_destroy(struct ebpf_prog *);
+int ebpf_prog_attach_map(struct ebpf_prog *, struct ebpf_map *em);

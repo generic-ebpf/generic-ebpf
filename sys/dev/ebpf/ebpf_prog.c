@@ -36,71 +36,71 @@ ebpf_get_prog_type(uint16_t type)
 static void
 ebpf_prog_dtor(struct ebpf_obj *eo)
 {
-	struct ebpf_obj_prog *eop = (struct ebpf_obj_prog *)eo;
+	struct ebpf_prog *ep = (struct ebpf_prog *)eo;
 
-	for (uint16_t i = 0; i < eop->ndep_maps; i++) {
-		ebpf_obj_release((struct ebpf_obj *)eop->dep_maps[i]);
+	for (uint16_t i = 0; i < ep->ndep_maps; i++) {
+		ebpf_obj_release((struct ebpf_obj *)ep->dep_maps[i]);
 	}
 
-	ebpf_free(eop->prog);
+	ebpf_free(ep->prog);
 }
 
 int
-ebpf_prog_create(struct ebpf_obj_prog **eopp, struct ebpf_prog_attr *attr)
+ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
 {
-	struct ebpf_obj_prog *eop;
+	struct ebpf_prog *ep;
 
 	if (eopp == NULL || attr == NULL ||
 			attr->type >= EBPF_PROG_TYPE_MAX ||
 			attr->prog == NULL || attr->prog_len == 0)
 		return EINVAL;
 
-	eop = ebpf_malloc(sizeof(*eop));
-	if (eop == NULL)
+	ep = ebpf_malloc(sizeof(*ep));
+	if (ep == NULL)
 		return ENOMEM;
 
-	eop->prog = ebpf_malloc(attr->prog_len);
-	if (eop->prog == NULL) {
-		ebpf_free(eop);
+	ep->prog = ebpf_malloc(attr->prog_len);
+	if (ep->prog == NULL) {
+		ebpf_free(ep);
 		return ENOMEM;
 	}
 
-	memcpy(eop->prog, attr->prog, attr->prog_len);
+	memcpy(ep->prog, attr->prog, attr->prog_len);
 
-	ebpf_refcount_init(&eop->eo.ref, 1);
-	eop->eo.type = EBPF_OBJ_TYPE_PROG;
-	eop->eo.dtor = ebpf_prog_dtor;
-	eop->type = attr->type;
-	eop->ndep_maps = 0;
-	eop->prog_len = attr->prog_len;
+	ebpf_refcount_init(&ep->eo.eo_ref, 1);
+	ep->eo.eo_type = EBPF_OBJ_TYPE_PROG;
+	ep->eo.eo_dtor = ebpf_prog_dtor;
+	ep->type = attr->type;
+	ep->ndep_maps = 0;
+	ep->prog_len = attr->prog_len;
 
-	memset(eop->dep_maps, 0,
-			sizeof(eop->dep_maps[0]) * EOP_MAX_DEPS);
+	memset(ep->dep_maps, 0,
+			sizeof(ep->dep_maps[0]) * EOP_MAX_DEPS);
 
-	*eopp = eop;
+	*eopp = ep;
 
 	return 0;
 }
 
 void
-ebpf_prog_destroy(struct ebpf_obj_prog *eop)
+ebpf_prog_destroy(struct ebpf_prog *ep)
 {
-	ebpf_obj_release(&eop->eo);
+	ebpf_obj_release(&ep->eo);
 }
 
 int
-ebpf_prog_attach_map(struct ebpf_obj_prog *eop, struct ebpf_obj_map *eom)
+ebpf_prog_attach_map(struct ebpf_prog *ep, struct ebpf_map *em)
 {
-	if (eop == NULL || eom == NULL) {
+	if (ep == NULL || em == NULL) {
 		return EINVAL;
 	}
 
-	if (eop->ndep_maps >= EOP_MAX_DEPS) {
+	if (ep->ndep_maps >= EOP_MAX_DEPS) {
 		return EBUSY;
 	}
 
-	ebpf_obj_acquire((struct ebpf_obj *)eom);
-	eop->dep_maps[eop->ndep_maps++] = eom;
+	ebpf_obj_acquire((struct ebpf_obj *)em);
+	ep->dep_maps[ep->ndep_maps++] = em;
 
 	return 0;
 }
