@@ -26,9 +26,8 @@ const struct ebpf_prog_type *ebpf_prog_types[] = {
 const struct ebpf_prog_type *
 ebpf_get_prog_type(uint16_t type)
 {
-	if (type >= EBPF_PROG_TYPE_MAX) {
+	if (type >= EBPF_PROG_TYPE_MAX)
 		return NULL;
-	}
 
 	return ebpf_prog_types[type];
 }
@@ -38,9 +37,8 @@ ebpf_prog_dtor(struct ebpf_obj *eo)
 {
 	struct ebpf_prog *ep = (struct ebpf_prog *)eo;
 
-	for (uint16_t i = 0; i < ep->ndep_maps; i++) {
+	for (uint16_t i = 0; i < ep->ndep_maps; i++)
 		ebpf_obj_release((struct ebpf_obj *)ep->dep_maps[i]);
-	}
 
 	ebpf_free(ep->prog);
 }
@@ -91,13 +89,11 @@ ebpf_prog_destroy(struct ebpf_prog *ep)
 int
 ebpf_prog_attach_map(struct ebpf_prog *ep, struct ebpf_map *em)
 {
-	if (ep == NULL || em == NULL) {
+	if (ep == NULL || em == NULL)
 		return EINVAL;
-	}
 
-	if (ep->ndep_maps >= EOP_MAX_DEPS) {
+	if (ep->ndep_maps >= EOP_MAX_DEPS)
 		return EBUSY;
-	}
 
 	ebpf_obj_acquire((struct ebpf_obj *)em);
 	ep->dep_maps[ep->ndep_maps++] = em;

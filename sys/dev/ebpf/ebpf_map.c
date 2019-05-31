@@ -31,9 +31,8 @@ const struct ebpf_map_type *ebpf_map_types[] = {
 const struct ebpf_map_type *
 ebpf_get_map_type(uint16_t type)
 {
-	if (type >= EBPF_MAP_TYPE_MAX) {
+	if (type >= EBPF_MAP_TYPE_MAX)
 		return NULL;
-	}
 
 	return ebpf_map_types[type];
 }
@@ -84,9 +83,8 @@ ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr)
 void *
 ebpf_map_lookup_elem(struct ebpf_map *em, void *key)
 {
-	if (em == NULL || key == NULL) {
+	if (em == NULL || key == NULL)
 		return NULL;
-	}
 
 	return EBPF_MAP_TYPE_OPS(em->type).lookup_elem(em, key);
 }
@@ -96,9 +94,8 @@ ebpf_map_lookup_elem_from_user(struct ebpf_map *em, void *key, void *value)
 {
 	int error;
 
-	if (em == NULL || key == NULL || value == NULL) {
+	if (em == NULL || key == NULL || value == NULL)
 		return EINVAL;
-	}
 
 	ebpf_epoch_enter();
 	error = EBPF_MAP_TYPE_OPS(em->type).lookup_elem_from_user(em, key, value);
@@ -112,9 +109,8 @@ ebpf_map_update_elem(struct ebpf_map *em, void *key, void *value,
 		     uint64_t flags)
 {
 	if (em == NULL || key == NULL ||
-			value == NULL || flags > EBPF_EXIST) {
+			value == NULL || flags > EBPF_EXIST)
 		return EINVAL;
-	}
 
 	return EBPF_MAP_TYPE_OPS(em->type).update_elem(em, key, value, flags);
 }
@@ -135,9 +131,8 @@ ebpf_map_update_elem_from_user(struct ebpf_map *em, void *key, void *value,
 int
 ebpf_map_delete_elem(struct ebpf_map *em, void *key)
 {
-	if (em == NULL || key == NULL) {
+	if (em == NULL || key == NULL)
 		return EINVAL;
-	}
 
 	return EBPF_MAP_TYPE_OPS(em->type).delete_elem(em, key);
 }
@@ -146,9 +141,8 @@ int
 ebpf_map_delete_elem_from_user(struct ebpf_map *em, void *key)
 {
 	int error;
-	if (em == NULL || key == NULL) {
+	if (em == NULL || key == NULL)
 		return EINVAL;
-	}
 
 	ebpf_epoch_enter();
 	error = EBPF_MAP_TYPE_OPS(em->type).delete_elem_from_user(em, key);
@@ -166,9 +160,8 @@ ebpf_map_get_next_key_from_user(struct ebpf_map *em, void *key, void *next_key)
 	 * key == NULL is valid, because it means "Give me a
 	 * first key"
 	 */
-	if (em == NULL || next_key == NULL) {
+	if (em == NULL || next_key == NULL)
 		return EINVAL;
-	}
 
 	ebpf_epoch_enter();
 	error = EBPF_MAP_TYPE_OPS(em->type).get_next_key_from_user(em, key, next_key);

@@ -42,9 +42,8 @@ array_map_deinit_percpu(struct ebpf_map *em)
 
 	ebpf_epoch_wait();
 
-	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
+	for (uint16_t i = 0; i < ebpf_ncpus(); i++)
 		ebpf_free(ma[i].array);
-	}
 
 	ebpf_free(ma);
 }
@@ -53,9 +52,8 @@ static int
 array_map_init_common(struct ebpf_map_array *ma, struct ebpf_map_attr *attr)
 {
 	ma->array = ebpf_calloc(attr->max_entries, attr->value_size);
-	if (ma->array == NULL) {
+	if (ma->array == NULL)
 		return ENOMEM;
-	}
 
 	return 0;
 }
@@ -67,9 +65,8 @@ array_map_init(struct ebpf_map *em, struct ebpf_map_attr *attr)
 
 	struct ebpf_map_array *ma =
 	    ebpf_calloc(1, sizeof(*ma));
-	if (ma == NULL) {
+	if (ma == NULL)
 		return ENOMEM;
-	}
 
 	error = array_map_init_common(ma, attr);
 	if (error != 0) {
@@ -91,16 +88,14 @@ array_map_init_percpu(struct ebpf_map *em, struct ebpf_map_attr *attr)
 
 	struct ebpf_map_array *ma =
 	    ebpf_calloc(ncpus, sizeof(*ma));
-	if (ma == NULL) {
+	if (ma == NULL)
 		return ENOMEM;
-	}
 
 	uint16_t i;
 	for (i = 0; i < ncpus; i++) {
 		error = array_map_init_common(ma + i, attr);
-		if (error != 0) {
+		if (error != 0)
 			goto err0;
-		}
 	}
 
 	em->data = ma;
@@ -109,9 +104,8 @@ array_map_init_percpu(struct ebpf_map *em, struct ebpf_map_attr *attr)
 	return 0;
 
 err0:
-	for (uint16_t j = i; j > 0; j--) {
+	for (uint16_t j = i; j > 0; j--)
 		ebpf_free(ma[i].array);
-	}
 
 	ebpf_free(ma);
 
@@ -123,9 +117,8 @@ array_map_lookup_elem(struct ebpf_map *em, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
-	if (k >= em->max_entries) {
+	if (k >= em->max_entries)
 		return NULL;
-	}
 
 	return (uint8_t *)(ARRAY_MAP(em)->array) + (em->value_size * k);
 }
@@ -135,9 +128,8 @@ array_map_lookup_elem_from_user(struct ebpf_map *em, void *key, void *value)
 {
 	uint32_t k = *(uint32_t *)key;
 
-	if (k >= em->max_entries) {
+	if (k >= em->max_entries)
 		return EINVAL;
-	}
 
 	uint8_t *elem =
 	    (uint8_t *)(ARRAY_MAP(em)->array) + (em->value_size * k);
@@ -151,9 +143,8 @@ array_map_lookup_elem_percpu(struct ebpf_map *em, void *key)
 {
 	uint32_t k = *(uint32_t *)key;
 
-	if (k >= em->max_entries) {
+	if (k >= em->max_entries)
 		return NULL;
-	}
 
 	return (uint8_t *)((ARRAY_MAP(em) + ebpf_curcpu())->array) +
 	       (em->value_size * k);
@@ -165,9 +156,8 @@ array_map_lookup_elem_percpu_from_user(struct ebpf_map *em, void *key,
 {
 	uint32_t k = *(uint32_t *)key;
 
-	if (k >= em->max_entries) {
+	if (k >= em->max_entries)
 		return EINVAL;
-	}
 
 	uint8_t *elem;
 	for (uint32_t i = 0; i < ebpf_ncpus(); i++) {
@@ -196,13 +186,11 @@ static inline int
 array_map_update_check_attr(struct ebpf_map *em, void *key, void *value,
 			    uint64_t flags)
 {
-	if (flags & EBPF_NOEXIST) {
+	if (flags & EBPF_NOEXIST)
 		return EEXIST;
-	}
 
-	if (*(uint32_t *)key >= em->max_entries) {
+	if (*(uint32_t *)key >= em->max_entries)
 		return EINVAL;
-	}
 
 	return 0;
 }
@@ -215,9 +203,8 @@ array_map_update_elem(struct ebpf_map *em, void *key, void *value,
 	struct ebpf_map_array *ma = em->data;
 
 	error = array_map_update_check_attr(em, key, value, flags);
-	if (error != 0) {
+	if (error != 0)
 		return error;
-	}
 
 	return array_map_update_elem_common(em, ma, *(uint32_t *)key,
 					    value, flags);
@@ -231,9 +218,8 @@ array_map_update_elem_percpu(struct ebpf_map *em, void *key, void *value,
 	struct ebpf_map_array *ma = em->data;
 
 	error = array_map_update_check_attr(em, key, value, flags);
-	if (error != 0) {
+	if (error != 0)
 		return error;
-	}
 
 	return array_map_update_elem_common(em, ma + ebpf_curcpu(),
 					    *(uint32_t *)key, value, flags);
@@ -247,14 +233,12 @@ array_map_update_elem_percpu_from_user(struct ebpf_map *map, void *key,
 	struct ebpf_map_array *ma = map->data;
 
 	error = array_map_update_check_attr(map, key, value, flags);
-	if (error != 0) {
+	if (error != 0)
 		return error;
-	}
 
-	for (uint16_t i = 0; i < ebpf_ncpus(); i++) {
+	for (uint16_t i = 0; i < ebpf_ncpus(); i++)
 		array_map_update_elem_common(map, ma + i,
 					     *(uint32_t *)key, value, flags);
-	}
 
 	return 0;
 }
@@ -276,9 +260,8 @@ array_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 		return 0;
 	}
 
-	if (k == map->max_entries - 1) {
+	if (k == map->max_entries - 1)
 		return ENOENT;
-	}
 
 	*nk = k + 1;
 	return 0;

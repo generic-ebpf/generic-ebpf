@@ -43,14 +43,12 @@ ebpf_run_test(struct ebpf_inst *prog, uint32_t prog_len,
 	 * eBPF program which doesn't require context structure.
 	 */
 	if (prog == NULL || prog_len == 0 ||
-			result == NULL || (ctx != NULL && ctx_len == 0)) {
+			result == NULL || (ctx != NULL && ctx_len == 0))
 		return EINVAL;
-	}
 
 	struct ebpf_vm *vm = ebpf_create();
-	if (vm == NULL) {
+	if (vm == NULL)
 		return ENOMEM;
-	}
 
 	test_vm_attach_func(vm);
 

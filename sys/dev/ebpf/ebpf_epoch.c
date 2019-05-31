@@ -56,9 +56,8 @@ ebpf_epoch_get_record(ck_epoch_record_t **record)
 
 	if (*record == NULL) {
 		*record = ebpf_malloc(sizeof(ck_epoch_record_t));
-		if (*record == NULL) {
+		if (*record == NULL)
 			return -1;
-		}
 
 		ck_epoch_register(&ebpf_epoch, *record);
 
