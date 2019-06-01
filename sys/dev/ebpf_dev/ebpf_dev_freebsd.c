@@ -40,7 +40,6 @@ ebpf_objfile_close(struct file *fp, struct thread *td)
 	struct ebpf_obj *eo = fp->f_data;
 
 	if (fp->f_count == 0) {
-		ebpf_error("released file!!!\n");
 		ebpf_obj_release(eo);
 		ebpf_refcount_release(&ebpf_dev_global_refcount);
 	}
