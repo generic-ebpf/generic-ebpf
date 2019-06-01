@@ -17,16 +17,14 @@
  */
 
 #include <dev/ebpf_dev/ebpf_dev_platform.h>
-#include <dev/ebpf_dev/ebpf_obj.h>
+#include <dev/ebpf/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 
 /*
- * Global reference count. Since ebpf.ko doesn't provide
- * any reference counting, we need to manage our own reference
- * counting in here.
+ * Global reference count
  *
- * This will acquired when users get file descriptor like /dev/ebpf
+ * This will be acquired when users get file descriptor like /dev/ebpf
  * descriptor or ebpf object (programs, maps...) descriptor. It will
  * released when users close them.
  */
@@ -39,10 +37,11 @@ static struct fileops ebpf_objf_ops;
 static int
 ebpf_objfile_close(struct file *fp, struct thread *td)
 {
-	struct ebpf_obj *obj = fp->f_data;
+	struct ebpf_obj *eo = fp->f_data;
 
 	if (fp->f_count == 0) {
-		ebpf_obj_delete(obj, td);
+		ebpf_error("released file!!!\n");
+		ebpf_obj_release(eo);
 		ebpf_refcount_release(&ebpf_dev_global_refcount);
 	}
 
@@ -92,6 +91,12 @@ ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd, struct ebpf_obj *data)
 	ebpf_refcount_acquire(&ebpf_dev_global_refcount);
 
 	return 0;
+}
+
+struct ebpf_obj *
+ebpf_file_get_data(ebpf_file *f)
+{
+	return f->f_data;
 }
 
 int
@@ -174,7 +179,6 @@ ebpf_dev_fini(void)
 	if (ebpf_dev != NULL) {
 		destroy_dev(ebpf_dev);
 	}
-	printf("ebpf-dev unloaded\n");
 }
 
 int
@@ -186,7 +190,6 @@ ebpf_dev_init(void)
 		goto fail;
 	}
 
-	printf("ebpf-dev loaded\n");
 	return 0;
 fail:
 	ebpf_dev_fini();

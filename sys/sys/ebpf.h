@@ -19,6 +19,7 @@
 #pragma once
 
 #define EBPF_NAME_MAX 64
+#define EBPF_PROG_MAX_ATTACHED_MAPS 64
 
 enum ebpf_basic_map_types {
 	EBPF_MAP_TYPE_BAD = 0,
@@ -41,5 +42,3 @@ enum ebpf_map_update_flags {
 	EBPF_EXIST,
 	__EBPF_MAP_UPDATE_FLAGS_MAX
 };
-
-#define EBPF_PROG_MAX_ATTACHED_MAPS 64

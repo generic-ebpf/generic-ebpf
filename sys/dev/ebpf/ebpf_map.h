@@ -70,6 +70,10 @@ struct ebpf_map {
 	void *data;
 };
 
+#define EO2EM(eo) \
+	(eo != NULL && eo->eo_type == EBPF_OBJ_TYPE_MAP ? \
+   (struct ebpf_map *)eo : NULL)
+
 const struct ebpf_map_type *ebpf_get_map_type(uint16_t type);
 int ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr);
 void *ebpf_map_lookup_elem(struct ebpf_map *em, void *key);

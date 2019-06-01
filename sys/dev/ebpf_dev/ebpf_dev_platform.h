@@ -34,6 +34,7 @@ struct ebpf_obj;
 bool is_ebpf_objfile(ebpf_file *fp);
 int ebpf_fopen(ebpf_thread *td, ebpf_file **fp, int *fd,
 	       struct ebpf_obj *data);
+struct ebpf_obj *ebpf_file_get_data(ebpf_file *f);
 int ebpf_fget(ebpf_thread *td, int fd, ebpf_file **f);
 int ebpf_fdrop(ebpf_file *f, ebpf_thread *td);
 int ebpf_copyin(const void *uaddr, void *kaddr, size_t len);

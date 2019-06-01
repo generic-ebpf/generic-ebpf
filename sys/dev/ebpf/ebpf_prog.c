@@ -73,7 +73,7 @@ ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
 	ep->prog_len = attr->prog_len;
 
 	memset(ep->dep_maps, 0,
-			sizeof(ep->dep_maps[0]) * EOP_MAX_DEPS);
+			sizeof(ep->dep_maps[0]) * EBPF_PROG_MAX_ATTACHED_MAPS);
 
 	*eopp = ep;
 
@@ -92,11 +92,19 @@ ebpf_prog_attach_map(struct ebpf_prog *ep, struct ebpf_map *em)
 	if (ep == NULL || em == NULL)
 		return EINVAL;
 
-	if (ep->ndep_maps >= EOP_MAX_DEPS)
+	if (ep->ndep_maps >= EBPF_PROG_MAX_ATTACHED_MAPS)
 		return EBUSY;
 
-	ebpf_obj_acquire((struct ebpf_obj *)em);
-	ep->dep_maps[ep->ndep_maps++] = em;
+	for (uint16_t i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
+		if (ep->dep_maps[i] != NULL) {
+			if (ep->dep_maps[i] == em)
+				return EEXIST;
+		} else {
+			ebpf_obj_acquire((struct ebpf_obj *)em);
+			ep->dep_maps[ep->ndep_maps++] = em;
+			break;
+		}
+	}
 
 	return 0;
 }

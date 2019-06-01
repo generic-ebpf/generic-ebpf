@@ -37,8 +37,3 @@
 
 typedef struct thread ebpf_thread;
 typedef struct file ebpf_file;
-
-#include <dev/ebpf_dev/ebpf_obj.h>
-
-#define EBPF_OBJ(filep) filep->f_data
-#define EBPF_OBJ_MAP(filep) (struct ebpf_map *)EBPF_OBJ(filep)

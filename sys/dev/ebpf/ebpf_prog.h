@@ -22,16 +22,18 @@
 #include <sys/ebpf.h>
 #include <sys/ebpf_inst.h>
 
-#define EOP_MAX_DEPS 64
-
 struct ebpf_prog {
 	struct ebpf_obj eo;
 	uint16_t type;
 	uint16_t ndep_maps;
 	uint32_t prog_len;
 	struct ebpf_inst *prog;
-	struct ebpf_map *dep_maps[EOP_MAX_DEPS];
+	struct ebpf_map *dep_maps[EBPF_PROG_MAX_ATTACHED_MAPS];
 };
+
+#define EO2EP(eo) \
+	(eo != NULL && eo->eo_type == EBPF_OBJ_TYPE_PROG ? \
+   (struct ebpf_prog *)eo : NULL)
 
 struct ebpf_prog_attr {
 	uint16_t type;

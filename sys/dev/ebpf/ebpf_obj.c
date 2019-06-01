@@ -29,7 +29,7 @@ void
 ebpf_obj_release(struct ebpf_obj *eo)
 {
 	ebpf_assert(eo != NULL);
-	if (ebpf_refcount_release(&eo->eo_ref) == 0) {
+	if (ebpf_refcount_release(&eo->eo_ref) != 0) {
 		eo->eo_dtor(eo);
 		ebpf_free(eo);
 	}

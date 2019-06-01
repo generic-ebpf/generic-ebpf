@@ -176,5 +176,5 @@ ebpf_map_destroy(struct ebpf_map *em)
 	if (em == NULL)
 		return;
 
-	ebpf_obj_release(&em->eo);
+	ebpf_obj_release((struct ebpf_obj *)em);
 }
