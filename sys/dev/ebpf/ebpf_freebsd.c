@@ -16,10 +16,11 @@
  * limitations under the License.
  */
 
-#include <sys/ebpf.h>
 #include <dev/ebpf/ebpf_platform.h>
-#include <dev/ebpf/ebpf_map.h>
-#include <dev/ebpf/ebpf_prog.h>
+
+#include <sys/ebpf.h>
+#include <sys/ebpf_map.h>
+#include <sys/ebpf_prog.h>
 
 MALLOC_DECLARE(M_EBPFBUF);
 MALLOC_DEFINE(M_EBPFBUF, "ebpf-buffers", "Buffers for ebpf and its subsystems");

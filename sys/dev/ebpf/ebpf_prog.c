@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
-#include <dev/ebpf/ebpf_prog.h>
+#include "ebpf_platform.h"
+
+#include <sys/ebpf_prog.h>
 
 const struct ebpf_prog_type *ebpf_prog_types[] = {
 	[EBPF_PROG_TYPE_BAD]  = &bad_prog_type,

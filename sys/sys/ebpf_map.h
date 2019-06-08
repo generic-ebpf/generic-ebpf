@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <dev/ebpf/ebpf_obj.h>
+#include <sys/ebpf_obj.h>
 #include <sys/ebpf.h>
 
 struct ebpf_map;

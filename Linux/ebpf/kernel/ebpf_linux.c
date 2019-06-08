@@ -49,9 +49,9 @@
 #include <dev/ebpf/ebpf_platform.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_vm.h>
-#include <dev/ebpf/ebpf_prog.h>
+#include <sys/ebpf_prog.h>
 #include <dev/ebpf/ebpf_prog_test.h>
-#include <dev/ebpf/ebpf_map.h>
+#include <sys/ebpf_map.h>
 #include <dev/ebpf/ebpf_allocator.h>
 
 void *

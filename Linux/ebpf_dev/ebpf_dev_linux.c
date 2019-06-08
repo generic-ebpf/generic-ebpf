@@ -37,8 +37,8 @@
  */
 
 #include <dev/ebpf_dev/ebpf_dev_platform.h>
-#include <dev/ebpf/ebpf_prog.h>
-#include <dev/ebpf/ebpf_map.h>
+#include <sys/ebpf_prog.h>
+#include <sys/ebpf_map.h>
 #include <dev/ebpf_dev/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>

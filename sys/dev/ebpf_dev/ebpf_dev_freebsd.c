@@ -17,7 +17,7 @@
  */
 
 #include <dev/ebpf_dev/ebpf_dev_platform.h>
-#include <dev/ebpf/ebpf_obj.h>
+#include <sys/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
 

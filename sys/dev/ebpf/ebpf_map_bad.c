@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
-#include "ebpf_map.h"
+#include "ebpf_platform.h"
+
+#include <sys/ebpf_map.h>
 
 static int
 bad_map_init(struct ebpf_map *em, struct ebpf_map_attr *attr)

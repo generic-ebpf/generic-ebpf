@@ -16,7 +16,9 @@
  * limitations under the License.
  */
 
-#include "ebpf_prog.h"
+#include "ebpf_platform.h"
+
+#include <sys/ebpf_prog.h>
 
 struct ebpf_prog_type bad_prog_type = {
 	.name = "bad",

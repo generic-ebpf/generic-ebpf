@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include <dev/ebpf/ebpf_obj.h>
+#include <sys/ebpf_obj.h>
 
 void
 ebpf_obj_acquire(struct ebpf_obj *eo)

@@ -17,8 +17,8 @@
  */
 
 #include "ebpf_dev_platform.h"
-#include <dev/ebpf/ebpf_map.h>
-#include <dev/ebpf/ebpf_prog.h>
+#include <sys/ebpf_map.h>
+#include <sys/ebpf_prog.h>
 #include <dev/ebpf/ebpf_prog_test.h>
 
 #include <sys/ebpf.h>

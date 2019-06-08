@@ -16,10 +16,13 @@
  * limitations under the License.
  */
 
-#include "ebpf_prog_test.h"
-#include "ebpf_prog.h"
-#include "ebpf_map.h"
+#include "ebpf_platform.h"
+
+#include <sys/ebpf_prog.h>
+#include <sys/ebpf_map.h>
 #include <sys/ebpf_vm.h>
+
+#include "ebpf_prog_test.h"
 
 static void
 test_vm_attach_func(struct ebpf_vm *vm)

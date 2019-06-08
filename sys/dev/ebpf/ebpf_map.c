@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include "ebpf_map.h"
+#include <sys/ebpf_map.h>
 
 const struct ebpf_map_type *ebpf_map_types[] = {
 	[EBPF_MAP_TYPE_BAD]              = &bad_map_type,
