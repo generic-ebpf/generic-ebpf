@@ -16,53 +16,54 @@ SIZE	H	0x08	H
 SIZE	B	0x10	B
 SIZE	D	0x18	DW
 
-# class, modifier, name, opcode, op, sign
-ALU	IR	ADD	0x00	+
-ALU	IR	SUB	0x10	-
-ALU	IR	MUL	0x20	*
-ALU	IR	DIV	0x30	/
-ALU	IR	OR	0x40	|
-ALU	IR	AND	0x50	&
-ALU	IR	LSH	0x60	<<
-ALU	IR	RSH	0x70	>>
-ALU	N	NEG	0x80	-
-ALU	IR	MOD	0x90	%
-ALU	IR	XOR	0xa0	^
-ALU	IR	MOV	0xb0	+
-ALU	IR	ARSH	0xc0	>>
-ALU	I	LE	0xd0
-ALU	I	BE	0xd0
+# class, modifier, name, opcode, op, sign, str
+ALU	IR	ADD	0x00	+	_	add32
+ALU	IR	SUB	0x10	-	_	sub32
+ALU	IR	MUL	0x20	*	_	mul32
+ALU	IR	DIV	0x30	/	_	div32
+ALU	IR	OR	0x40	|	_	or32
+ALU	IR	AND	0x50	&	_	and32
+ALU	IR	LSH	0x60	<<	_	lsh32
+ALU	IR	RSH	0x70	>>	_	rsh32
+ALU	N	NEG	0x80	-	_	neg32
+ALU	IR	MOD	0x90	%	_	mod32
+ALU	IR	XOR	0xa0	^	_	xor32
+ALU	IR	MOV	0xb0	+	_	mov32
+ALU	IR	ARSH	0xc0	>>	_	arsh32
+ALU	I	LE	0xd0	_	_	le
+ALU	I	BE	0xd0	_	_	be
 
-ALU64	IR	ADD64	0x00	+
-ALU64	IR	SUB64	0x10	-
-ALU64	IR	MUL64	0x20	*
-ALU64	IR	DIV64	0x30	/
-ALU64	IR	OR64	0x40	|
-ALU64	IR	AND64	0x50	&
-ALU64	IR	LSH64	0x60	<<
-ALU64	IR	RSH64	0x70	>>
-ALU64	N	NEG64	0x80	-
-ALU64	IR	MOD64	0x90	%
-ALU64	IR	XOR64	0xa0	^
-ALU64	IR	MOV64	0xb0	+
-ALU64	IR	ARSH64	0xc0	>>
+ALU64	IR	ADD64	0x00	+	_	add64
+ALU64	IR	SUB64	0x10	-	_	sub64
+ALU64	IR	MUL64	0x20	*	_	mul64
+ALU64	IR	DIV64	0x30	/	_	div64
+ALU64	IR	OR64	0x40	|	_	or64
+ALU64	IR	AND64	0x50	&	_	and64
+ALU64	IR	LSH64	0x60	<<	_	lsh64
+ALU64	IR	RSH64	0x70	>>	_	rsh64
+ALU64	N	NEG64	0x80	-	_	neg64
+ALU64	IR	MOD64	0x90	%	_	mod64
+ALU64	IR	XOR64	0xa0	^	_	xor64
+ALU64	IR	MOV64	0xb0	+	_	mov64
+ALU64	IR	ARSH64	0xc0	>>	_	arsh64
 
-JMP	N	JA	0x00
-JMP	IR	JEQ	0x10	==	u
-JMP	IR	JGT	0x20	>	u
-JMP	IR	JGE	0x30	>=	u
-JMP	IR	JSET	0x40	&	u
-JMP	IR	JNE	0x50	!=	u
-JMP	IR	JSGT	0x60	>	s
-JMP	IR	JSGE	0x70	>=	s
-JMP	N	CALL	0x80
-JMP	N	EXIT	0x90
-JMP	IR	JLT	0xa0	<	u
-JMP	IR	JLE	0xb0	<=	u
-JMP	IR	JSLT	0xc0	<	s
-JMP	IR	JSLE	0xd0	<=	s
+JMP	N	JA	0x00			ja
+JMP	IR	JEQ	0x10	==	u	jeq
+JMP	IR	JGT	0x20	>	u	jgt
+JMP	IR	JGE	0x30	>=	u	jge
+JMP	IR	JSET	0x40	&	u	jset
+JMP	IR	JNE	0x50	!=	u	jne
+JMP	IR	JSGT	0x60	>	s	jsgt
+JMP	IR	JSGE	0x70	>=	s	jsge
+JMP	N	CALL	0x80			call
+JMP	N	EXIT	0x90			exit
+JMP	IR	JLT	0xa0	<	u	jlt
+JMP	IR	JLE	0xb0	<=	u	jle
+JMP	IR	JSLT	0xc0	<	s	jslt
+JMP	IR	JSLE	0xd0	<=	s	jsle
 
-LDX	WHBD	LDX	0x60
-LD	D	LD	0x00
-STX	WHBD	STX	0x60
-ST	WHBD	ST	0x00
+# class, modifier, name, opcode, str
+LDX	WHBD	LDX	0x60	ldx
+LD	D	LD	0x00	ld
+STX	WHBD	STX	0x60	stx
+ST	WHBD	ST	0x00	st

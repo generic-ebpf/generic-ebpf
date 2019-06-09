@@ -39,9 +39,51 @@ function opheader(name, type, opcode)
     printf("\t\tcase EBPF_OP_%s%s:\n", name, sfx(name, type));
 }
 
-function jmpop(name, type, opcode, op, sign) {
-	opheader(name, type, opcode);
+function disassembler_jmpop(name, type, opcode, op, sign, str) {
+	if (name == "EXIT") {
+		printf("\t\t\tprintf(\"exit\\n\");\n");
+		printf("\t\t\tbreak;\n");
+		return;
+	}
 
+	if (name == "JA") {
+		printf("\t\t\tprintf(\"ja\\t%%+d\\n\", inst->offset);\n");
+		printf("\t\t\tbreak;\n");
+		return;
+	}
+
+	if (name == "CALL") {
+		printf("\t\t\tprintf(\"call\\t%%d\\n\", inst->imm);\n");
+		printf("\t\t\tbreak;\n");
+		return;
+	}
+
+	dst = "reg_name[inst->dst]";
+	if (type == "I") {
+		src = "inst->imm";
+		if (sign == "u" || sign == "s") {
+			printf("\t\t\tprintf(\"%s\\t%%s%%+d\\t%%d\\n\", %s, inst->offset, %s);\n", str, dst, src);
+			printf("\t\t\tbreak;\n");
+		} else {
+			printf("Unknown sign value: %s\n", sign);
+			exit 1;
+		}
+	} else if (type == "R") {
+		src = "reg_name[inst->src]";
+		if (sign == "u" || sign == "s") {
+			printf("\t\t\tprintf(\"%s\\t%%s%%+d\\t%%s\\n\", %s, inst->offset, %s);\n", str, dst, src);
+			printf("\t\t\tbreak;\n");
+		} else {
+			printf("Unknown sign value: %s\n", sign);
+			exit 1;
+		}
+	} else {
+		printf("Unknown type value: %s\n", type);
+		exit 1;
+	}
+}
+
+function interpreter_jmpop(name, type, opcode, op, sign, str) {
 	if (name == "EXIT") {
 		printf("\t\t\treturn vm->state.reg[0];\n");
 		return;
@@ -93,13 +135,48 @@ function jmpop(name, type, opcode, op, sign) {
 	}
 }
 
-function aluop(name, type, opcode, op) {
+function jmpop(name, type, opcode, op, sign, str) {
 	opheader(name, type, opcode);
-	i64 = index(name, "64");
 
+	if (target == "disassembler") {
+		disassembler_jmpop(name, type, opcode, op, sign, str);
+	} else if (target == "interpreter") {
+		interpreter_jmpop(name, type, opcode, op, sign, str);
+	} else {
+		printf("Unknown op %s\n", ldst);
+		exit 1;
+	}
+}
+
+function disassembler_aluop(name, type, opcode, op, str) {
+	dst = "reg_name[inst->dst]";
+	if (type == "I") src = "inst->imm";
+	if (type == "R") src = "reg_name[inst->src]";
+
+	if (name == "LE" || name == "BE") {
+		printf("\t\t\tprintf(\"%s%%d\\t%%s\\n\", %s, %s);\n", str, src, dst);
+		printf("\t\t\tbreak;\n");
+	} else if (match(name, "^NEG")) {
+		printf("\t\t\tprintf(\"%s\\t%%s\\n\", %s);\n", str, dst);
+		printf("\t\t\tbreak;\n");
+	} else {
+		if (type == "I") {
+			printf("\t\t\tprintf(\"%s\\t%%s\\t%%u\\n\", reg_name[inst->dst], inst->imm);\n", str);
+			printf("\t\t\tbreak;\n");
+		}
+
+		if (type == "R") {
+			printf("\t\t\tprintf(\"%s\\t%%s\\t%%s\\n\", reg_name[inst->dst], reg_name[inst->src]);\n", str);
+			printf("\t\t\tbreak;\n");
+		}
+	}
+}
+
+function interpreter_aluop(name, type, opcode, op, str) {
+	i64 = index(name, "64");
 	dst = "vm->state.reg[inst->dst]";
 	if (type == "I") src = "inst->imm";
-	if (type == "R") src = "vm->state.reg[inst->src]"
+	if (type == "R") src = "vm->state.reg[inst->src]";
 
 	if (name == "MOV") {
 		if (i64) {
@@ -143,9 +220,44 @@ function aluop(name, type, opcode, op) {
 	}
 }
 
-function ldstop(ldst, name, type, opcode, optype, op, stype, dtype) {
+function aluop(name, type, opcode, op, str) {
 	opheader(name, type, opcode);
 
+	if (target == "disassembler") {
+		disassembler_aluop(name, type, opcode, op, str);
+	} else if (target == "interpreter") {
+		interpreter_aluop(name, type, opcode, op, str);
+	} else {
+		printf("Unknown op %s\n", ldst);
+		exit 1;
+	}
+}
+
+function disassembler_ldstop(ldst, name, type, opcode, str) {
+	dst = "reg_name[inst->dst]";
+	src = "reg_name[inst->src]";
+	if (type == "B") c = "b";
+	if (type == "H") c = "h";
+	if (type == "W") c = "w";
+	if (type == "D") c = "dw";
+	if (ldst == "LD") {
+		src = "(void *)((uint32_t)inst->imm | ((uint64_t)((inst + 1)->imm) << 32))"
+		printf("\t\t\tprintf(\"lddw\\t%%s\\t%%p\\n\", %s, %s);\n", dst, src);
+		printf("\t\t\tpc++;\n");
+	} else if (match(ldst, "^LD") || match(ldst, "^ST")) {
+		printf("\t\t\tprintf(\"%s%s\\t%%s%%+d\\t%%d\\n\", reg_name[inst->dst], " \
+		       "inst->offset, inst->imm);\n", str, c);
+	} else if (match(ldst, "^STX")) {
+		printf("\t\t\tprintf(\"%s%s\\t%%s%%+d\\t%%s\\n\", reg_name[inst->dst], " \
+		       "inst->offset, reg_name[inst->src]);\n", str, c);
+	} else {
+		printf("Unknown op %s\n", ldst);
+		exit 1;
+	}
+	printf("\t\t\tbreak;\n");
+}
+
+function interpreter_ldstop(ldst, name, type, opcode, str) {
 	dst = "vm->state.reg[inst->dst]";
 	src = "vm->state.reg[inst->src]";
 	if (type == "B") c = "uint8_t";
@@ -165,66 +277,128 @@ function ldstop(ldst, name, type, opcode, optype, op, stype, dtype) {
 	} else if (match(ldst, "^ST")) {
 		printf("\t\t\t*(%s *)(uintptr_t)(%s + inst->offset) = " \
 		    "(%s)inst->imm;\n", c, dst, c);
+	} else {
+		printf("Unknown op %s\n", ldst);
+		exit 1;
 	}
 	printf("\t\t\tbreak;\n");
 }
 
-BEGIN {
-    INDENT = 0;
-	l = 0;
-	if (defineonly == 0) {
-		printf("#include <sys/dev/ebpf/ebpf_platform.h>\n");
-		printf("#include <sys/ebpf_vm.h>\n");
-		printf("#include <sys/ebpf_inst.h>\n");
-		printf("uint64_t\nebpf_vm_run(struct ebpf_vm *vm, void *ctx)\n{\n");
-		printf("\tvm->state.pc = 0;\n");
-		printf("\tvm->state.reg[1] = (uint64_t)ctx;\n");
-		printf("\tvm->state.reg[10] = (uint64_t)(vm->state.stack + sizeof(vm->state.stack))\n");
-		printf("\twhile (true) {\n");
-		printf("\t\tconst struct ebpf_inst *inst = vm->insts + vm->state.pc++;\n");
-		printf("\t\tswitch (inst->opcode) {\n");
-	} else {
-		printf("#pragma once\n");
+function ldstop(ldst, name, type, opcode, str) {
+	opheader(name, type, opcode);
+
+	if (target == "disassembler") {
+		disassembler_ldstop(ldst, name, type, opcode, str);
+	} else if (target == "interpreter") {
+		interpreter_ldstop(ldst, name, type, opcode, str);
 	}
+}
+
+function disassembler_prologue() {
+	printf("#include \"ebpf_platform.h\"\n\n");
+	printf("#include <sys/ebpf_inst.h>\n\n");
+	printf("int\nebpf_disassemble(struct ebpf_inst *insts, uint32_t ninsts)\n{\n");
+	printf("\tuint32_t pc = 0;\n");
+	printf("\tconst char *reg_name[11] = {\n");
+	printf("\t\t\"r0\", \"r1\", \"r2\", \"r3\", \"r4\",\n");
+	printf("\t\t\"r5\", \"r6\", \"r7\", \"r8\", \"r9\", \"r10\"\n");
+	printf("\t};\n");
+	printf("\twhile (pc < ninsts) {\n");
+	printf("\t\tconst struct ebpf_inst *inst = insts + pc++;\n");
+	printf("\t\tswitch (inst->opcode) {\n");
+}
+
+function disassembler_epilogue() {
+	printf("\t\tdefault:\n");
+	printf("\t\t\tebpf_error(\"Invalid instruction at PC %%u\\n\", pc);\n");
+	printf("\t\t\treturn EINVAL;\n");
+	printf("\t\t}\n");
+	printf("\t}\n");
+	printf("}");
+}
+
+function interpreter_prologue() {
+	printf("#include \"ebpf_platform.h\"\n\n");
+	printf("#include <sys/ebpf_vm.h>\n");
+	printf("#include <sys/ebpf_inst.h>\n\n");
+	printf("uint64_t\nebpf_vm_run(struct ebpf_vm *vm, void *ctx)\n{\n");
+	printf("\tvm->state.pc = 0;\n");
+	printf("\tvm->state.reg[1] = (uint64_t)ctx;\n");
+	printf("\tvm->state.reg[10] = (uint64_t)(vm->state.stack + sizeof(vm->state.stack))\n");
+	printf("\twhile (true) {\n");
+	printf("\t\tconst struct ebpf_inst *inst = vm->insts + vm->state.pc++;\n");
+	printf("\t\tswitch (inst->opcode) {\n");
+}
+
+function interpreter_epilogue() {
+	printf("\t\tdefault:\n");
+	printf("\t\t\tebpf_error(\"Invalid instruction at PC %%u\\n\", " \
+	    "vm->state.pc);\n" \
+	    "\t\t\tebpf_assert(false);\n");
+	printf("\t\t}\n");
+	printf("\t}\n");
+	printf("}");
+}
+
+function header_prologue() {
+	printf("#pragma once\n");
+}
+
+function header_epilogue() {
+	opdefine("MAX", "", 255);
+}
+
+BEGIN {
+	l = 0;
+	if (target == "header") {
+		header_prologue();
+	} else if (target == "disassembler") {
+		disassembler_prologue();
+	} else if (target == "interpreter") {
+		interpreter_prologue();
+	} else {
+		printf("Unknown target " target);
+		exit 1;
+	}
+
 	SFX["N"] = "";
 }
 
 END {
-	if (defineonly) {
-		opdefine("MAX", "", 255);
+	if (target == "header") {
+		header_epilogue();
+	} else if (target == "disassembler") {
+		disassembler_epilogue();
+	} else if (target == "interpreter") {
+		interpreter_epilogue();
 	} else {
-		printf("\t\tdefault:\n");
-		printf("\t\t\tebpf_error(\"Invalid instruction at PC %%u\\n\", " \
-		    "vm->state.pc);\n" \
-		    "\t\t\tebpf_assert(false);\n");
-		printf("\t\t}\n");
-		printf("\t}\n");
-		printf("}");
+		printf("Unknown target " target);
+		exit 1;
 	}
 }
 
 /^#/	{ }
 /^CLASS/{ CLS[$2] = $3; }
-/^SRC/	{ SRC[$2] = $3; SFX[$2] = $4; }
-/^SIZE/	{ SIZE[$2] = $3; SFX[$2] = $4; }
+/^SRC/	{ SRC[$2] = $3; SFX[$2] = $4; STR[$2] = $5 }
+/^SIZE/	{ SIZE[$2] = $3; SFX[$2] = $4; STR[$2] = $5 }
 /^JMP/ || /^ALU/ {
 	for (S in SRC) {
-		if (index($2, S))
-			if (defineonly)
+		if (index($2, S)) {
+			if (target == "header")
 				opdefine($3, S, CLS[$1] + SRC[S] + $4);
 			else if (match($1, "^JMP"))
-				jmpop($3, S, CLS[$1] + SRC[S] + $4, $5, $6);
+				jmpop($3, S, CLS[$1] + SRC[S] + $4, $5, $6, $7);
 			else if (match($1, "^ALU"))
-				aluop($3, S, CLS[$1] + SRC[S] + $4, $5);
+				aluop($3, S, CLS[$1] + SRC[S] + $4, $5, $7);
+		}
 	}
 }
 /^LD/ || /^ST/ {
 	for (S in SIZE) {
 		if (index($2, S))
-			if (defineonly)
+			if (target == "header")
 				opdefine($3, S, CLS[$1] + SIZE[S] + $4);
 			else
-				ldstop($1, $3, S, CLS[$1] + SIZE[S] + $4,
-				    $5, $6, $7, $8);
+				ldstop($1, $3, S, CLS[$1] + SIZE[S] + $4, $5);
 	}
 }
