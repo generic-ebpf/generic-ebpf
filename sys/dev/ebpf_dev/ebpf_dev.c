@@ -39,6 +39,11 @@ fd2eo(int fd, ebpf_thread *td)
 	if (error != 0)
 		return NULL;
 
+	if (!is_ebpf_objfile(f)) {
+		ebpf_fdrop(f, td);
+		return NULL;
+	}
+
 	eo = ebpf_file_get_data(f);
 	ebpf_obj_acquire(eo);
 
