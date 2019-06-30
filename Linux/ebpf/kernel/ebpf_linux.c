@@ -261,8 +261,9 @@ EXPORT_SYMBOL(ebpf_allocator_alloc);
 EXPORT_SYMBOL(ebpf_allocator_free);
 
 /* dev/ebpf/ebpf_map.h */
-EXPORT_SYMBOL(ebpf_map_init);
 EXPORT_SYMBOL(ebpf_get_map_type);
+EXPORT_SYMBOL(ebpf_map_create);
+EXPORT_SYMBOL(ebpf_map_destroy);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
 EXPORT_SYMBOL(ebpf_map_delete_elem);
@@ -270,8 +271,10 @@ EXPORT_SYMBOL(ebpf_map_lookup_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_update_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_delete_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_get_next_key_from_user);
-EXPORT_SYMBOL(ebpf_map_deinit);
-EXPORT_SYMBOL(ebpf_map_deinit_default);
+
+/* dev/ebpf/ebpf_obj.h */
+EXPORT_SYMBOL(ebpf_obj_acquire);
+EXPORT_SYMBOL(ebpf_obj_release);
 
 /* dev/ebpf/ebpf_platform.h */
 EXPORT_SYMBOL(ebpf_malloc);
@@ -301,10 +304,10 @@ EXPORT_SYMBOL(ebpf_refcount_acquire);
 EXPORT_SYMBOL(ebpf_refcount_release);
 
 /* dev/ebpf/ebpf_prog.h */
-EXPORT_SYMBOL(ebpf_prog_init);
 EXPORT_SYMBOL(ebpf_get_prog_type);
-EXPORT_SYMBOL(ebpf_prog_deinit_default);
-EXPORT_SYMBOL(ebpf_prog_deinit);
+EXPORT_SYMBOL(ebpf_prog_create);
+EXPORT_SYMBOL(ebpf_prog_destroy);
+EXPORT_SYMBOL(ebpf_prog_attach_map);
 
 /* dev/ebpf/ebpf_prog_test.h */
 EXPORT_SYMBOL(ebpf_run_test);

@@ -2,7 +2,6 @@ TOP_DIR:=../../sys
 SRC_DIR:=$(TOP_DIR)/dev/ebpf_dev
 
 ebpf-dev-objs += $(SRC_DIR)/ebpf_dev.o
-ebpf-dev-objs += $(SRC_DIR)/ebpf_obj.o
 ebpf-dev-objs += ./ebpf_dev_linux.o
 
 obj-m:=ebpf-dev.o

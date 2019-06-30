@@ -39,9 +39,14 @@
 #include <dev/ebpf_dev/ebpf_dev_platform.h>
 #include <sys/ebpf_prog.h>
 #include <sys/ebpf_map.h>
-#include <dev/ebpf_dev/ebpf_obj.h>
 #include <sys/ebpf.h>
 #include <sys/ebpf_dev.h>
+
+struct ebpf_obj *
+ebpf_file_get_data(ebpf_file *f)
+{
+	return f->private_data;
+}
 
 static int
 ebpf_objfile_release(struct inode *inode, struct file *filp)
@@ -49,7 +54,7 @@ ebpf_objfile_release(struct inode *inode, struct file *filp)
 	struct ebpf_obj *obj = filp->private_data;
 
 	if (atomic_read(&inode->i_count) == 0) {
-		ebpf_obj_delete(obj, current);
+		ebpf_obj_release(obj);
 	}
 
 	return 0;
@@ -183,14 +188,13 @@ ebpf_dev_init(void)
 	return 0;
 }
 
+EXPORT_SYMBOL(ebpf_file_get_data);
 EXPORT_SYMBOL(ebpf_fopen);
 EXPORT_SYMBOL(ebpf_fget);
 EXPORT_SYMBOL(ebpf_fdrop);
 EXPORT_SYMBOL(ebpf_copyin);
 EXPORT_SYMBOL(ebpf_copyout);
 EXPORT_SYMBOL(ebpf_curthread);
-EXPORT_SYMBOL(ebpf_objfile_get_container);
-EXPORT_SYMBOL(ebpf_obj_delete);
 
 module_init(ebpf_dev_init);
 module_exit(ebpf_dev_fini);
