@@ -16,22 +16,15 @@
  * limitations under the License.
  */
 
-#include "ebpf_platform.h"
+#include <dev/ebpf/ebpf_prog.h>
 
-#include <sys/ebpf_prog.h>
-
-const struct ebpf_prog_type *ebpf_prog_types[] = {
-	[EBPF_PROG_TYPE_BAD]  = &bad_prog_type,
-	[EBPF_PROG_TYPE_TEST] = &test_prog_type
-};
-
-const struct ebpf_prog_type *
-ebpf_get_prog_type(uint16_t type)
+struct ebpf_prog_type *
+ebpf_prog_get_type(uint16_t type)
 {
 	if (type >= EBPF_PROG_TYPE_MAX)
 		return NULL;
 
-	return ebpf_prog_types[type];
+	return ebpf_env.prog_types + type;
 }
 
 static void
@@ -49,10 +42,15 @@ int
 ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
 {
 	struct ebpf_prog *ep;
+	struct ebpf_prog_type *ept;
 
 	if (eopp == NULL || attr == NULL ||
 			attr->type >= EBPF_PROG_TYPE_MAX ||
 			attr->prog == NULL || attr->prog_len == 0)
+		return EINVAL;
+
+	ept = ebpf_prog_get_type(attr->type);
+	if (ept == NULL)
 		return EINVAL;
 
 	ep = ebpf_malloc(sizeof(*ep));
@@ -68,11 +66,11 @@ ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
 	memcpy(ep->prog, attr->prog, attr->prog_len);
 
 	ebpf_refcount_init(&ep->eo.eo_ref, 1);
-	ep->eo.eo_type = EBPF_OBJ_TYPE_PROG;
-	ep->eo.eo_dtor = ebpf_prog_dtor;
-	ep->type = attr->type;
-	ep->ndep_maps = 0;
-	ep->prog_len = attr->prog_len;
+	ep->eo.eo_type	= EBPF_OBJ_TYPE_PROG;
+	ep->eo.eo_dtor 	= ebpf_prog_dtor;
+	ep->ept 	= ept;
+	ep->ndep_maps 	= 0;
+	ep->prog_len 	= attr->prog_len;
 
 	memset(ep->dep_maps, 0,
 			sizeof(ep->dep_maps[0]) * EBPF_PROG_MAX_ATTACHED_MAPS);
