@@ -9,7 +9,7 @@ ebpf-src+=	ebpf_obj.c
 ebpf-src+=	ebpf_prog.c
 ebpf-src+=	ebpf_prog_bad.c
 ebpf-src+=	ebpf_prog_test.c
-ebpf-src+=	ebpf_verifer.c
+ebpf-src+=	ebpf_verifier.c
 ebpf-src+=	ebpf_vm.c
 
 SRCS=	${ebpf-src} ${JITSRC}

@@ -12,7 +12,7 @@ ebpf-objs+=	$(SRC_DIR)/ebpf_prog.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog_bad.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog_test.o
-ebpf-objs+=	$(SRC_DIR)/ebpf_verifer.o
+ebpf-objs+=	$(SRC_DIR)/ebpf_verifier.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_vm.o
 ebpf-objs+=	./ebpf_linux.o
 
