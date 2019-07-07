@@ -24,7 +24,7 @@
 #include <libelf.h>
 #include <gelf.h>
 
-#include <sys/ebpf_inst.h>
+#include <sys/ebpf.h>
 #include <sys/ebpf_uapi.h>
 
 #include <gbpf/core/gbpf_driver.h>

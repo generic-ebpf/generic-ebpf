@@ -3,7 +3,7 @@
 extern "C" {
 #include <stdint.h>
 #include <errno.h>
-#include <sys/ebpf_map.h>
+#include <sys/ebpf.h>
 }
 
 TEST(MapCreateTest, CreateWithNULLMapPointer)

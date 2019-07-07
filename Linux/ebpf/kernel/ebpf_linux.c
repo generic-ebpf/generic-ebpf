@@ -47,12 +47,9 @@
  */
 
 #include <dev/ebpf/ebpf_platform.h>
-#include <sys/ebpf.h>
-#include <sys/ebpf_vm.h>
-#include <sys/ebpf_prog.h>
 #include <dev/ebpf/ebpf_prog_test.h>
-#include <sys/ebpf_map.h>
 #include <dev/ebpf/ebpf_allocator.h>
+#include <sys/ebpf.h>
 
 void *
 ebpf_malloc(size_t size)

@@ -20,7 +20,6 @@
 
 #include "ebpf_platform.h"
 #include <sys/ebpf.h>
-#include <sys/ebpf_inst.h>
 
 int ebpf_run_test(struct ebpf_inst *prog, uint32_t prog_len,
 		void *ctx, uint32_t ctx_len, bool jit, uint64_t *result);

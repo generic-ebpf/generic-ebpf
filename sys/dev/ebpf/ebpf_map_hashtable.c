@@ -16,11 +16,10 @@
  * limitations under the License.
  */
 
-#include "ebpf_platform.h"
-
-#include <sys/ebpf_map.h>
-#include "ebpf_allocator.h"
-#include "ebpf_util.h"
+#include <dev/ebpf/ebpf_map.h>
+#include <dev/ebpf/ebpf_allocator.h>
+#include <dev/ebpf/ebpf_util.h>
+#include <sys/ebpf.h>
 
 struct ebpf_map_hashtable;
 

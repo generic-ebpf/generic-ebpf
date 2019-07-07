@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <sys/ebpf_inst.h>
+#include <sys/ebpf.h>
 #include <sys/ebpf_uapi.h>
 
 #include "gbpf_driver.h"

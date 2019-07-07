@@ -3,7 +3,7 @@
 extern "C" {
 #include <stdint.h>
 #include <errno.h>
-#include <sys/ebpf_prog.h>
+#include <sys/ebpf.h>
 }
 
 TEST(ProgLoadTest, LoadWithNULLProgPointer)

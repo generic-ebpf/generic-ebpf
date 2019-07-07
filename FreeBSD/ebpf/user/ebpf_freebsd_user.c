@@ -17,8 +17,6 @@
  */
 
 #include <dev/ebpf/ebpf_platform.h>
-#include <sys/ebpf_map.h>
-#include <sys/ebpf_prog.h>
 #include <dev/ebpf/ebpf_jhash.h>
 #include <dev/ebpf/ebpf_epoch.h>
 #include <sys/ebpf.h>
