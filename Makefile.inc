@@ -34,7 +34,6 @@ EBPFDEVKMODDIR?=${BASE}/${UNAME_s}/ebpf_dev
 LIBGBPFDIR?=	${BASE}/contrib/libgbpf
 LIBGBPF=	${LIBGBPFDIR}/libgbpf.a
 TESTDIR=	${BASE}/tests
-BENCHMARKDIR=	${BASE}/benchmark
 VMISA_H=	${BASE}/sys/sys/ebpf_vm_isa.h
 VMISA_I=	${BASE}/sys/dev/ebpf/ebpf_interpreter.c
 VMISA_D=	${BASE}/sys/dev/ebpf/ebpf_disassembler.c

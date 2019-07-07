@@ -29,8 +29,6 @@ tests-clean:
 	cd tests && ${MAKE_CMD} clean
 check check-kern:
 	cd ${TESTDIR} && ${MAKE_CMD} $@
-benchmark:
-	cd ${BENCHMARKDIR} && ${MAKE_CMD} all
 init:
 	rm -rf ${CURDIR}/extern/googletest
 	rm -rf ${CURDIR}/extern/ck
@@ -52,4 +50,4 @@ reload::
 	${KMODLOAD} ${CURDIR}/ebpf.ko
 	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
 
-.PHONY: default tests check check-kern benchmark init format
+.PHONY: default tests check check-kern init format
