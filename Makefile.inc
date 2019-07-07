@@ -66,4 +66,4 @@ ${VMISA_I}: ${VMISA_H}
 	awk -v target="interpreter" -f ${BASE}/sys/dev/ebpf/ebpf_vm_isa.awk ${BASE}/sys/dev/ebpf/ebpf_vm_isa.def > $@
 ${VMISA_D}: ${VMISA_H}
 	awk -v target="disassembler" -f ${BASE}/sys/dev/ebpf/ebpf_vm_isa.awk ${BASE}/sys/dev/ebpf/ebpf_vm_isa.def > $@
-CLEANFILES+=	${VMISA_H} ${VMISA_I_C} ${VMISA_D_C} ${VMISA_I_O} ${VMISA_D_O}
+CLEANFILES+=	${VMISA_H} ${VMISA_I} ${VMISA_D}
