@@ -20,7 +20,7 @@
 #include <sys/ebpf.h>
 
 struct ebpf_map_type *
-ebpf_map_get_type(uint16_t type)
+ebpf_map_get_type(uint32_t type)
 {
 	if (type >= EBPF_MAP_TYPE_MAX)
 		return NULL;

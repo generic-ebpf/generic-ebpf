@@ -19,7 +19,7 @@
 #include <dev/ebpf/ebpf_prog.h>
 
 struct ebpf_prog_type *
-ebpf_prog_get_type(uint16_t type)
+ebpf_prog_get_type(uint32_t type)
 {
 	if (type >= EBPF_PROG_TYPE_MAX)
 		return NULL;
@@ -32,7 +32,7 @@ ebpf_prog_dtor(struct ebpf_obj *eo)
 {
 	struct ebpf_prog *ep = (struct ebpf_prog *)eo;
 
-	for (uint16_t i = 0; i < ep->ndep_maps; i++)
+	for (uint32_t i = 0; i < ep->ndep_maps; i++)
 		ebpf_obj_release((struct ebpf_obj *)ep->dep_maps[i]);
 
 	ebpf_free(ep->prog);
@@ -95,7 +95,7 @@ ebpf_prog_attach_map(struct ebpf_prog *ep, struct ebpf_map *em)
 	if (ep->ndep_maps >= EBPF_PROG_MAX_ATTACHED_MAPS)
 		return EBUSY;
 
-	for (uint16_t i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
+	for (uint32_t i = 0; i < EBPF_PROG_MAX_ATTACHED_MAPS; i++) {
 		if (ep->dep_maps[i] != NULL) {
 			if (ep->dep_maps[i] == em)
 				return EEXIST;

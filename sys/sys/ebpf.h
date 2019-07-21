@@ -41,13 +41,13 @@ struct ebpf_inst {
 };
 
 struct ebpf_prog_attr {
-	uint16_t type;
+	uint32_t type;
 	struct ebpf_inst *prog;
 	uint32_t prog_len;
 };
 
 struct ebpf_map_attr {
-	uint16_t type;
+	uint32_t type;
 	uint32_t key_size;
 	uint32_t value_size;
 	uint32_t max_entries;
@@ -89,12 +89,12 @@ struct ebpf_helper_type {
 			uint64_t arg4);
 };
 
-struct ebpf_prog_type *ebpf_prog_get_type(uint16_t type);
+struct ebpf_prog_type *ebpf_prog_get_type(uint32_t type);
 int ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr);
 void ebpf_prog_destroy(struct ebpf_prog *);
 int ebpf_prog_attach_map(struct ebpf_prog *, struct ebpf_map *em);
 
-struct ebpf_map_type *ebpf_map_get_type(uint16_t type);
+struct ebpf_map_type *ebpf_map_get_type(uint32_t type);
 int ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr);
 void *ebpf_map_lookup_elem(struct ebpf_map *em, void *key);
 int ebpf_map_update_elem(struct ebpf_map *em, void *key, void *value, uint64_t flags);
