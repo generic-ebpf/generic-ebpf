@@ -21,9 +21,7 @@
 #include <sys/ebpf_vm_isa.h>
 
 #define EBPF_NAME_MAX 64
-#define EBPF_PROG_TYPE_MAX 64
-#define EBPF_MAP_TYPE_MAX 64
-#define EBPF_HELPER_TYPE_MAX 64
+#define EBPF_TYPE_MAX 64
 #define EBPF_PROG_MAX_ATTACHED_MAPS 64
 
 #define EBPF_PSEUDO_MAP_DESC 1
@@ -31,14 +29,7 @@
 struct ebpf_obj;
 struct ebpf_prog;
 struct ebpf_map;
-
-struct ebpf_inst {
-	uint8_t opcode;
-	uint8_t dst : 4;
-	uint8_t src : 4;
-	int16_t offset;
-	int32_t imm;
-};
+struct ebpf_env;
 
 struct ebpf_prog_attr {
 	uint32_t type;
@@ -73,10 +64,6 @@ struct ebpf_map_ops {
 	void (*deinit)(struct ebpf_map *em);
 };
 
-struct ebpf_prog_type {
-	char name[EBPF_NAME_MAX];
-};
-
 struct ebpf_map_type {
 	char name[EBPF_NAME_MAX];
 	struct ebpf_map_ops ops;
@@ -85,17 +72,46 @@ struct ebpf_map_type {
 struct ebpf_helper_type {
 	char name[EBPF_NAME_MAX];
 	uint64_t (*fn)(uint64_t arg0, uint64_t arg1,
-			uint64_t arg2, uint64_t arg3,
-			uint64_t arg4);
+		       uint64_t arg2, uint64_t arg3,
+		       uint64_t arg4);
 };
 
+struct ebpf_prog_ops {
+	bool *check_prog_map_combination(struct ebpf_map *em);
+	bool *check_prog_helper_combination(struct ebpf_helper *eh);
+};
+
+struct ebpf_prog_type {
+	char name[EBPF_NAME_MAX];
+	struct ebpf_prog_ops ops;
+};
+
+struct ebpf_preprocessor_ops {
+	struct ebpf_map *(*resolve_map_desc)(int32_t upper, int32_t lower,
+					     void *arg);
+};
+
+struct ebpf_preprocessor {
+	char name[EBPF_NAME_MAX];
+	struct ebpf_preprocessor_ops ops;
+};
+
+struct ebpf_config {
+	struct ebpf_prog_type prog_types[EBPF_TYPE_MAX];
+	struct ebpf_map_type map_types[EBPF_TYPE_MAX];
+	struct ebpf_helper_type helper_types[EBPF_TYPE_MAX];
+	struct ebpf_preprocessor preprocessor;
+};
+
+int ebpf_env_create(char *name, const struct ebpf_config *ec, struct ebpf_env **eep);
+
+int ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **eopp, struct ebpf_prog_attr *attr);
 struct ebpf_prog_type *ebpf_prog_get_type(uint32_t type);
-int ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr);
 void ebpf_prog_destroy(struct ebpf_prog *);
 int ebpf_prog_attach_map(struct ebpf_prog *, struct ebpf_map *em);
 
+int ebpf_map_create(struct ebpf_env **ee, struct ebpf_map **emp, struct ebpf_map_attr *attr);
 struct ebpf_map_type *ebpf_map_get_type(uint32_t type);
-int ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr);
 void *ebpf_map_lookup_elem(struct ebpf_map *em, void *key);
 int ebpf_map_update_elem(struct ebpf_map *em, void *key, void *value, uint64_t flags);
 int ebpf_map_delete_elem(struct ebpf_map *em, void *key);
@@ -104,10 +120,3 @@ int ebpf_map_update_elem_from_user(struct ebpf_map *em, void *key, void *value, 
 int ebpf_map_delete_elem_from_user(struct ebpf_map *em, void *key);
 int ebpf_map_get_next_key_from_user(struct ebpf_map *em, void *key, void *next_key);
 void ebpf_map_destroy(struct ebpf_map *em);
-
-extern struct ebpf_env {
-	uint32_t ref;
-	struct ebpf_prog_type prog_types[EBPF_PROG_TYPE_MAX];
-	struct ebpf_map_type map_types[EBPF_PROG_TYPE_MAX];
-	struct ebpf_helper_type helper_types[EBPF_PROG_TYPE_MAX];
-} ebpf_env;
