@@ -16,17 +16,7 @@
  * limitations under the License.
  */
 
-#include <dev/ebpf/ebpf_map.h>
-#include <sys/ebpf.h>
-
-struct ebpf_map_type *
-ebpf_map_get_type(uint32_t type)
-{
-	if (type >= EBPF_MAP_TYPE_MAX)
-		return NULL;
-
-	return ebpf_env.map_types + type;
-}
+#include "ebpf_map.h"
 
 static void
 ebpf_map_dtor(struct ebpf_obj *eo)
@@ -36,19 +26,20 @@ ebpf_map_dtor(struct ebpf_obj *eo)
 }
 
 int
-ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr)
+ebpf_map_create(struct ebpf_env *ee, struct ebpf_map **emp,
+		struct ebpf_map_attr *attr)
 {
 	int error;
 	struct ebpf_map *em;
 	struct ebpf_map_type *emt;
 
-	if (emp == NULL || attr == NULL ||
-		attr->type >= EBPF_MAP_TYPE_MAX ||
+	if (ee == NULL || emp == NULL || attr == NULL ||
+		attr->type >= EBPF_TYPE_MAX ||
 		attr->key_size == 0 || attr->value_size == 0 ||
 		attr->max_entries == 0)
 		return EINVAL;
 
-	emt = ebpf_map_get_type(attr->type);
+	emt = ebpf_env_get_map_type(ee, attr->type);
 	if (emt == NULL)
 		return EINVAL;
 
@@ -56,17 +47,24 @@ ebpf_map_create(struct ebpf_map **emp, struct ebpf_map_attr *attr)
 	if (em == NULL)
 		return ENOMEM;
 
-	ebpf_refcount_init(&em->eo.eo_ref, 1);
+	ebpf_obj_init(ee, &em->eo);
 	em->eo.eo_type	= EBPF_OBJ_TYPE_MAP;
 	em->eo.eo_dtor	= ebpf_map_dtor;
-	em->emt		= emt;
+	em->emt 	= emt;
 	em->key_size	= attr->key_size;
 	em->value_size	= attr->value_size;
 	em->max_entries	= attr->max_entries;
 	em->map_flags	= attr->flags;
 
-	error = em->emt->ops.init(em, attr);
+	error = emt->ops.init(em, attr);
 	if (error != 0) {
+		/* 
+		 * In here, eo has a reference to ee. We need to
+		 * manually release it instead of calling
+		 * ebpf_obj_release() since the initialization of
+		 * the map is not complete.
+		 */
+		ebpf_env_release(ee);
 		ebpf_free(em);
 		return error;
 	}

@@ -1,7 +1,7 @@
 /*-
  * SPDX-License-Identifier: Apache License 2.0
  *
- * Copyright 2017-2018 Yutaro Hayakawa
+ * Copyright 2019 Yutaro Hayakawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,31 +16,17 @@
  * limitations under the License.
  */
 
-#include "ebpf_obj.h"
+#include "ebpf_platform.h"
+#include <sys/ebpf.h>
 
-void
-ebpf_obj_init(struct ebpf_env *ee, struct ebpf_obj *eo)
-{
-	ebpf_assert(ee != NULL && eo != NULL);
-	ebpf_env_acquire(ee);
-	eo->eo_ee = ee;
-	ebpf_refcount_init(&eo->eo_ref, 1);
-}
+struct ebpf_env {
+	uint32_t ref;
+	struct ebpf_config *ec;
+};
 
-void
-ebpf_obj_acquire(struct ebpf_obj *eo)
-{
-	ebpf_assert(eo != NULL);
-	ebpf_refcount_acquire(&eo->eo_ref);
-}
-
-void
-ebpf_obj_release(struct ebpf_obj *eo)
-{
-	ebpf_assert(eo != NULL);
-	if (ebpf_refcount_release(&eo->eo_ref) != 0) {
-		eo->eo_dtor(eo);
-		ebpf_env_release(eo->eo_ee);
-		ebpf_free(eo);
-	}
-}
+void ebpf_env_acquire(struct ebpf_env *ee);
+void ebpf_env_release(struct ebpf_env *ee);
+struct ebpf_prog_type *ebpf_env_get_prog_type(struct ebpf_env *ee, uint32_t type);
+struct ebpf_map_type *ebpf_env_get_map_type(struct ebpf_env *ee, uint32_t type);
+struct ebpf_helper_type *ebpf_env_get_helper_type(struct ebpf_env *ee, uint32_t type);
+struct ebpf_preprocessor *ebpf_env_get_preprocessor(struct ebpf_env *ee);

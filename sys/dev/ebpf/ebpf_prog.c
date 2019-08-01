@@ -1,7 +1,7 @@
 /*-
  * SPDX-License-Identifier: Apache License 2.0
  *
- * Copyright 2017-2018 Yutaro Hayakawa
+ * Copyright 2017-2019 Yutaro Hayakawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,7 @@
  * limitations under the License.
  */
 
-#include <dev/ebpf/ebpf_prog.h>
-
-struct ebpf_prog_type *
-ebpf_prog_get_type(uint32_t type)
-{
-	if (type >= EBPF_PROG_TYPE_MAX)
-		return NULL;
-
-	return ebpf_env.prog_types + type;
-}
+#include "ebpf_prog.h"
 
 static void
 ebpf_prog_dtor(struct ebpf_obj *eo)
@@ -39,17 +30,19 @@ ebpf_prog_dtor(struct ebpf_obj *eo)
 }
 
 int
-ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
+ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp,
+		 struct ebpf_prog_attr *attr)
 {
+	int error;
 	struct ebpf_prog *ep;
 	struct ebpf_prog_type *ept;
 
-	if (eopp == NULL || attr == NULL ||
-			attr->type >= EBPF_PROG_TYPE_MAX ||
+	if (ee == NULL || epp == NULL || attr == NULL ||
+			attr->type >= EBPF_TYPE_MAX ||
 			attr->prog == NULL || attr->prog_len == 0)
 		return EINVAL;
 
-	ept = ebpf_prog_get_type(attr->type);
+	ept = ebpf_env_get_prog_type(ee, attr->type);
 	if (ept == NULL)
 		return EINVAL;
 
@@ -63,19 +56,18 @@ ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
 		return ENOMEM;
 	}
 
-	memcpy(ep->prog, attr->prog, attr->prog_len);
-
-	ebpf_refcount_init(&ep->eo.eo_ref, 1);
+	ebpf_obj_init(ee, &ep->eo);
 	ep->eo.eo_type	= EBPF_OBJ_TYPE_PROG;
 	ep->eo.eo_dtor 	= ebpf_prog_dtor;
 	ep->ept 	= ept;
 	ep->ndep_maps 	= 0;
 	ep->prog_len 	= attr->prog_len;
 
+	memcpy(ep->prog, attr->prog, attr->prog_len);
 	memset(ep->dep_maps, 0,
 			sizeof(ep->dep_maps[0]) * EBPF_PROG_MAX_ATTACHED_MAPS);
 
-	*eopp = ep;
+	*epp = ep;
 
 	return 0;
 }
@@ -83,6 +75,9 @@ ebpf_prog_create(struct ebpf_prog **eopp, struct ebpf_prog_attr *attr)
 void
 ebpf_prog_destroy(struct ebpf_prog *ep)
 {
+	if (ep == NULL)
+		return;
+
 	ebpf_obj_release(&ep->eo);
 }
 

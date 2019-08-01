@@ -16,8 +16,7 @@
  * limitations under the License.
  */
 
-#include <dev/ebpf/ebpf_map.h>
-#include <sys/ebpf.h>
+#include "ebpf_map.h"
 
 struct ebpf_map_array {
 	void *array;

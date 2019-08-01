@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include <dev/ebpf/ebpf_platform.h>
+#include "ebpf_env.h"
 
 #define EBPF_OBJ_MAX_DEPS 128
 
@@ -33,11 +33,12 @@ enum ebpf_obj_type {
 };
 
 struct ebpf_obj {
+	struct ebpf_env *eo_ee;
 	uint32_t eo_ref;
-	uint16_t eo_type;
-	uint16_t eo_ndeps;
+	uint32_t eo_type;
 	void (*eo_dtor)(struct ebpf_obj*);
 };
 
+void ebpf_obj_init(struct ebpf_env *ee, struct ebpf_obj *eo);
 void ebpf_obj_acquire(struct ebpf_obj *eo);
 void ebpf_obj_release(struct ebpf_obj *eo);
