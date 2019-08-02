@@ -21,11 +21,7 @@ CORES += ebpf_verifier.c
 CORES += ebpf_vm.c
 
 MAPS += ebpf_map_array.c
-MAPS += ebpf_map_bad.c
 MAPS += ebpf_map_hashtable.c
-
-PROGS += ebpf_prog_bad.c
-PROGS += ebpf_prog_test.c
 
 .if $(MACHINE) == "amd64"
 CORES += ../../amd64/amd64/ebpf_jit_x86_64.c
