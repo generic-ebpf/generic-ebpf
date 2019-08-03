@@ -540,7 +540,7 @@ get_first_key:
 	return ENOENT;
 }
 
-struct ebpf_map_type hashtable_map_type = {
+const struct ebpf_map_type emt_hashtable = {
 	.name = "hashtable",
 	.ops = {
 		.init = hashtable_map_init,
@@ -555,7 +555,7 @@ struct ebpf_map_type hashtable_map_type = {
 	}
 };
 
-struct ebpf_map_type percpu_hashtable_map_type = {
+const struct ebpf_map_type emt_percpu_hashtable = {
 	.name = "percpu_hashtable",
 	.ops = {
 		.init = hashtable_map_init,

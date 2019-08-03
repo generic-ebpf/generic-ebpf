@@ -22,7 +22,7 @@
 
 struct ebpf_prog {
 	struct ebpf_obj eo;
-	struct ebpf_prog_type *ept;
+	const struct ebpf_prog_type *ept;
 	uint32_t ndep_maps;
 	uint32_t prog_len;
 	struct ebpf_inst *prog;

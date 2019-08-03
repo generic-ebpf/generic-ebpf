@@ -22,7 +22,7 @@
 
 struct ebpf_map {
 	struct ebpf_obj eo;
-	struct ebpf_map_type *emt;
+	const struct ebpf_map_type *emt;
 	uint32_t key_size;
 	uint32_t value_size;
 	uint32_t map_flags;

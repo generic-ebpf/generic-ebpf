@@ -267,7 +267,7 @@ array_map_get_next_key(struct ebpf_map *map, void *key, void *next_key)
 	return 0;
 }
 
-struct ebpf_map_type array_map_type = {
+const struct ebpf_map_type emt_array = {
 	.name = "array",
 	.ops = {
 		.init = array_map_init,
@@ -282,7 +282,7 @@ struct ebpf_map_type array_map_type = {
 	}
 };
 
-struct ebpf_map_type percpu_array_map_type = {
+const struct ebpf_map_type emt_percpu_array = {
 	.name = "percpu_array",
 	.ops = {
 		.init = array_map_init_percpu,
