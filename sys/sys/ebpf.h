@@ -72,11 +72,12 @@ struct ebpf_map_type {
 	struct ebpf_map_ops ops;
 };
 
+typedef uint64_t (*ebpf_helper_fn)(uint64_t arg0, uint64_t arg1,
+		uint64_t arg2, uint64_t arg3, uint64_t arg4);
+
 struct ebpf_helper_type {
 	char name[EBPF_NAME_MAX];
-	uint64_t (*fn)(uint64_t arg0, uint64_t arg1,
-		       uint64_t arg2, uint64_t arg3,
-		       uint64_t arg4);
+	ebpf_helper_fn fn;
 };
 
 struct ebpf_prog_ops {

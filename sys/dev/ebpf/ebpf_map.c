@@ -175,15 +175,15 @@ ebpf_map_destroy(struct ebpf_map *em)
 
 const struct ebpf_helper_type eht_map_lookup_elem = {
 	.name = "map_lookup_elem",
-	.fn = ebpf_map_lookup_elem
+	.fn = (ebpf_helper_fn)ebpf_map_lookup_elem
 };
 
 const struct ebpf_helper_type eht_map_update_elem = {
 	.name = "map_update_elem",
-	.fn = ebpf_map_update_elem
+	.fn = (ebpf_helper_fn)ebpf_map_update_elem
 };
 
 const struct ebpf_helper_type eht_map_delete_elem = {
 	.name = "map_delete_elem",
-	.fn = ebpf_map_delete_elem
+	.fn = (ebpf_helper_fn)ebpf_map_delete_elem
 };
