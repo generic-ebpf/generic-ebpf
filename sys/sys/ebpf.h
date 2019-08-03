@@ -26,6 +26,8 @@
 
 #define EBPF_PSEUDO_MAP_DESC 1
 
+#define EBPF_STACK_SIZE 512
+
 struct ebpf_obj;
 struct ebpf_prog;
 struct ebpf_map;
