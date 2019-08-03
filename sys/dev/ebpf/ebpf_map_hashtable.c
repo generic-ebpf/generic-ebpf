@@ -128,7 +128,7 @@ percpu_elem_dtor(void *mem, void *arg)
 static bool
 is_percpu(struct ebpf_map *map)
 {
-	if (map->emt == &percpu_hashtable_map_type)
+	if (map->emt == &emt_percpu_hashtable)
 		return true;
 
 	return false;
