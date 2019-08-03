@@ -11,25 +11,19 @@ CFLAGS += -std=c99
 
 KMOD    = ebpf
 
-CORES += ebpf_allocator.c
-CORES += ebpf_env.c
-CORES += ebpf_freebsd.c
-CORES += ebpf_map.c
-CORES += ebpf_obj.c
-CORES += ebpf_prog.c
-CORES += ebpf_verifier.c
-CORES += ebpf_vm.c
-
-MAPS += ebpf_map_array.c
-MAPS += ebpf_map_hashtable.c
+SRCS += ebpf_allocator.c
+SRCS += ebpf_env.c
+SRCS += ebpf_freebsd.c
+SRCS += ebpf_interpreter.c
+SRCS += ebpf_map.c
+SRCS += ebpf_map_array.c
+SRCS += ebpf_map_hashtable.c
+SRCS += ebpf_obj.c
+SRCS += ebpf_prog.c
 
 .if $(MACHINE) == "amd64"
-CORES += ../../amd64/amd64/ebpf_jit_x86_64.c
+SRCS += ../../amd64/amd64/ebpf_jit_x86_64.c
 .endif
-
-SRCS += $(CORES)
-SRCS += $(MAPS)
-SRCS += $(PROGS)
 
 realinstall:
 	install ebpf.ko $(DESTDIR)

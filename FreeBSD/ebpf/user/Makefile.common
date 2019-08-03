@@ -1,4 +1,5 @@
 ebpf-src+=	ebpf_allocator.c
+ebpf-src+=	ebpf_env.c
 ebpf-src+=	ebpf_epoch.c
 ebpf-src+=	ebpf_freebsd_user.c
 ebpf-src+=	ebpf_map.c
@@ -6,8 +7,6 @@ ebpf-src+=	ebpf_map_array.c
 ebpf-src+=	ebpf_map_hashtable.c
 ebpf-src+=	ebpf_obj.c
 ebpf-src+=	ebpf_prog.c
-ebpf-src+=	ebpf_verifier.c
-ebpf-src+=	ebpf_vm.c
 
 SRCS=	${ebpf-src} ${JITSRC}
 OBJS=	$(CKOBJS) $(SRCS:%.c=%.o)

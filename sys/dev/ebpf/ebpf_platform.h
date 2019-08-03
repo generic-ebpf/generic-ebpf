@@ -71,18 +71,3 @@ extern uint32_t ebpf_jenkins_hash(const void *buf, size_t len, uint32_t hash);
 extern void ebpf_refcount_init(uint32_t *count, uint32_t value);
 extern void ebpf_refcount_acquire(uint32_t *count);
 extern int ebpf_refcount_release(uint32_t *count);
-
-/*
- * Prototypes of basic map types
- */
-extern struct ebpf_map_type bad_map_type;
-extern struct ebpf_map_type array_map_type;
-extern struct ebpf_map_type percpu_array_map_type;
-extern struct ebpf_map_type hashtable_map_type;
-extern struct ebpf_map_type percpu_hashtable_map_type;
-
-/*
- * Prototypes of basic prog types
- */
-extern struct ebpf_prog_type bad_prog_type;
-extern struct ebpf_prog_type test_prog_type;
