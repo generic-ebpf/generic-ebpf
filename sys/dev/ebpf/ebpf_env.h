@@ -26,7 +26,7 @@ struct ebpf_env {
 
 void ebpf_env_acquire(struct ebpf_env *ee);
 void ebpf_env_release(struct ebpf_env *ee);
-struct ebpf_prog_type *ebpf_env_get_prog_type(struct ebpf_env *ee, uint32_t type);
-struct ebpf_map_type *ebpf_env_get_map_type(struct ebpf_env *ee, uint32_t type);
-struct ebpf_helper_type *ebpf_env_get_helper_type(struct ebpf_env *ee, uint32_t type);
-struct ebpf_preprocessor *ebpf_env_get_preprocessor(struct ebpf_env *ee);
+const struct ebpf_prog_type *ebpf_env_get_prog_type(struct ebpf_env *ee, uint32_t type);
+const struct ebpf_map_type *ebpf_env_get_map_type(struct ebpf_env *ee, uint32_t type);
+const struct ebpf_helper_type *ebpf_env_get_helper_type(struct ebpf_env *ee, uint32_t type);
+const struct ebpf_preprocessor *ebpf_env_get_preprocessor(struct ebpf_env *ee);

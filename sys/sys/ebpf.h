@@ -100,18 +100,16 @@ struct ebpf_preprocessor {
 };
 
 struct ebpf_config {
-	struct ebpf_prog_type prog_types[EBPF_TYPE_MAX];
-	struct ebpf_map_type map_types[EBPF_TYPE_MAX];
-	struct ebpf_helper_type helper_types[EBPF_TYPE_MAX];
-	struct ebpf_preprocessor preprocessor;
+	const struct ebpf_prog_type *prog_types[EBPF_TYPE_MAX];
+	const struct ebpf_map_type *map_types[EBPF_TYPE_MAX];
+	const struct ebpf_helper_type *helper_types[EBPF_TYPE_MAX];
+	const struct ebpf_preprocessor *preprocessor;
 };
 
 int ebpf_env_create(struct ebpf_env **eep, const struct ebpf_config *ec);
 int ebpf_env_destroy(struct ebpf_env *ee);
-
 int ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp, struct ebpf_prog_attr *attr);
 void ebpf_prog_destroy(struct ebpf_prog *);
-
 int ebpf_map_create(struct ebpf_env *ee, struct ebpf_map **emp, struct ebpf_map_attr *attr);
 struct ebpf_map_type *ebpf_map_get_type(uint32_t type);
 void *ebpf_map_lookup_elem(struct ebpf_map *em, void *key);

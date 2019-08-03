@@ -31,7 +31,7 @@ ebpf_map_create(struct ebpf_env *ee, struct ebpf_map **emp,
 {
 	int error;
 	struct ebpf_map *em;
-	struct ebpf_map_type *emt;
+	const struct ebpf_map_type *emt;
 
 	if (ee == NULL || emp == NULL || attr == NULL ||
 		attr->type >= EBPF_TYPE_MAX ||

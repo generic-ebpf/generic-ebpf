@@ -94,5 +94,5 @@ ebpf_env_get_helper_type(struct ebpf_env *ee, uint32_t type)
 const struct ebpf_preprocessor *
 ebpf_env_get_preprocessor(struct ebpf_env *ee)
 {
-	return &ee->preprocessor;
+	return ee->ec->preprocessor;
 }

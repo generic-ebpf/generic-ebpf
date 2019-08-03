@@ -35,7 +35,7 @@ ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp,
 {
 	int error;
 	struct ebpf_prog *ep;
-	struct ebpf_prog_type *ept;
+	const struct ebpf_prog_type *ept;
 
 	if (ee == NULL || epp == NULL || attr == NULL ||
 			attr->type >= EBPF_TYPE_MAX ||
