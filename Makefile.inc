@@ -34,9 +34,6 @@ EBPFDEVKMODDIR?=${BASE}/${UNAME_s}/ebpf_dev
 LIBGBPFDIR?=	${BASE}/contrib/libgbpf
 LIBGBPF=	${LIBGBPFDIR}/libgbpf.a
 TESTDIR=	${BASE}/tests
-VMISA_H=	${BASE}/sys/sys/ebpf_vm_isa.h
-VMISA_I=	${BASE}/sys/dev/ebpf/ebpf_interpreter.c
-VMISA_D=	${BASE}/sys/dev/ebpf/ebpf_disassembler.c
 
 DEBUG_FLAGS=	-g
 
@@ -60,10 +57,3 @@ ${GTESTPATH}/googletest/make/gtest-all.o:
 	cd $(GTESTPATH)/googletest/make && ${MAKE_CMD} gtest-all.o
 ${CKOBJS}:
 	cd $(CKPATH) && ./configure && ${MAKE_CMD}
-${VMISA_H}: ${BASE}/sys/dev/ebpf/ebpf_vm_isa.def ${BASE}/sys/dev/ebpf/ebpf_vm_isa.awk
-	awk -v target="header" -f ${BASE}/sys/dev/ebpf/ebpf_vm_isa.awk ${BASE}/sys/dev/ebpf/ebpf_vm_isa.def > $@
-${VMISA_I}: ${VMISA_H}
-	awk -v target="interpreter" -f ${BASE}/sys/dev/ebpf/ebpf_vm_isa.awk ${BASE}/sys/dev/ebpf/ebpf_vm_isa.def > $@
-${VMISA_D}: ${VMISA_H}
-	awk -v target="disassembler" -f ${BASE}/sys/dev/ebpf/ebpf_vm_isa.awk ${BASE}/sys/dev/ebpf/ebpf_vm_isa.def > $@
-CLEANFILES+=	${VMISA_H} ${VMISA_I} ${VMISA_D}
