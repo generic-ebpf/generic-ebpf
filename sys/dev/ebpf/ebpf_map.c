@@ -39,7 +39,7 @@ ebpf_map_create(struct ebpf_env *ee, struct ebpf_map **emp,
 		attr->max_entries == 0)
 		return EINVAL;
 
-	emt = ebpf_env_get_map_type(ee, attr->type);
+	emt = ee->ec->map_types[attr->type];
 	if (emt == NULL)
 		return EINVAL;
 

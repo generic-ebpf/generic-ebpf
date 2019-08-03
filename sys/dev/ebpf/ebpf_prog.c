@@ -42,7 +42,7 @@ ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp,
 			attr->prog == NULL || attr->prog_len == 0)
 		return EINVAL;
 
-	ept = ebpf_env_get_prog_type(ee, attr->type);
+	ept = ee->ec->prog_types[attr->type];
 	if (ept == NULL)
 		return EINVAL;
 
