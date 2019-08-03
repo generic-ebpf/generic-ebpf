@@ -21,7 +21,7 @@
 
 struct ebpf_env {
 	uint32_t ref;
-	struct ebpf_config *ec;
+	const struct ebpf_config *ec;
 };
 
 void ebpf_env_acquire(struct ebpf_env *ee);
