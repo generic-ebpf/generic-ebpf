@@ -23,7 +23,7 @@ ebpf_env_create(struct ebpf_env **eep, const struct ebpf_config *ec)
 {
 	struct ebpf_env *ee;
 
-	if (name == NULL || ec == NULL || eep == NULL)
+	if (eep == NULL || ec == NULL)
 		return EINVAL;
 
 	ee = ebpf_calloc(1, sizeof(*ee));
