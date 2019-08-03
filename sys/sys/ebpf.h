@@ -35,6 +35,7 @@ struct ebpf_prog_attr {
 	uint32_t type;
 	struct ebpf_inst *prog;
 	uint32_t prog_len;
+	void *data; /* private data */
 };
 
 struct ebpf_map_attr {
@@ -87,8 +88,7 @@ struct ebpf_prog_type {
 };
 
 struct ebpf_preprocessor_ops {
-	struct ebpf_map *(*resolve_map_desc)(int32_t upper, int32_t lower,
-					     void *arg);
+	struct ebpf_map *(*resolve_map_desc)(int32_t upper, int32_t lower, void *data);
 };
 
 struct ebpf_preprocessor {
