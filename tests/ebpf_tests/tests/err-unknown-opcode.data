@@ -1,5 +1,0 @@
--- raw
-0x0000000000000006
-0x0000000000000095
--- error
-unknown opcode 0x06 at PC 0

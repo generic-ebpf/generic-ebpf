@@ -21,10 +21,6 @@ SRCS += ebpf_map_hashtable.c
 SRCS += ebpf_obj.c
 SRCS += ebpf_prog.c
 
-.if $(MACHINE) == "amd64"
-SRCS += ../../amd64/amd64/ebpf_jit_x86_64.c
-.endif
-
 realinstall:
 	install ebpf.ko $(DESTDIR)
 

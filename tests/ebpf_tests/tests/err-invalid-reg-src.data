@@ -1,5 +1,0 @@
--- asm
-mov r0, r11
-exit
--- error
-invalid source register at PC 0

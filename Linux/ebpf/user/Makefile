@@ -14,10 +14,6 @@ ebpf-objs+=	$(SRC_DIR)/ebpf_obj.o
 ebpf-objs+=	$(SRC_DIR)/ebpf_prog.o
 ebpf-objs+=	./ebpf_linux_user.o
 
-ifeq ($(shell arch), x86_64)
-ebpf-objs+=	$(BASE)/sys/amd64/amd64/ebpf_jit_x86_64.o
-endif
-
 OBJS=	$(ebpf-objs) $(CKOBJS)
 
 CFLAGS += \
