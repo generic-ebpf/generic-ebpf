@@ -60,6 +60,5 @@ void
 ebpf_env_release(struct ebpf_env *ee)
 {
 	ebpf_assert(ee != NULL);
-	if (ebpf_refcount_release(&ee->ref) != 0)
-		ebpf_free(ee);
+	ebpf_refcount_release(&ee->ref);
 }
