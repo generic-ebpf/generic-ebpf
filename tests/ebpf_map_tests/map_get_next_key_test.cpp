@@ -3,19 +3,20 @@
 extern "C" {
 #include <errno.h>
 #include <stdint.h>
-
-#include <sys/ebpf_map.h>
+#include <sys/ebpf.h>
 
 #include "../test_common.hpp"
 }
 
 namespace {
-class MapGetNextKeyTest : public ::testing::Test {
+class MapGetNextKeyTest : public CommonFixture {
  protected:
   struct ebpf_map *em;
 
   virtual void SetUp() {
     int error;
+
+    CommonFixture::SetUp();
 
     struct ebpf_map_attr attr;
     attr.type = EBPF_MAP_TYPE_ARRAY;
@@ -24,11 +25,14 @@ class MapGetNextKeyTest : public ::testing::Test {
     attr.max_entries = 100;
     attr.flags = 0;
 
-    error = ebpf_map_create(&em, &attr);
+    error = ebpf_map_create(ee, &em, &attr);
     ASSERT_TRUE(!error);
   }
 
-  virtual void TearDown() { ebpf_map_destroy(em); }
+  virtual void TearDown() {
+    ebpf_map_destroy(em);
+    CommonFixture::TearDown();
+  }
 };
 
 TEST_F(MapGetNextKeyTest, GetNextKeyWithNULLMap) {

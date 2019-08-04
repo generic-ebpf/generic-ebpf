@@ -9,23 +9,29 @@ extern "C" {
 }
 
 namespace {
-class PercpuArrayMapGetNextKeyTest : public ::testing::Test {
+class PercpuArrayMapGetNextKeyTest : public CommonFixture {
  protected:
   struct ebpf_map *em;
 
   virtual void SetUp() {
     struct ebpf_map_attr attr;
+
+    CommonFixture::SetUp();
+
     attr.type = EBPF_MAP_TYPE_PERCPU_ARRAY;
     attr.key_size = sizeof(uint32_t);
     attr.value_size = sizeof(uint32_t);
     attr.max_entries = 100;
     attr.flags = 0;
 
-    int error = ebpf_map_create(&em, &attr);
+    int error = ebpf_map_create(ee, &em, &attr);
     ASSERT_TRUE(!error);
   }
 
-  virtual void TearDown() { ebpf_map_destroy(em); }
+  virtual void TearDown() {
+    ebpf_map_destroy(em);
+    CommonFixture::TearDown();
+  }
 };
 
 TEST_F(PercpuArrayMapGetNextKeyTest, GetNextKeyWithMaxKey) {

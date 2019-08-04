@@ -9,12 +9,14 @@ extern "C" {
 }
 
 namespace {
-class HashTableMapUpdateTest : public ::testing::Test {
+class HashTableMapUpdateTest : public CommonFixture {
  protected:
   struct ebpf_map *em;
 
   virtual void SetUp() {
     int error;
+
+    CommonFixture::SetUp();
 
     struct ebpf_map_attr attr;
     attr.type = EBPF_MAP_TYPE_HASHTABLE;
@@ -23,11 +25,14 @@ class HashTableMapUpdateTest : public ::testing::Test {
     attr.max_entries = 100;
     attr.flags = 0;
 
-    error = ebpf_map_create(&em, &attr);
+    error = ebpf_map_create(ee, &em, &attr);
     ASSERT_TRUE(!error);
   }
 
-  virtual void TearDown() { ebpf_map_destroy(em); }
+  virtual void TearDown() {
+    ebpf_map_destroy(em);
+    CommonFixture::TearDown();
+  }
 };
 
 TEST_F(HashTableMapUpdateTest, CorrectUpdate) {

@@ -9,13 +9,15 @@ extern "C" {
 }
 
 namespace {
-class HashTableMapLookupTest : public ::testing::Test {
+class HashTableMapLookupTest : public CommonFixture {
  protected:
   struct ebpf_map *em;
 
   virtual void SetUp() {
     int error;
     uint32_t gkey = 50, gval = 100;
+
+    CommonFixture::SetUp();
 
     struct ebpf_map_attr attr;
     attr.type = EBPF_MAP_TYPE_HASHTABLE;
@@ -24,14 +26,17 @@ class HashTableMapLookupTest : public ::testing::Test {
     attr.max_entries = 100;
     attr.flags = 0;
 
-    error = ebpf_map_create(&em, &attr);
+    error = ebpf_map_create(ee, &em, &attr);
     ASSERT_TRUE(!error);
 
     error = ebpf_map_update_elem_from_user(em, &gkey, &gval, 0);
     ASSERT_TRUE(!error);
   }
 
-  virtual void TearDown() { ebpf_map_destroy(em); }
+  virtual void TearDown() {
+    ebpf_map_destroy(em);
+    CommonFixture::TearDown();
+  }
 };
 
 TEST_F(HashTableMapLookupTest, LookupUnexistingEntry) {

@@ -8,24 +8,21 @@ extern "C" {
 #include "../test_common.hpp"
 }
 
-class MapCreateTest : public ::testing::Test {
+class MapCreateTest : public CommonFixture {
  protected:
+  struct ebpf_map *em;
+
   virtual void SetUp() {
     int error;
-    error = ebpf_env_create(&ee, &ebpf_test_config);
-    ASSERT_TRUE(error == 0);
+    CommonFixture::SetUp();
     em = NULL;
   }
 
   virtual void TearDown() {
     int error;
     if (em != NULL) ebpf_map_destroy(em);
-    error = ebpf_env_destroy(ee);
-    ASSERT_TRUE(error == 0);
+    CommonFixture::TearDown();
   }
-
-  struct ebpf_env *ee;
-  struct ebpf_map *em;
 };
 
 TEST_F(MapCreateTest, CreateWithNULLMapPointer) {
@@ -45,7 +42,6 @@ TEST_F(MapCreateTest, CreateWithNULLMapPointer) {
 
 TEST_F(MapCreateTest, CreateWithInvalidMapType1) {
   int error;
-  struct ebpf_map *em;
 
   struct ebpf_map_attr attr;
   attr.type = EBPF_MAP_TYPE_MAX;
@@ -61,7 +57,6 @@ TEST_F(MapCreateTest, CreateWithInvalidMapType1) {
 
 TEST_F(MapCreateTest, CreateWithInvalidMapType2) {
   int error;
-  struct ebpf_map *em;
 
   struct ebpf_map_attr attr;
   attr.type = EBPF_MAP_TYPE_MAX + 1;
@@ -77,7 +72,6 @@ TEST_F(MapCreateTest, CreateWithInvalidMapType2) {
 
 TEST_F(MapCreateTest, CreateWithZeroKey) {
   int error;
-  struct ebpf_map *em;
 
   struct ebpf_map_attr attr;
   attr.type = EBPF_MAP_TYPE_ARRAY;
@@ -93,7 +87,6 @@ TEST_F(MapCreateTest, CreateWithZeroKey) {
 
 TEST_F(MapCreateTest, CreateWithZeroValue) {
   int error;
-  struct ebpf_map *em;
 
   struct ebpf_map_attr attr;
   attr.type = EBPF_MAP_TYPE_ARRAY;
@@ -109,7 +102,6 @@ TEST_F(MapCreateTest, CreateWithZeroValue) {
 
 TEST_F(MapCreateTest, CreateWithZeroMaxEntries) {
   int error;
-  struct ebpf_map *em;
 
   struct ebpf_map_attr attr;
   attr.type = EBPF_MAP_TYPE_ARRAY;

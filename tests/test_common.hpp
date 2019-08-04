@@ -73,3 +73,22 @@ static const struct ebpf_config ebpf_test_config = {
 	},
 	.preprocessor = &epp_test
 };
+
+class CommonFixture : public ::testing::Test {
+protected:
+  struct ebpf_env *ee;
+
+  virtual void SetUp() {
+    int error;
+
+    error = ebpf_env_create(&ee, &ebpf_test_config);
+    EXPECT_EQ(error, 0);
+  }
+
+  virtual void TearDown() {
+    int error;
+
+    error = ebpf_env_destroy(ee);
+    EXPECT_EQ(error, 0);
+  }
+};
