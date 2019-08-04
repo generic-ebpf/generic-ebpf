@@ -17,9 +17,8 @@ ebpf-objs+=	./ebpf_linux_user.o
 OBJS=	$(ebpf-objs) $(CKOBJS)
 
 CFLAGS += \
-	-O0 \
+	-Ofast \
 	-fPIC \
-	-fsanitize=address \
 	-I $(SRC_DIR) \
 	-I $(BASE)/sys \
 	-I $(BASE) \

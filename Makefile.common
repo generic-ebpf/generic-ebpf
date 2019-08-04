@@ -4,21 +4,18 @@ MAKE_ARGS+=	DESTDIR="${CURDIR}"
 SUBDIR=		$(SUBDIR_$(UNAME_s))
 SUBDIR_FreeBSD=	${LIBEBPFDIR} \
 		${EBPFKMODDIR} \
-		${EBPFDEVKMODDIR} \
-		${LIBGBPFDIR} \
-		${TESTDIR} \
-		${BENCHMARKDIR}
-SUBDIR_Linux=	${SUBDIR_FreeBSD}
+		${TESTDIR}
+SUBDIR_Linux=	${LIBEBPFDIR} \
+		${EBPFKMODDIR} \
+		${TESTDIR}
 SUBDIR_Darwin=	${LIBEBPFDIR} \
-		${LIBGBPFDIR} \
-		${TESTDIR} \
-		${BENCHMARKDIR}
+		${TESTDIR}
 
 all:
 	for D in ${SUBDIR}; do \
 		(cd $$D && ${MAKE_CMD} && ${MAKE_CMD} install); \
 	done
-CLEANFILES=	libebpf${SHLIB} libebpf.a ebpf.ko ebpf-dev.ko
+CLEANFILES=	libebpf${SHLIB} libebpf.a ebpf.ko
 
 user:
 	cd ${UNAME_s}/ebpf/user && ${MAKE_CMD} && ${MAKE_CMD} install
@@ -29,25 +26,14 @@ tests-clean:
 	cd tests && ${MAKE_CMD} clean
 check check-kern:
 	cd ${TESTDIR} && ${MAKE_CMD} $@
-init:
-	rm -rf ${CURDIR}/extern/googletest
-	rm -rf ${CURDIR}/extern/ck
-	git submodule init
-	git submodule update
-format::
-	clang-format -i */**/*.{c,h,cpp}
 load::
 	${KMODLOAD} ${CURDIR}/ebpf.ko
-	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
 
 unload::
-	${KMODUNLOAD} ebpf-dev
 	${KMODUNLOAD} ebpf
 
 reload::
-	-${KMODUNLOAD} ebpf-dev
 	-${KMODUNLOAD} ebpf
 	${KMODLOAD} ${CURDIR}/ebpf.ko
-	${KMODLOAD} ${CURDIR}/ebpf-dev.ko
 
-.PHONY: default tests check check-kern init format
+.PHONY: default tests check check-kern

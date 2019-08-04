@@ -9,10 +9,6 @@ check-kern:
 
 install:
 
-SUBDIR=	ebpf_tests \
-	ebpf_prog_tests \
-	ebpf_map_tests \
-	ebpf_dev_tests
+SUBDIR= ebpf_prog_tests ebpf_map_tests
 
-SUBDIR_CU=	ebpf_tests ebpf_prog_tests ebpf_map_tests
-SUBDIR_CK=	ebpf_dev_tests
+SUBDIR_CU=	ebpf_prog_tests ebpf_map_tests

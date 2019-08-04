@@ -30,7 +30,6 @@ CKOBJS?=	${CKPATH}/src/libck.a
 LIBEBPFDIR?=	${BASE}/${UNAME_s}/ebpf/user
 LIBEBPF=	${LIBEBPFDIR}/libebpf${SHLIB}
 EBPFKMODDIR?=	${BASE}/${UNAME_s}/ebpf/kernel
-EBPFDEVKMODDIR?=${BASE}/${UNAME_s}/ebpf_dev
 TESTDIR=	${BASE}/tests
 
 DEBUG_FLAGS=	-g
@@ -47,8 +46,6 @@ clean:
 
 ${LIBEBPF}:
 	cd $(LIBEBPFDIR) && ${MAKE_CMD} libebpf${SHLIB}
-${LIBGBPF}:
-	cd $(LIBGBPFDIR) && ${MAKE_CMD} libgbpf.a
 ${GTESTPATH}/googletest/make/gtest_main.o:
 	cd $(GTESTPATH)/googletest/make && ${MAKE_CMD} gtest_main.o
 ${GTESTPATH}/googletest/make/gtest-all.o:
