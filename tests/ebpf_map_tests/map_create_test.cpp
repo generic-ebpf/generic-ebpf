@@ -4,9 +4,32 @@ extern "C" {
 #include <stdint.h>
 #include <errno.h>
 #include <sys/ebpf.h>
+
+#include "../test_common.hpp"
 }
 
-TEST(MapCreateTest, CreateWithNULLMapPointer)
+class MapCreateTest : public ::testing::Test {
+ protected:
+	virtual void SetUp() {
+		int error;
+		error = ebpf_env_create(&ee, &ebpf_test_config);
+		ASSERT_TRUE(error == 0);
+		em = NULL;
+	}
+
+	virtual void TearDown() {
+		int error;
+		if (em != NULL)
+			ebpf_map_destroy(em);
+		error = ebpf_env_destroy(ee);
+		ASSERT_TRUE(error == 0);
+	}
+
+	struct ebpf_env *ee;
+	struct ebpf_map *em;
+};
+
+TEST_F(MapCreateTest, CreateWithNULLMapPointer)
 {
 	int error;
 
@@ -17,12 +40,12 @@ TEST(MapCreateTest, CreateWithNULLMapPointer)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(NULL, &attr);
+	error = ebpf_map_create(ee, NULL, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
 
-TEST(MapCreateTest, CreateWithInvalidMapType1)
+TEST_F(MapCreateTest, CreateWithInvalidMapType1)
 {
 	int error;
 	struct ebpf_map *em;
@@ -34,12 +57,12 @@ TEST(MapCreateTest, CreateWithInvalidMapType1)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&em, &attr);
+	error = ebpf_map_create(ee, &em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
 
-TEST(MapCreateTest, CreateWithInvalidMapType2)
+TEST_F(MapCreateTest, CreateWithInvalidMapType2)
 {
 	int error;
 	struct ebpf_map *em;
@@ -51,12 +74,12 @@ TEST(MapCreateTest, CreateWithInvalidMapType2)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&em, &attr);
+	error = ebpf_map_create(ee, &em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
 
-TEST(MapCreateTest, CreateWithZeroKey)
+TEST_F(MapCreateTest, CreateWithZeroKey)
 {
 	int error;
 	struct ebpf_map *em;
@@ -68,12 +91,12 @@ TEST(MapCreateTest, CreateWithZeroKey)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&em, &attr);
+	error = ebpf_map_create(ee, &em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
 
-TEST(MapCreateTest, CreateWithZeroValue)
+TEST_F(MapCreateTest, CreateWithZeroValue)
 {
 	int error;
 	struct ebpf_map *em;
@@ -85,12 +108,12 @@ TEST(MapCreateTest, CreateWithZeroValue)
 	attr.max_entries = 100;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&em, &attr);
+	error = ebpf_map_create(ee, &em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }
 
-TEST(MapCreateTest, CreateWithZeroMaxEntries)
+TEST_F(MapCreateTest, CreateWithZeroMaxEntries)
 {
 	int error;
 	struct ebpf_map *em;
@@ -102,7 +125,7 @@ TEST(MapCreateTest, CreateWithZeroMaxEntries)
 	attr.max_entries = 0;
 	attr.flags = 0;
 
-	error = ebpf_map_create(&em, &attr);
+	error = ebpf_map_create(ee, &em, &attr);
 
 	EXPECT_EQ(EINVAL, error);
 }

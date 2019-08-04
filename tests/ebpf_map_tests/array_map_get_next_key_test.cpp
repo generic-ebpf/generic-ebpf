@@ -4,6 +4,8 @@ extern "C" {
 #include <stdint.h>
 #include <errno.h>
 #include <sys/ebpf.h>
+
+#include "../test_common.hpp"
 }
 
 namespace {

@@ -5,6 +5,8 @@ extern "C" {
 #include <errno.h>
 
 #include <sys/ebpf_map.h>
+
+#include "../test_common.hpp"
 }
 
 namespace {
