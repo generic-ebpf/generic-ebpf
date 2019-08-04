@@ -47,8 +47,9 @@
  */
 
 #include <dev/ebpf/ebpf_platform.h>
-#include <dev/ebpf/ebpf_prog_test.h>
 #include <dev/ebpf/ebpf_allocator.h>
+#include <dev/ebpf/ebpf_obj.h>
+#include <dev/ebpf/ebpf_prog.h>
 #include <sys/ebpf.h>
 
 void *
@@ -251,16 +252,12 @@ ebpf_mod_deinit(void)
 	ebpf_assert(error == 0);
 }
 
-/* dev/ebpf/ebpf_allocator.h */
-EXPORT_SYMBOL(ebpf_allocator_init);
-EXPORT_SYMBOL(ebpf_allocator_deinit);
-EXPORT_SYMBOL(ebpf_allocator_alloc);
-EXPORT_SYMBOL(ebpf_allocator_free);
-
-/* dev/ebpf/ebpf_map.h */
-EXPORT_SYMBOL(ebpf_get_map_type);
+/* sys/sys/ebpf.h */
+EXPORT_SYMBOL(ebpf_env_create);
+EXPORT_SYMBOL(ebpf_env_destroy);
+EXPORT_SYMBOL(ebpf_prog_create);
+EXPORT_SYMBOL(ebpf_prog_destroy);
 EXPORT_SYMBOL(ebpf_map_create);
-EXPORT_SYMBOL(ebpf_map_destroy);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
 EXPORT_SYMBOL(ebpf_map_delete_elem);
@@ -268,8 +265,21 @@ EXPORT_SYMBOL(ebpf_map_lookup_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_update_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_delete_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_get_next_key_from_user);
+EXPORT_SYMBOL(ebpf_map_destroy);
+EXPORT_SYMBOL(ebpf_run);
+
+/* dev/ebpf/ebpf_allocator.h */
+EXPORT_SYMBOL(ebpf_allocator_init);
+EXPORT_SYMBOL(ebpf_allocator_deinit);
+EXPORT_SYMBOL(ebpf_allocator_alloc);
+EXPORT_SYMBOL(ebpf_allocator_free);
+
+/* dev/ebpf/ebpf_env.h */
+EXPORT_SYMBOL(ebpf_env_acquire);
+EXPORT_SYMBOL(ebpf_env_release);
 
 /* dev/ebpf/ebpf_obj.h */
+EXPORT_SYMBOL(ebpf_obj_init);
 EXPORT_SYMBOL(ebpf_obj_acquire);
 EXPORT_SYMBOL(ebpf_obj_release);
 
@@ -301,23 +311,7 @@ EXPORT_SYMBOL(ebpf_refcount_acquire);
 EXPORT_SYMBOL(ebpf_refcount_release);
 
 /* dev/ebpf/ebpf_prog.h */
-EXPORT_SYMBOL(ebpf_get_prog_type);
-EXPORT_SYMBOL(ebpf_prog_create);
-EXPORT_SYMBOL(ebpf_prog_destroy);
 EXPORT_SYMBOL(ebpf_prog_attach_map);
-
-/* dev/ebpf/ebpf_prog_test.h */
-EXPORT_SYMBOL(ebpf_run_test);
-
-/* sys/ebpf_vm.h */
-EXPORT_SYMBOL(ebpf_create);
-EXPORT_SYMBOL(ebpf_destroy);
-EXPORT_SYMBOL(ebpf_register);
-EXPORT_SYMBOL(ebpf_load);
-EXPORT_SYMBOL(ebpf_unload);
-EXPORT_SYMBOL(ebpf_exec);
-EXPORT_SYMBOL(ebpf_exec_jit);
-EXPORT_SYMBOL(ebpf_compile);
 
 module_init(ebpf_mod_init);
 module_exit(ebpf_mod_deinit);
