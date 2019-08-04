@@ -1,7 +1,7 @@
 /*-
  * SPDX-License-Identifier: Apache License 2.0
  *
- * Copyright 2017-2018 Yutaro Hayakawa
+ * Copyright 2019 Yutaro Hayakawa
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

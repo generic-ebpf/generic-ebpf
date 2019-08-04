@@ -1,7 +1,7 @@
 /*-
  * SPDX-License-Identifier: BSD-2-Clause-FreeBSD
  *
- * Copyright (c) 2018, Matthew Macy <mmacy@freebsd.org>
+ * Copyright (c) 2019, Yutaro Hayakawa
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -29,7 +29,7 @@
 /*-
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Copyright (c) 2018 Yutaro Hayakawa
+ * Copyright (c) 2019 Yutaro Hayakawa
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
