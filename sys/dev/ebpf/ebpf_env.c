@@ -63,36 +63,3 @@ ebpf_env_release(struct ebpf_env *ee)
 	if (ebpf_refcount_release(&ee->ref) != 0)
 		ebpf_free(ee);
 }
-
-const struct ebpf_prog_type *
-ebpf_env_get_prog_type(struct ebpf_env *ee, uint32_t type)
-{
-	if (type >= EBPF_TYPE_MAX)
-		return NULL;
-
-	return ee->ec->prog_types[type];
-}
-
-const struct ebpf_map_type *
-ebpf_env_get_map_type(struct ebpf_env *ee, uint32_t type)
-{
-	if (type >= EBPF_TYPE_MAX)
-		return NULL;
-
-	return ee->ec->map_types[type];
-}
-
-const struct ebpf_helper_type *
-ebpf_env_get_helper_type(struct ebpf_env *ee, uint32_t type)
-{
-	if (type >= EBPF_TYPE_MAX)
-		return NULL;
-
-	return ee->ec->helper_types[type];
-}
-
-const struct ebpf_preprocessor *
-ebpf_env_get_preprocessor(struct ebpf_env *ee)
-{
-	return ee->ec->preprocessor;
-}
