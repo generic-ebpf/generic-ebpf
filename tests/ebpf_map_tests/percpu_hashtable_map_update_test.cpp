@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 extern "C" {
-#include <stdint.h>
 #include <errno.h>
+#include <stdint.h>
 #include <sys/ebpf.h>
 
 #include "../test_common.hpp"
@@ -10,101 +10,87 @@ extern "C" {
 
 namespace {
 class PercpuHashTableMapUpdateTest : public ::testing::Test {
-      protected:
-	struct ebpf_map *em;
+ protected:
+  struct ebpf_map *em;
 
-	virtual void
-	SetUp()
-	{
-		int error;
+  virtual void SetUp() {
+    int error;
 
-		struct ebpf_map_attr attr;
-		attr.type = EBPF_MAP_TYPE_PERCPU_HASHTABLE;
-		attr.key_size = sizeof(uint32_t);
-		attr.value_size = sizeof(uint32_t);
-		attr.max_entries = 100;
-		attr.flags = 0;
+    struct ebpf_map_attr attr;
+    attr.type = EBPF_MAP_TYPE_PERCPU_HASHTABLE;
+    attr.key_size = sizeof(uint32_t);
+    attr.value_size = sizeof(uint32_t);
+    attr.max_entries = 100;
+    attr.flags = 0;
 
-		error = ebpf_map_create(&em, &attr);
-		ASSERT_TRUE(!error);
-	}
+    error = ebpf_map_create(&em, &attr);
+    ASSERT_TRUE(!error);
+  }
 
-	virtual void
-	TearDown()
-	{
-		ebpf_map_destroy(em);
-	}
+  virtual void TearDown() { ebpf_map_destroy(em); }
 };
 
-TEST_F(PercpuHashTableMapUpdateTest, CorrectUpdate)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(PercpuHashTableMapUpdateTest, CorrectUpdate) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
-	EXPECT_EQ(0, error);
+  EXPECT_EQ(0, error);
 }
 
-TEST_F(PercpuHashTableMapUpdateTest, CorrectUpdateMoreThanMaxEntries)
-{
-	int error;
-	uint32_t i;
+TEST_F(PercpuHashTableMapUpdateTest, CorrectUpdateMoreThanMaxEntries) {
+  int error;
+  uint32_t i;
 
-	for (i = 0; i < 100; i++) {
-		error = ebpf_map_update_elem_from_user(em, &i, &i, EBPF_ANY);
-		ASSERT_TRUE(!error);
-	}
+  for (i = 0; i < 100; i++) {
+    error = ebpf_map_update_elem_from_user(em, &i, &i, EBPF_ANY);
+    ASSERT_TRUE(!error);
+  }
 
-	error = ebpf_map_update_elem_from_user(em, &i, &i, EBPF_ANY);
-	EXPECT_EQ(EBUSY, error);
+  error = ebpf_map_update_elem_from_user(em, &i, &i, EBPF_ANY);
+  EXPECT_EQ(EBUSY, error);
 }
 
-TEST_F(PercpuHashTableMapUpdateTest, UpdateExistingElementWithNOEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(PercpuHashTableMapUpdateTest, UpdateExistingElementWithNOEXISTFlag) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
-	ASSERT_TRUE(!error);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  ASSERT_TRUE(!error);
 
-	error =
-	    ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
 
-	EXPECT_EQ(EEXIST, error);
+  EXPECT_EQ(EEXIST, error);
 }
 
-TEST_F(PercpuHashTableMapUpdateTest, UpdateNonExistingElementWithNOEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(PercpuHashTableMapUpdateTest, UpdateNonExistingElementWithNOEXISTFlag) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error =
-	    ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
 
-	EXPECT_EQ(0, error);
+  EXPECT_EQ(0, error);
 }
 
-TEST_F(PercpuHashTableMapUpdateTest, UpdateNonExistingElementWithEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(PercpuHashTableMapUpdateTest, UpdateNonExistingElementWithEXISTFlag) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_EXIST);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_EXIST);
 
-	EXPECT_EQ(ENOENT, error);
+  EXPECT_EQ(ENOENT, error);
 }
 
-TEST_F(PercpuHashTableMapUpdateTest, UpdateExistingElementWithEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(PercpuHashTableMapUpdateTest, UpdateExistingElementWithEXISTFlag) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
-	value++;
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_EXIST);
+  value++;
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_EXIST);
 
-	EXPECT_EQ(0, error);
+  EXPECT_EQ(0, error);
 }
-} // namespace
+}  // namespace

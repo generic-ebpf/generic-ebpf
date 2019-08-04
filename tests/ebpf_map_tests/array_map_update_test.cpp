@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
 extern "C" {
-#include <stdint.h>
 #include <errno.h>
+#include <stdint.h>
 #include <sys/ebpf.h>
 
 #include "../test_common.hpp"
@@ -10,96 +10,83 @@ extern "C" {
 
 namespace {
 class ArrayMapUpdateTest : public ::testing::Test {
-      protected:
-	struct ebpf_map *em;
+ protected:
+  struct ebpf_map *em;
 
-	virtual void
-	SetUp()
-	{
-		int error;
+  virtual void SetUp() {
+    int error;
 
-		struct ebpf_map_attr attr;
-		attr.type = EBPF_MAP_TYPE_ARRAY;
-		attr.key_size = sizeof(uint32_t);
-		attr.value_size = sizeof(uint32_t);
-		attr.max_entries = 100;
-		attr.flags = 0;
+    struct ebpf_map_attr attr;
+    attr.type = EBPF_MAP_TYPE_ARRAY;
+    attr.key_size = sizeof(uint32_t);
+    attr.value_size = sizeof(uint32_t);
+    attr.max_entries = 100;
+    attr.flags = 0;
 
-		error = ebpf_map_create(&em, &attr);
-		ASSERT_TRUE(!error);
-	}
+    error = ebpf_map_create(&em, &attr);
+    ASSERT_TRUE(!error);
+  }
 
-	virtual void
-	TearDown()
-	{
-		ebpf_map_destroy(em);
-	}
+  virtual void TearDown() { ebpf_map_destroy(em); }
 };
 
-TEST_F(ArrayMapUpdateTest, UpdateWithMaxPlusOneKey)
-{
-	int error;
-	uint32_t key = 100, value = 100;
+TEST_F(ArrayMapUpdateTest, UpdateWithMaxPlusOneKey) {
+  int error;
+  uint32_t key = 100, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
-	EXPECT_EQ(EINVAL, error);
+  EXPECT_EQ(EINVAL, error);
 }
 
-TEST_F(ArrayMapUpdateTest, CorrectUpdate)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(ArrayMapUpdateTest, CorrectUpdate) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
-	EXPECT_EQ(0, error);
+  EXPECT_EQ(0, error);
 }
 
-TEST_F(ArrayMapUpdateTest, CorrectUpdateOverwrite)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(ArrayMapUpdateTest, CorrectUpdateOverwrite) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
-	ASSERT_TRUE(!error);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  ASSERT_TRUE(!error);
 
-	value = 101;
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  value = 101;
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
-	EXPECT_EQ(0, error);
+  EXPECT_EQ(0, error);
 }
 
-TEST_F(ArrayMapUpdateTest, CreateMoreThenMaxEntries)
-{
-	int error;
-	uint32_t key, value = 100;
+TEST_F(ArrayMapUpdateTest, CreateMoreThenMaxEntries) {
+  int error;
+  uint32_t key, value = 100;
 
-	for (int i = 0; i < 100; i++) {
-		key = i;
-		error = ebpf_map_update_elem_from_user(em, &key, &value,
-						       EBPF_ANY);
-		ASSERT_TRUE(!error);
-	}
+  for (int i = 0; i < 100; i++) {
+    key = i;
+    error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+    ASSERT_TRUE(!error);
+  }
 
-	key++;
-	error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
+  key++;
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_ANY);
 
-	/*
-	 * In array map, max_entries equals to max key, so
-	 * returns EINVAL, not EBUSY
-	 */
-	EXPECT_EQ(EINVAL, error);
+  /*
+   * In array map, max_entries equals to max key, so
+   * returns EINVAL, not EBUSY
+   */
+  EXPECT_EQ(EINVAL, error);
 }
 
-TEST_F(ArrayMapUpdateTest, UpdateElementWithNOEXISTFlag)
-{
-	int error;
-	uint32_t key = 50, value = 100;
+TEST_F(ArrayMapUpdateTest, UpdateElementWithNOEXISTFlag) {
+  int error;
+  uint32_t key = 50, value = 100;
 
-	error =
-	    ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
+  error = ebpf_map_update_elem_from_user(em, &key, &value, EBPF_NOEXIST);
 
-	EXPECT_EQ(EEXIST, error);
+  EXPECT_EQ(EEXIST, error);
 }
-} // namespace
+}  // namespace
