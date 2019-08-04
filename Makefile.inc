@@ -31,8 +31,6 @@ LIBEBPFDIR?=	${BASE}/${UNAME_s}/ebpf/user
 LIBEBPF=	${LIBEBPFDIR}/libebpf${SHLIB}
 EBPFKMODDIR?=	${BASE}/${UNAME_s}/ebpf/kernel
 EBPFDEVKMODDIR?=${BASE}/${UNAME_s}/ebpf_dev
-LIBGBPFDIR?=	${BASE}/contrib/libgbpf
-LIBGBPF=	${LIBGBPFDIR}/libgbpf.a
 TESTDIR=	${BASE}/tests
 
 DEBUG_FLAGS=	-g
