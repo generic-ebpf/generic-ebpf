@@ -33,7 +33,6 @@ int
 ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp,
 		 struct ebpf_prog_attr *attr)
 {
-	int error;
 	struct ebpf_prog *ep;
 	const struct ebpf_prog_type *ept;
 
