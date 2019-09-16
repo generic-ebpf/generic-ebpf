@@ -257,6 +257,7 @@ EXPORT_SYMBOL(ebpf_env_create);
 EXPORT_SYMBOL(ebpf_env_destroy);
 EXPORT_SYMBOL(ebpf_prog_create);
 EXPORT_SYMBOL(ebpf_prog_destroy);
+EXPORT_SYMBOL(ebpf_prog_run);
 EXPORT_SYMBOL(ebpf_map_create);
 EXPORT_SYMBOL(ebpf_map_lookup_elem);
 EXPORT_SYMBOL(ebpf_map_update_elem);
@@ -266,7 +267,6 @@ EXPORT_SYMBOL(ebpf_map_update_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_delete_elem_from_user);
 EXPORT_SYMBOL(ebpf_map_get_next_key_from_user);
 EXPORT_SYMBOL(ebpf_map_destroy);
-EXPORT_SYMBOL(ebpf_run);
 
 /* dev/ebpf/ebpf_allocator.h */
 EXPORT_SYMBOL(ebpf_allocator_init);

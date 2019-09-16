@@ -111,6 +111,7 @@ int ebpf_env_destroy(struct ebpf_env *ee);
 
 int ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp, struct ebpf_prog_attr *attr);
 void ebpf_prog_destroy(struct ebpf_prog *);
+uint64_t ebpf_prog_run(void *ctx, struct ebpf_prog *ep);
 
 int ebpf_map_create(struct ebpf_env *ee, struct ebpf_map **emp, struct ebpf_map_attr *attr);
 void *ebpf_map_lookup_elem(struct ebpf_map *em, void *key);
@@ -121,7 +122,6 @@ int ebpf_map_update_elem_from_user(struct ebpf_map *em, void *key, void *value, 
 int ebpf_map_delete_elem_from_user(struct ebpf_map *em, void *key);
 int ebpf_map_get_next_key_from_user(struct ebpf_map *em, void *key, void *next_key);
 void ebpf_map_destroy(struct ebpf_map *em);
-uint64_t ebpf_run(void *ctx, struct ebpf_prog *ep);
 
 extern const struct ebpf_map_type emt_array;
 extern const struct ebpf_map_type emt_percpu_array;
