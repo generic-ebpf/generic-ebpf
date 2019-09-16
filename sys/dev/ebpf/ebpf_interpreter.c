@@ -20,18 +20,15 @@
 #include <sys/ebpf_vm_isa.h>
 #include "ebpf_prog.h"
 
-static uint64_t ebpf_call_base(uint64_t arg0, uint64_t arg1, uint64_t arg2,
-			       uint64_t arg3, uint64_t arg4) {
-	return 0;
-}
-
 uint64_t
-ebpf_run(void *ctx, struct ebpf_prog *ep)
+ebpf_prog_run(void *ctx, struct ebpf_prog *ep)
 {
 	uint32_t pc = 0;
 	uint64_t reg[EBPF_REG_MAX];
 	uint8_t stack[EBPF_STACK_SIZE];
 	struct ebpf_inst *inst;
+	const struct ebpf_helper_type *const *helpers =
+		ep->eo.eo_ee->ec->helper_types;
 
 	pc = 0;
 	inst = ep->prog;
@@ -283,7 +280,7 @@ ebpf_run(void *ctx, struct ebpf_prog *ep)
 			}
 			break;
 		case EBPF_OP_CALL:
-			reg[0] = (ebpf_call_base + inst->imm)(reg[1], reg[2], reg[3], reg[4], reg[5]);
+			reg[0] = helpers[inst->imm]->fn(reg[1], reg[2], reg[3], reg[4], reg[5]);
 			break;
 		case EBPF_OP_EXIT:
 			return reg[0];
