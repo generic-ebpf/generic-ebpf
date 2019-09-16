@@ -17,6 +17,7 @@
  */
 
 #include "ebpf_prog.h"
+#include "ebpf_map.h"
 
 static void
 ebpf_prog_dtor(struct ebpf_obj *eo)
@@ -84,6 +85,10 @@ int
 ebpf_prog_attach_map(struct ebpf_prog *ep, struct ebpf_map *em)
 {
 	if (ep == NULL || em == NULL)
+		return EINVAL;
+
+	/* Cannot attach the map from different ebpf_env */
+	if (ep->eo.eo_ee != em->eo.eo_ee)
 		return EINVAL;
 
 	if (ep->ndep_maps >= EBPF_PROG_MAX_ATTACHED_MAPS)
