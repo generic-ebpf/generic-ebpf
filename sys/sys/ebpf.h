@@ -94,7 +94,7 @@ struct ebpf_preprocessor_ops {
 	struct ebpf_map *(*resolve_map_desc)(int32_t upper, int32_t lower, void *data);
 };
 
-struct ebpf_preprocessor {
+struct ebpf_preprocessor_type {
 	char name[EBPF_NAME_MAX];
 	struct ebpf_preprocessor_ops ops;
 };
@@ -103,7 +103,7 @@ struct ebpf_config {
 	const struct ebpf_prog_type *prog_types[EBPF_TYPE_MAX];
 	const struct ebpf_map_type *map_types[EBPF_TYPE_MAX];
 	const struct ebpf_helper_type *helper_types[EBPF_TYPE_MAX];
-	const struct ebpf_preprocessor *preprocessor;
+	const struct ebpf_preprocessor_type *preprocessor_type;
 };
 
 int ebpf_env_create(struct ebpf_env **eep, const struct ebpf_config *ec);

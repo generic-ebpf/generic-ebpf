@@ -51,7 +51,7 @@ static const struct ebpf_prog_type ept_test = {
 	}
 };
 
-static const struct ebpf_preprocessor epp_test = {
+static const struct ebpf_preprocessor_type eppt_test = {
 	"test",
 	{ NULL }
 };
@@ -71,7 +71,7 @@ static const struct ebpf_config ebpf_test_config = {
 		[EBPF_HELPER_TYPE_map_update_elem] = &eht_map_update_elem,
 		[EBPF_HELPER_TYPE_map_delete_elem] = &eht_map_delete_elem
 	},
-	.preprocessor = &epp_test
+	.preprocessor_type = &eppt_test
 };
 
 class CommonFixture : public ::testing::Test {
