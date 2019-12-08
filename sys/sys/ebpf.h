@@ -109,6 +109,9 @@ struct ebpf_config {
 int ebpf_env_create(struct ebpf_env **eep, const struct ebpf_config *ec);
 int ebpf_env_destroy(struct ebpf_env *ee);
 
+void ebpf_obj_acquire(struct ebpf_obj *eo);
+void ebpf_obj_release(struct ebpf_obj *eo);
+
 int ebpf_prog_create(struct ebpf_env *ee, struct ebpf_prog **epp, struct ebpf_prog_attr *attr);
 void ebpf_prog_destroy(struct ebpf_prog *ep);
 uint64_t ebpf_prog_run(void *ctx, struct ebpf_prog *ep);
