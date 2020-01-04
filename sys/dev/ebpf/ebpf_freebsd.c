@@ -198,29 +198,3 @@ ebpf_deinit(void)
 	epoch_free(ebpf_epoch);
 	return 0;
 }
-
-/*
- * Kernel module operations
- */
-static int
-ebpf_loader(__unused struct module *module, int event, __unused void *arg)
-{
-	int error = 0;
-
-	switch (event) {
-	case MOD_LOAD:
-		error = ebpf_init();
-		break;
-	case MOD_UNLOAD:
-		error = ebpf_deinit();
-		break;
-	default:
-		error = EOPNOTSUPP;
-		break;
-	}
-
-	return (error);
-}
-
-DEV_MODULE(ebpf, ebpf_loader, NULL);
-MODULE_VERSION(ebpf, 1);
