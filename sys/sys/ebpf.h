@@ -104,6 +104,9 @@ struct ebpf_config {
 	const struct ebpf_preprocessor_type *preprocessor_type;
 };
 
+int ebpf_init(void);
+int ebpf_deinit(void);
+
 int ebpf_env_create(struct ebpf_env **eep, const struct ebpf_config *ec);
 int ebpf_env_destroy(struct ebpf_env *ee);
 
