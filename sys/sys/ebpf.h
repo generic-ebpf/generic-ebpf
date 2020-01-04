@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include <sys/ebpf_vm_isa.h>
-
 #define EBPF_NAME_MAX 64
 #define EBPF_TYPE_MAX 64
 #define EBPF_PROG_MAX_ATTACHED_MAPS 64

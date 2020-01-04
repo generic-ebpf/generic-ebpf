@@ -4,6 +4,7 @@ extern "C" {
 #include <errno.h>
 #include <stdint.h>
 #include <sys/ebpf.h>
+#include <sys/ebpf_vm_isa.h>
 
 #include "../test_common.hpp"
 }
