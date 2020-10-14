@@ -3,7 +3,7 @@ Generic eBPF runtime. It (currently) consists of three components
 
 1. ebpf: Portable interpreter, JIT compiler, and ebpf subsystems (e.g. map) library, works in both of userspace and kernel.
 2. ebpf_dev: Character device for loading ebpf program or other related objects (e.g. map) into kernel. Alternative of Linux bpf(2).
-3. libgbpf: A library which implements abstruction layer for interacting with various eBPF systems and eBPF ELF parser.
+3. libgbpf: A library which implements abstraction layer for interacting with various eBPF systems and eBPF ELF parser.
 Currently supports ebpf_dev and Linux's native eBPF (experimental) as backends.
 
 Current support status
